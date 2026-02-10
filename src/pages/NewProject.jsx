@@ -44,51 +44,54 @@ export default function NewProject() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       <div className="max-w-4xl mx-auto px-6 py-8">
         <Button
           variant="ghost"
           onClick={() => navigate(createPageUrl('Home'))}
-          className="mb-6"
+          className="mb-6 hover:bg-opacity-10"
+          style={{ color: '#CADCFC' }}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Projects
         </Button>
 
-        <Card>
+        <Card style={{ background: 'rgba(15, 23, 42, 0.95)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
           <CardHeader>
-            <CardTitle>Create New Project</CardTitle>
+            <CardTitle style={{ color: '#CADCFC' }}>Create New Project</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Project Name *</Label>
+                <Label htmlFor="name" style={{ color: '#94A3B8' }}>Project Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
+                  style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" style={{ color: '#94A3B8' }}>Description</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
+                  style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status *</Label>
+                  <Label htmlFor="status" style={{ color: '#94A3B8' }}>Status *</Label>
                   <Select
                     value={formData.status}
                     onValueChange={(value) => setFormData({ ...formData, status: value })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -102,46 +105,50 @@ export default function NewProject() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="owner">Project Owner *</Label>
+                  <Label htmlFor="owner" style={{ color: '#94A3B8' }}>Project Owner *</Label>
                   <Input
                     id="owner"
                     value={formData.owner}
                     onChange={(e) => setFormData({ ...formData, owner: e.target.value })}
                     required
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="startDate">Start Date</Label>
+                  <Label htmlFor="startDate" style={{ color: '#94A3B8' }}>Start Date</Label>
                   <Input
                     id="startDate"
                     type="date"
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="endDate">End Date</Label>
+                  <Label htmlFor="endDate" style={{ color: '#94A3B8' }}>End Date</Label>
                   <Input
                     id="endDate"
                     type="date"
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                   />
                 </div>
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                <Button type="submit" style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }} className="hover:opacity-90">
                   Create Project
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => navigate(createPageUrl('Home'))}
+                  style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}
                 >
                   Cancel
                 </Button>

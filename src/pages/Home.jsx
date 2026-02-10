@@ -39,17 +39,18 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 shadow-sm">
+      <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }} className="shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">PMO Governance Platform</h1>
-              <p className="text-slate-600 mt-2">Integrated project management and governance tools</p>
+              <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>PMO Governance Platform</h1>
+              <p className="mt-2" style={{ color: '#94A3B8' }}>Integrated project management and governance tools</p>
             </div>
             <Button 
-              className="bg-blue-600 hover:bg-blue-700"
+              className="hover:opacity-90 transition-opacity"
+              style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}
               onClick={() => navigate(createPageUrl('NewProject'))}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -59,12 +60,13 @@ export default function Home() {
 
           {/* Search */}
           <div className="mt-6 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: '#94A3B8' }} />
             <Input
               placeholder="Search projects..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-50 border-slate-200"
+              className="pl-10 border"
+              style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
             />
           </div>
         </div>
@@ -74,7 +76,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {isLoading ? (
           <div className="text-center py-12">
-            <p className="text-slate-600">Loading projects...</p>
+            <p style={{ color: '#94A3B8' }}>Loading projects...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -85,16 +87,23 @@ export default function Home() {
               return (
                 <Card
                   key={project.id}
-                  className="hover:shadow-lg transition-all cursor-pointer border-slate-200"
+                  className="cursor-pointer transition-all hover:transform hover:-translate-y-1"
+                  style={{ 
+                    background: 'rgba(30, 39, 97, 0.5)', 
+                    borderColor: 'rgba(202, 220, 252, 0.1)',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                  }}
                   onClick={() => navigate(createPageUrl(`ProjectDashboard?id=${project.id}`))}
+                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 10px 20px rgba(2, 128, 144, 0.3)'}
+                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'}
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">{project.name}</CardTitle>
-                        <CardDescription className="mt-1">{project.description}</CardDescription>
+                        <CardTitle className="text-lg" style={{ color: '#CADCFC' }}>{project.name}</CardTitle>
+                        <CardDescription className="mt-1" style={{ color: '#94A3B8' }}>{project.description}</CardDescription>
                       </div>
-                      <Badge variant="outline" className="ml-2">
+                      <Badge variant="outline" className="ml-2" style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}>
                         {project.status}
                       </Badge>
                     </div>
@@ -105,24 +114,24 @@ export default function Home() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className={`w-3 h-3 rounded-full ${healthStatus.color}`} />
-                          <span className="text-sm font-medium text-slate-700">Project Health</span>
+                          <span className="text-sm font-medium" style={{ color: '#CADCFC' }}>Project Health</span>
                         </div>
-                        <span className="text-sm font-bold text-slate-900">
+                        <span className="text-sm font-bold" style={{ color: '#F8FAFC' }}>
                           {healthScore.toFixed(1)}%
                         </span>
                       </div>
 
                       {/* Owner */}
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-slate-600">Owner</span>
-                        <span className="font-medium text-slate-900">{project.owner}</span>
+                        <span style={{ color: '#94A3B8' }}>Owner</span>
+                        <span className="font-medium" style={{ color: '#F8FAFC' }}>{project.owner}</span>
                       </div>
 
                       {/* Timeline */}
                       {project.startDate && project.endDate && (
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-slate-600">Timeline</span>
-                          <span className="font-medium text-slate-900">
+                          <span style={{ color: '#94A3B8' }}>Timeline</span>
+                          <span className="font-medium" style={{ color: '#F8FAFC' }}>
                             {new Date(project.startDate).getFullYear()} - {new Date(project.endDate).getFullYear()}
                           </span>
                         </div>
@@ -137,7 +146,7 @@ export default function Home() {
 
         {!isLoading && filteredProjects.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-slate-600">No projects found matching your search.</p>
+            <p style={{ color: '#94A3B8' }}>No projects found matching your search.</p>
           </div>
         )}
       </div>

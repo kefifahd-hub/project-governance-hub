@@ -92,29 +92,30 @@ export default function ProjectDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center">
-        <p className="text-slate-600">Loading project...</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
+        <p style={{ color: '#94A3B8' }}>Loading project...</p>
       </div>
     );
   }
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center">
-        <p className="text-slate-600">Project not found</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
+        <p style={{ color: '#94A3B8' }}>Project not found</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 shadow-sm">
+      <div className="shadow-sm" style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }}>
         <div className="max-w-7xl mx-auto px-6 py-6">
           <Button
             variant="ghost"
             onClick={() => navigate(createPageUrl('Home'))}
-            className="mb-4"
+            className="mb-4 hover:bg-opacity-10"
+            style={{ color: '#CADCFC' }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Projects
@@ -122,30 +123,30 @@ export default function ProjectDashboard() {
 
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">{project.name}</h1>
-              <p className="text-slate-600 mt-2">{project.description}</p>
+              <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>{project.name}</h1>
+              <p className="mt-2" style={{ color: '#94A3B8' }}>{project.description}</p>
               <div className="flex items-center gap-4 mt-4">
                 <div className="text-sm">
-                  <span className="text-slate-600">Owner: </span>
-                  <span className="font-medium text-slate-900">{project.owner}</span>
+                  <span style={{ color: '#94A3B8' }}>Owner: </span>
+                  <span className="font-medium" style={{ color: '#F8FAFC' }}>{project.owner}</span>
                 </div>
                 <div className="text-sm">
-                  <span className="text-slate-600">Status: </span>
-                  <span className="font-medium text-slate-900">{project.status}</span>
+                  <span style={{ color: '#94A3B8' }}>Status: </span>
+                  <span className="font-medium" style={{ color: '#F8FAFC' }}>{project.status}</span>
                 </div>
               </div>
             </div>
 
             {/* Health Score Display */}
-            <Card className="w-64">
+            <Card className="w-64" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-600">Overall Health</CardTitle>
+                <CardTitle className="text-sm font-medium" style={{ color: '#94A3B8' }}>Overall Health</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3">
                   <div className={`w-4 h-4 rounded-full ${healthStatus.color.split(' ')[0]}`} />
                   <div>
-                    <div className="text-2xl font-bold text-slate-900">{healthScore.toFixed(1)}%</div>
+                    <div className="text-2xl font-bold" style={{ color: '#F8FAFC' }}>{healthScore.toFixed(1)}%</div>
                     <div className={`text-sm font-medium ${healthStatus.color.split(' ')[1]}`}>
                       {healthStatus.label}
                     </div>
@@ -159,15 +160,22 @@ export default function ProjectDashboard() {
 
       {/* Tools Grid */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <h2 className="text-xl font-semibold text-slate-900 mb-6">Governance Tools</h2>
+        <h2 className="text-xl font-semibold mb-6" style={{ color: '#CADCFC' }}>Governance Tools</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tools.map((tool) => {
             const Icon = tool.icon;
             return (
               <Card
                 key={tool.id}
-                className="hover:shadow-lg transition-all cursor-pointer border-slate-200 group"
+                className="transition-all cursor-pointer group hover:transform hover:-translate-y-1"
+                style={{ 
+                  background: 'rgba(30, 39, 97, 0.5)', 
+                  borderColor: 'rgba(202, 220, 252, 0.1)',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                }}
                 onClick={() => navigate(createPageUrl(`${tool.page}?id=${projectId}`))}
+                onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 10px 20px rgba(2, 128, 144, 0.3)'}
+                onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'}
               >
                 <CardHeader>
                   <div className="flex items-center gap-3">
@@ -175,14 +183,14 @@ export default function ProjectDashboard() {
                       <Icon className="w-6 h-6" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+                      <CardTitle className="text-lg transition-colors" style={{ color: '#CADCFC' }}>
                         {tool.name}
                       </CardTitle>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>{tool.description}</CardDescription>
+                  <CardDescription style={{ color: '#94A3B8' }}>{tool.description}</CardDescription>
                 </CardContent>
               </Card>
             );
