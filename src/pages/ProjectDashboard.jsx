@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Activity, DollarSign, ClipboardCheck, AlertTriangle, FileText, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../utils';
 
 export default function ProjectDashboard() {
   const navigate = useNavigate();
