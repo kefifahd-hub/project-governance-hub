@@ -47,20 +47,20 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import FEEDTracker from './pages/FEEDTracker';
 import Home from './pages/Home';
+import NPVCalculator from './pages/NPVCalculator';
 import NewProject from './pages/NewProject';
 import ProjectDashboard from './pages/ProjectDashboard';
-import FEEDTracker from './pages/FEEDTracker';
-import NPVCalculator from './pages/NPVCalculator';
 import RiskRegister from './pages/RiskRegister';
 
 
 export const PAGES = {
+    "FEEDTracker": FEEDTracker,
     "Home": Home,
+    "NPVCalculator": NPVCalculator,
     "NewProject": NewProject,
     "ProjectDashboard": ProjectDashboard,
-    "FEEDTracker": FEEDTracker,
-    "NPVCalculator": NPVCalculator,
     "RiskRegister": RiskRegister,
 }
 

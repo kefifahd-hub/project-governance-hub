@@ -15,19 +15,17 @@ export default function NewProject() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    status: 'Planning',
-    owner: '',
+    projectName: '',
+    clientName: '',
+    projectType: 'Battery Gigafactory',
+    currentPhase: 'Feasibility',
+    status: 'Active',
+    projectOwner: '',
+    totalBudgetEurM: '',
     startDate: '',
-    endDate: '',
-    healthMilestone: 0,
-    healthBudget: 0,
-    healthSchedule: 0,
-    healthRisk: 0,
-    npvInitialInvestment: 0,
-    npvCashFlows: [],
-    npvDiscountRate: 10
+    targetCompletion: '',
+    healthScore: 75,
+    notes: ''
   });
 
   const createProjectMutation = useMutation({
@@ -62,55 +60,88 @@ export default function NewProject() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="name" style={{ color: '#94A3B8' }}>Project Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
-                />
-              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="projectName" style={{ color: '#94A3B8' }}>Project Name *</Label>
+                  <Input
+                    id="projectName"
+                    value={formData.projectName}
+                    onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
+                    required
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description" style={{ color: '#94A3B8' }}>Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                  style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="clientName" style={{ color: '#94A3B8' }}>Client Name *</Label>
+                  <Input
+                    id="clientName"
+                    value={formData.clientName}
+                    onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
+                    required
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="status" style={{ color: '#94A3B8' }}>Status *</Label>
+                  <Label htmlFor="projectType" style={{ color: '#94A3B8' }}>Project Type *</Label>
                   <Select
-                    value={formData.status}
-                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                    value={formData.projectType}
+                    onValueChange={(value) => setFormData({ ...formData, projectType: value })}
                   >
                     <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Planning">Planning</SelectItem>
-                      <SelectItem value="Design">Design</SelectItem>
-                      <SelectItem value="Execution">Execution</SelectItem>
-                      <SelectItem value="Commissioning">Commissioning</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
+                      <SelectItem value="Battery Gigafactory">Battery Gigafactory</SelectItem>
+                      <SelectItem value="Data Center">Data Center</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="owner" style={{ color: '#94A3B8' }}>Project Owner *</Label>
+                  <Label htmlFor="currentPhase" style={{ color: '#94A3B8' }}>Current Phase *</Label>
+                  <Select
+                    value={formData.currentPhase}
+                    onValueChange={(value) => setFormData({ ...formData, currentPhase: value })}
+                  >
+                    <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Feasibility">Feasibility</SelectItem>
+                      <SelectItem value="Pre-FEED">Pre-FEED</SelectItem>
+                      <SelectItem value="FEED">FEED</SelectItem>
+                      <SelectItem value="Investment Decision">Investment Decision</SelectItem>
+                      <SelectItem value="Project Setup">Project Setup</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="projectOwner" style={{ color: '#94A3B8' }}>Project Owner *</Label>
                   <Input
-                    id="owner"
-                    value={formData.owner}
-                    onChange={(e) => setFormData({ ...formData, owner: e.target.value })}
+                    id="projectOwner"
+                    value={formData.projectOwner}
+                    onChange={(e) => setFormData({ ...formData, projectOwner: e.target.value })}
                     required
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="totalBudgetEurM" style={{ color: '#94A3B8' }}>Total Budget (€M)</Label>
+                  <Input
+                    id="totalBudgetEurM"
+                    type="number"
+                    step="0.1"
+                    value={formData.totalBudgetEurM}
+                    onChange={(e) => setFormData({ ...formData, totalBudgetEurM: parseFloat(e.target.value) || '' })}
                     style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                   />
                 </div>
@@ -129,15 +160,26 @@ export default function NewProject() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="endDate" style={{ color: '#94A3B8' }}>End Date</Label>
+                  <Label htmlFor="targetCompletion" style={{ color: '#94A3B8' }}>Target Completion</Label>
                   <Input
-                    id="endDate"
+                    id="targetCompletion"
                     type="date"
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    value={formData.targetCompletion}
+                    onChange={(e) => setFormData({ ...formData, targetCompletion: e.target.value })}
                     style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes" style={{ color: '#94A3B8' }}>Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  rows={3}
+                  style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                />
               </div>
 
               <div className="flex gap-3 pt-4">
