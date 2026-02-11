@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle, Circle, Clock } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Circle, Clock, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -47,6 +47,22 @@ export default function FEEDTracker() {
     }
   });
 
+  const createDefaultMilestones = useMutation({
+    mutationFn: async () => {
+      const phases = ['Feasibility', 'Pre-FEED', 'FEED', 'Investment Decision', 'Project Setup', 'Detailed Engineering', 'Procurement', 'Construction', 'Commissioning', 'SOP'];
+      const milestoneData = phases.map(phase => ({
+        projectId,
+        phaseName: phase,
+        completionPercent: 0,
+        status: 'Pending'
+      }));
+      return base44.entities.Milestone.bulkCreate(milestoneData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['milestones', projectId] });
+    }
+  });
+
   const getStatusIcon = (status) => {
     if (status === 'Complete') return <CheckCircle className="w-10 h-10 text-green-500" />;
     if (status === 'Active') return <Circle className="w-10 h-10" style={{ color: '#028090' }} />;
@@ -88,9 +104,24 @@ export default function FEEDTracker() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Milestones */}
-        <h2 className="text-2xl font-semibold mb-6" style={{ color: '#CADCFC' }}>Phase Milestones</h2>
-        <div className="space-y-4 mb-12">
-          {milestones.map((milestone) => {
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold" style={{ color: '#CADCFC' }}>Phase Milestones</h2>
+          {milestones.length === 0 && (
+            <Button onClick={() => createDefaultMilestones.mutate()} style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Default Milestones
+            </Button>
+          )}
+        </div>
+        {milestones.length === 0 ? (
+          <Card className="mb-12" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
+            <CardContent className="p-12 text-center">
+              <p className="mb-4" style={{ color: '#94A3B8' }}>No milestones yet. Create default milestones to track project phases.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4 mb-12">
+            {milestones.map((milestone) => {
             const colors = getStatusColor(milestone.status);
             return (
               <Card key={milestone.id} className={milestone.status === 'Active' ? 'ring-2 ring-teal-500' : ''} style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
@@ -113,11 +144,19 @@ export default function FEEDTracker() {
               </Card>
             );
           })}
-        </div>
+          </div>
+        )}
 
         {/* Quality Gates */}
         <h2 className="text-2xl font-semibold mb-6" style={{ color: '#CADCFC' }}>Quality Gates</h2>
-        {Object.entries(groupedGates).map(([phase, gates]) => {
+        {Object.keys(groupedGates).length === 0 ? (
+          <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
+            <CardContent className="p-12 text-center">
+              <p style={{ color: '#94A3B8' }}>No quality gates defined yet. Add quality gates to track deliverables.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          Object.entries(groupedGates).map(([phase, gates]) => {
           const completed = gates.filter(g => g.status === 'Complete').length;
           const total = gates.length;
           return (
@@ -164,7 +203,7 @@ export default function FEEDTracker() {
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
     </div>
   );

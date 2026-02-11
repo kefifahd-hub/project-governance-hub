@@ -117,6 +117,11 @@ export default function NewProject() {
                       <SelectItem value="FEED">FEED</SelectItem>
                       <SelectItem value="Investment Decision">Investment Decision</SelectItem>
                       <SelectItem value="Project Setup">Project Setup</SelectItem>
+                      <SelectItem value="Detailed Engineering">Detailed Engineering</SelectItem>
+                      <SelectItem value="Procurement">Procurement</SelectItem>
+                      <SelectItem value="Construction">Construction</SelectItem>
+                      <SelectItem value="Commissioning">Commissioning</SelectItem>
+                      <SelectItem value="SOP">SOP</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
