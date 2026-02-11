@@ -50,12 +50,18 @@
 import Home from './pages/Home';
 import NewProject from './pages/NewProject';
 import ProjectDashboard from './pages/ProjectDashboard';
+import FEEDTracker from './pages/FEEDTracker';
+import NPVCalculator from './pages/NPVCalculator';
+import RiskRegister from './pages/RiskRegister';
 
 
 export const PAGES = {
     "Home": Home,
     "NewProject": NewProject,
     "ProjectDashboard": ProjectDashboard,
+    "FEEDTracker": FEEDTracker,
+    "NPVCalculator": NPVCalculator,
+    "RiskRegister": RiskRegister,
 }
 
 export const pagesConfig = {

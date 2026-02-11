@@ -41,12 +41,12 @@ export default function ProjectDashboard() {
 
   const tools = [
     {
-      id: 'health',
-      name: 'Health Calculator',
-      description: 'Monitor project health with weighted scoring',
-      icon: Activity,
-      color: 'bg-blue-500',
-      page: 'HealthCalculator'
+      id: 'feed',
+      name: 'FEED Tracker',
+      description: 'Track phase milestones and quality gates',
+      icon: ClipboardCheck,
+      color: 'bg-purple-500',
+      page: 'FEEDTracker'
     },
     {
       id: 'npv',
@@ -57,20 +57,20 @@ export default function ProjectDashboard() {
       page: 'NPVCalculator'
     },
     {
-      id: 'feed',
-      name: 'FEED Tracker',
-      description: 'Track 23-item FEED checklist progress',
-      icon: ClipboardCheck,
-      color: 'bg-purple-500',
-      page: 'FEEDTracker'
-    },
-    {
       id: 'risk',
       name: 'Risk Register',
       description: 'Manage and mitigate project risks',
       icon: AlertTriangle,
       color: 'bg-red-500',
       page: 'RiskRegister'
+    },
+    {
+      id: 'budget',
+      name: 'Budget Tracking',
+      description: 'Monitor budget vs actual spending',
+      icon: Activity,
+      color: 'bg-blue-500',
+      page: 'BudgetDashboard'
     },
     {
       id: 'weekly',
