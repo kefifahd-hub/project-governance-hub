@@ -1,18 +1,25 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
-import { Plus, DollarSign, TrendingUp, AlertTriangle, Calendar, Activity } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, DollarSign, TrendingUp, AlertTriangle, Calendar, Activity, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { createPageUrl } from '../utils';
 
 export default function Home() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const selectedProjectId = searchParams.get('id') || '';
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editFormData, setEditFormData] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
@@ -62,6 +69,36 @@ export default function Home() {
     .reduce((sum, m) => sum + (m.completionPercent || 0), 0) / 
     Math.max(1, milestones.filter(m => m.phaseName === currentProject?.currentPhase).length);
 
+  const updateProjectMutation = useMutation({
+    mutationFn: (data) => base44.entities.Project.update(selectedProjectId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project', selectedProjectId] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setShowEditDialog(false);
+    }
+  });
+
+  const handleEditClick = () => {
+    setEditFormData({
+      projectName: currentProject.projectName,
+      clientName: currentProject.clientName,
+      projectType: currentProject.projectType,
+      currentPhase: currentProject.currentPhase,
+      projectOwner: currentProject.projectOwner,
+      totalBudgetEurM: currentProject.totalBudgetEurM || '',
+      startDate: currentProject.startDate || '',
+      targetCompletion: currentProject.targetCompletion || '',
+      status: currentProject.status,
+      notes: currentProject.notes || ''
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    updateProjectMutation.mutate(editFormData);
+  };
+
   if (!projects.length && !isLoading) {
     return (
       <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
@@ -84,11 +121,23 @@ export default function Home() {
       {/* Header */}
       <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }} className="shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <div>
-            <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
-            <p className="mt-2" style={{ color: '#94A3B8' }}>
-              {selectedProjectId ? 'Project overview and key metrics' : 'Select a project from the sidebar to get started'}
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
+              <p className="mt-2" style={{ color: '#94A3B8' }}>
+                {selectedProjectId ? 'Project overview and key metrics' : 'Select a project from the sidebar to get started'}
+              </p>
+            </div>
+            {selectedProjectId && currentProject && (
+              <Button 
+                variant="outline"
+                onClick={handleEditClick}
+                style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}
+              >
+                <Settings2 className="w-4 h-4 mr-2" />
+                Edit Project
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -203,6 +252,145 @@ export default function Home() {
           </>
         )}
       </div>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent style={{ background: 'rgba(15, 23, 42, 0.98)', borderColor: 'rgba(202, 220, 252, 0.1)' }} className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle style={{ color: '#CADCFC' }}>Edit Project Settings</DialogTitle>
+          </DialogHeader>
+          {editFormData && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Project Name</Label>
+                  <Input
+                    value={editFormData.projectName}
+                    onChange={(e) => setEditFormData({ ...editFormData, projectName: e.target.value })}
+                    required
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Client Name</Label>
+                  <Input
+                    value={editFormData.clientName}
+                    onChange={(e) => setEditFormData({ ...editFormData, clientName: e.target.value })}
+                    required
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Project Type</Label>
+                  <Select value={editFormData.projectType} onValueChange={(value) => setEditFormData({ ...editFormData, projectType: value })}>
+                    <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Battery Gigafactory">Battery Gigafactory</SelectItem>
+                      <SelectItem value="Data Center">Data Center</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Current Phase</Label>
+                  <Select value={editFormData.currentPhase} onValueChange={(value) => setEditFormData({ ...editFormData, currentPhase: value })}>
+                    <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Feasibility">Feasibility</SelectItem>
+                      <SelectItem value="Pre-FEED">Pre-FEED</SelectItem>
+                      <SelectItem value="FEED">FEED</SelectItem>
+                      <SelectItem value="Investment Decision">Investment Decision</SelectItem>
+                      <SelectItem value="Project Setup">Project Setup</SelectItem>
+                      <SelectItem value="Detailed Engineering">Detailed Engineering</SelectItem>
+                      <SelectItem value="Procurement">Procurement</SelectItem>
+                      <SelectItem value="Construction">Construction</SelectItem>
+                      <SelectItem value="Commissioning">Commissioning</SelectItem>
+                      <SelectItem value="SOP">SOP</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Project Owner</Label>
+                  <Input
+                    value={editFormData.projectOwner}
+                    onChange={(e) => setEditFormData({ ...editFormData, projectOwner: e.target.value })}
+                    required
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Total Budget (€M)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={editFormData.totalBudgetEurM}
+                    onChange={(e) => setEditFormData({ ...editFormData, totalBudgetEurM: parseFloat(e.target.value) || '' })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Start Date</Label>
+                  <Input
+                    type="date"
+                    value={editFormData.startDate}
+                    onChange={(e) => setEditFormData({ ...editFormData, startDate: e.target.value })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Target Completion</Label>
+                  <Input
+                    type="date"
+                    value={editFormData.targetCompletion}
+                    onChange={(e) => setEditFormData({ ...editFormData, targetCompletion: e.target.value })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label style={{ color: '#94A3B8' }}>Status</Label>
+                <Select value={editFormData.status} onValueChange={(value) => setEditFormData({ ...editFormData, status: value })}>
+                  <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="On Hold">On Hold</SelectItem>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                    <SelectItem value="Cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label style={{ color: '#94A3B8' }}>Notes</Label>
+                <Textarea
+                  value={editFormData.notes}
+                  onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
+                  rows={3}
+                  style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button type="submit" style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
+                  Save Changes
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setShowEditDialog(false)} style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
