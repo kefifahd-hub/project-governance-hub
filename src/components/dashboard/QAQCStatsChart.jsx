@@ -1,7 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function QAQCStatsChart({ qaData, ncData }) {
+export default function QAQCStatsChart({ qaData = [], ncData = [] }) {
   const chartData = [
     { 
       name: 'QA Records', 
@@ -24,6 +24,11 @@ export default function QAQCStatsChart({ qaData, ncData }) {
         <CardDescription style={{ color: '#94A3B8' }}>Quality metrics overview</CardDescription>
       </CardHeader>
       <CardContent>
+        {qaData.length === 0 && ncData.length === 0 ? (
+          <div className="h-[250px] flex items-center justify-center" style={{ color: '#94A3B8' }}>
+            <p>No QA/QC data available yet</p>
+          </div>
+        ) : (
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(202, 220, 252, 0.1)" />
@@ -40,6 +45,7 @@ export default function QAQCStatsChart({ qaData, ncData }) {
             <Bar dataKey="closed" stackId="a" fill="#10B981" name="Closed" />
           </BarChart>
         </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   );

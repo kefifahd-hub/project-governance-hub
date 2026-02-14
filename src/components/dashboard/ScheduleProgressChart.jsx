@@ -1,7 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function ScheduleProgressChart({ data }) {
+export default function ScheduleProgressChart({ data = [] }) {
   const statusCounts = data.reduce((acc, activity) => {
     acc[activity.status] = (acc[activity.status] || 0) + 1;
     return acc;
@@ -21,6 +21,11 @@ export default function ScheduleProgressChart({ data }) {
         <CardDescription style={{ color: '#94A3B8' }}>Activity breakdown by status</CardDescription>
       </CardHeader>
       <CardContent>
+        {data.length === 0 ? (
+          <div className="h-[250px] flex items-center justify-center" style={{ color: '#94A3B8' }}>
+            <p>No schedule data available yet</p>
+          </div>
+        ) : (
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(202, 220, 252, 0.1)" />
@@ -32,6 +37,7 @@ export default function ScheduleProgressChart({ data }) {
             <Bar dataKey="count" fill="#00A896" />
           </BarChart>
         </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   );

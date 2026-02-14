@@ -1,7 +1,7 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function BudgetTrendChart({ data }) {
+export default function BudgetTrendChart({ data = [] }) {
   const chartData = data
     .sort((a, b) => new Date(a.month) - new Date(b.month))
     .slice(-6)
@@ -18,6 +18,11 @@ export default function BudgetTrendChart({ data }) {
         <CardDescription style={{ color: '#94A3B8' }}>Planned vs Actual (Last 6 months)</CardDescription>
       </CardHeader>
       <CardContent>
+        {chartData.length === 0 ? (
+          <div className="h-[250px] flex items-center justify-center" style={{ color: '#94A3B8' }}>
+            <p>No budget data available yet</p>
+          </div>
+        ) : (
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(202, 220, 252, 0.1)" />
@@ -31,6 +36,7 @@ export default function BudgetTrendChart({ data }) {
             <Line type="monotone" dataKey="actual" stroke="#028090" strokeWidth={2} name="Actual (€K)" />
           </LineChart>
         </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   );

@@ -1,7 +1,7 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function RiskDistributionChart({ data }) {
+export default function RiskDistributionChart({ data = [] }) {
   const riskCounts = data.reduce((acc, risk) => {
     if (risk.status !== 'Closed') {
       acc[risk.riskLevel] = (acc[risk.riskLevel] || 0) + 1;
@@ -23,6 +23,11 @@ export default function RiskDistributionChart({ data }) {
         <CardDescription style={{ color: '#94A3B8' }}>By severity level</CardDescription>
       </CardHeader>
       <CardContent>
+        {chartData.length === 0 ? (
+          <div className="h-[250px] flex items-center justify-center" style={{ color: '#94A3B8' }}>
+            <p>No risk data available yet</p>
+          </div>
+        ) : (
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>
             <Pie
@@ -44,6 +49,7 @@ export default function RiskDistributionChart({ data }) {
             />
           </PieChart>
         </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   );

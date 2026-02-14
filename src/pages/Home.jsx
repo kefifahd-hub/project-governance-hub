@@ -264,12 +264,10 @@ export default function Home() {
 
             {/* Charts Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {budgetData.length > 0 && <BudgetTrendChart data={budgetData} />}
-              {risks.length > 0 && <RiskDistributionChart data={risks} />}
-              {scheduleData.length > 0 && <ScheduleProgressChart data={scheduleData} />}
-              {(qaRecords.length > 0 || nonConformities.length > 0) && (
-                <QAQCStatsChart qaData={qaRecords} ncData={nonConformities} />
-              )}
+              <BudgetTrendChart data={budgetData} />
+              <RiskDistributionChart data={risks} />
+              <ScheduleProgressChart data={scheduleData} />
+              <QAQCStatsChart qaData={qaRecords} ncData={nonConformities} />
             </div>
 
             {/* Quick Actions */}
