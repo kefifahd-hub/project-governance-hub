@@ -1,11 +1,14 @@
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Home, Wrench, Settings } from 'lucide-react';
 import { createPageUrl } from './utils';
+import ProjectSidebar from './components/ProjectSidebar';
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
+  
+  const showSidebar = !['NewProject', 'Settings'].includes(currentPageName);
   
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
@@ -32,12 +35,14 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex-1 pb-20">
+      {showSidebar && <ProjectSidebar />}
+      
+      <div className="flex-1 pb-20" style={{ marginLeft: showSidebar ? '256px' : '0' }}>
         {children}
       </div>
       
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50" style={{ background: 'rgba(15, 23, 42, 0.98)', borderTop: '1px solid rgba(202, 220, 252, 0.1)' }}>
+      <div className="fixed bottom-0 right-0 z-50" style={{ left: showSidebar ? '256px' : '0', background: 'rgba(15, 23, 42, 0.98)', borderTop: '1px solid rgba(202, 220, 252, 0.1)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-around py-3">
             {navItems.map((item) => {

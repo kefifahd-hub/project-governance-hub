@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Plus, DollarSign, TrendingUp, AlertTriangle, Calendar, Activity } from 'lucide-react';
@@ -11,7 +11,8 @@ import { createPageUrl } from '../utils';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [selectedProjectId, setSelectedProjectId] = useState('');
+  const [searchParams] = useSearchParams();
+  const selectedProjectId = searchParams.get('id') || '';
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
@@ -64,16 +65,15 @@ export default function Home() {
   if (!projects.length && !isLoading) {
     return (
       <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
+        <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }} className="shadow-sm">
+          <div className="max-w-7xl mx-auto px-6 py-8">
+            <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
+            <p className="mt-2" style={{ color: '#94A3B8' }}>Get started by creating your first project</p>
+          </div>
+        </div>
         <div className="max-w-7xl mx-auto px-6 py-20 text-center">
-          <h1 className="text-3xl font-bold mb-4" style={{ color: '#CADCFC' }}>Welcome to PMO Governance Platform</h1>
-          <p className="mb-8" style={{ color: '#94A3B8' }}>Get started by creating your first project</p>
-          <Button 
-            style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}
-            onClick={() => navigate(createPageUrl('NewProject'))}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Project
-          </Button>
+          <h2 className="text-2xl font-bold mb-4" style={{ color: '#CADCFC' }}>Welcome to PMO Governance Platform</h2>
+          <p className="mb-8" style={{ color: '#94A3B8' }}>Create your first project to start tracking milestones, risks, and budgets</p>
         </div>
       </div>
     );
@@ -84,32 +84,12 @@ export default function Home() {
       {/* Header */}
       <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }} className="shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
-              <p className="mt-2" style={{ color: '#94A3B8' }}>Project overview and key metrics</p>
-            </div>
-            <Button 
-              className="hover:opacity-90 transition-opacity"
-              style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}
-              onClick={() => navigate(createPageUrl('NewProject'))}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              New Project
-            </Button>
+          <div>
+            <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
+            <p className="mt-2" style={{ color: '#94A3B8' }}>
+              {selectedProjectId ? 'Project overview and key metrics' : 'Select a project from the sidebar to get started'}
+            </p>
           </div>
-
-          {/* Project Selector */}
-          <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-            <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
-              <SelectValue placeholder="Select a project" />
-            </SelectTrigger>
-            <SelectContent>
-              {projects.map(p => (
-                <SelectItem key={p.id} value={p.id}>{p.projectName}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
