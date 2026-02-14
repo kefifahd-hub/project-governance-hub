@@ -11,7 +11,7 @@ export default function Layout({ children, currentPageName }) {
   const showSidebar = !['NewProject', 'Settings'].includes(currentPageName);
   
   const navItems = [
-    { name: 'Home', icon: Home, path: createPageUrl('Home') },
+    { name: 'Home', icon: Home, path: projectId ? createPageUrl(`Home?id=${projectId}`) : createPageUrl('Home') },
     { name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('Home') },
     { name: 'Settings', icon: Settings, path: createPageUrl('Settings') }
   ];
