@@ -3,6 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, DollarSign, TrendingUp, AlertTriangle, Calendar, Activity, Settings2 } from 'lucide-react';
+import BudgetTrendChart from '../components/dashboard/BudgetTrendChart';
+import RiskDistributionChart from '../components/dashboard/RiskDistributionChart';
+import ScheduleProgressChart from '../components/dashboard/ScheduleProgressChart';
+import QAQCStatsChart from '../components/dashboard/QAQCStatsChart';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +48,30 @@ export default function Home() {
   const { data: milestones = [] } = useQuery({
     queryKey: ['milestones', selectedProjectId],
     queryFn: () => base44.entities.Milestone.filter({ projectId: selectedProjectId }),
+    enabled: !!selectedProjectId
+  });
+
+  const { data: budgetData = [] } = useQuery({
+    queryKey: ['budgetData', selectedProjectId],
+    queryFn: () => base44.entities.BudgetTracking.filter({ projectId: selectedProjectId }),
+    enabled: !!selectedProjectId
+  });
+
+  const { data: scheduleData = [] } = useQuery({
+    queryKey: ['scheduleData', selectedProjectId],
+    queryFn: () => base44.entities.ScheduleActivity.filter({ projectId: selectedProjectId }),
+    enabled: !!selectedProjectId
+  });
+
+  const { data: qaRecords = [] } = useQuery({
+    queryKey: ['qaRecords', selectedProjectId],
+    queryFn: () => base44.entities.QARecord.filter({ projectId: selectedProjectId }),
+    enabled: !!selectedProjectId
+  });
+
+  const { data: nonConformities = [] } = useQuery({
+    queryKey: ['nonConformities', selectedProjectId],
+    queryFn: () => base44.entities.NonConformity.filter({ projectId: selectedProjectId }),
     enabled: !!selectedProjectId
   });
 
@@ -232,6 +260,16 @@ export default function Home() {
                   <div className="text-sm truncate" style={{ color: '#94A3B8' }}>{nextMilestone?.phaseName || 'No upcoming'}</div>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {budgetData.length > 0 && <BudgetTrendChart data={budgetData} />}
+              {risks.length > 0 && <RiskDistributionChart data={risks} />}
+              {scheduleData.length > 0 && <ScheduleProgressChart data={scheduleData} />}
+              {(qaRecords.length > 0 || nonConformities.length > 0) && (
+                <QAQCStatsChart qaData={qaRecords} ncData={nonConformities} />
+              )}
             </div>
 
             {/* Quick Actions */}
