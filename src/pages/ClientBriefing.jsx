@@ -132,17 +132,17 @@ ${latestReport?.nextWeek?.length > 0 ? latestReport.nextWeek.map(n => `- ${n}`).
         <div className="max-w-7xl mx-auto px-6 py-6">
           <Button
             variant="ghost"
-            onClick={() => navigate(createPageUrl(`ProjectDashboard?id=${projectId}`))}
+            onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))}
             className="mb-4"
             style={{ color: '#CADCFC' }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Tools
+            Back to Dashboard
           </Button>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>Client Briefing</h1>
-              <p className="mt-2" style={{ color: '#94A3B8' }}>Generate executive summaries for stakeholders</p>
+              <p className="mt-2" style={{ color: '#94A3B8' }}>{project.projectName}</p>
             </div>
             <Button 
               onClick={generateBriefing} 

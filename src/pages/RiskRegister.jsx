@@ -115,9 +115,9 @@ export default function RiskRegister() {
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }}>
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <Button variant="ghost" onClick={() => navigate(createPageUrl(`ProjectDashboard?id=${projectId}`))} className="mb-4" style={{ color: '#CADCFC' }}>
+          <Button variant="ghost" onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))} className="mb-4" style={{ color: '#CADCFC' }}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Project
+            Back to Dashboard
           </Button>
           <div className="flex items-center justify-between">
             <div>

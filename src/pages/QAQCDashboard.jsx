@@ -163,12 +163,12 @@ export default function QAQCDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-6">
           <Button
             variant="ghost"
-            onClick={() => navigate(createPageUrl(`ProjectDashboard?id=${projectId}`))}
+            onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))}
             className="mb-4"
             style={{ color: '#CADCFC' }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Project Dashboard
+            Back to Dashboard
           </Button>
           <div className="flex items-center justify-between">
             <div>
