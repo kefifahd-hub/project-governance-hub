@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Activity, DollarSign, ClipboardCheck, AlertTriangle, FileText, Briefcase, CheckSquare } from 'lucide-react';
+import { ArrowLeft, Activity, DollarSign, ClipboardCheck, AlertTriangle, FileText, Briefcase, CheckSquare, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createPageUrl } from '../utils';
@@ -95,6 +95,14 @@ export default function ProjectDashboard() {
       icon: CheckSquare,
       color: 'bg-teal-500',
       page: 'QAQCDashboard'
+    },
+    {
+      id: 'schedule',
+      name: 'Schedule Monitoring',
+      description: 'P6/MS Project schedule tracking',
+      icon: BarChart3,
+      color: 'bg-cyan-500',
+      page: 'ScheduleMonitoring'
     }
   ];
 
