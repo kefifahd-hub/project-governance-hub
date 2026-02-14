@@ -1,18 +1,33 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Home, Wrench, Settings } from 'lucide-react';
 import { createPageUrl } from './utils';
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get('id');
   
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
-    { name: 'Tools', icon: Wrench, path: createPageUrl('ProjectDashboard' + location.search) },
+    { name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('Home') },
     { name: 'Settings', icon: Settings, path: createPageUrl('Settings') }
   ];
 
   const isActive = (path) => {
-    return location.pathname === path.split('?')[0];
+    const basePath = path.split('?')[0];
+    const currentPath = location.pathname;
+    
+    if (basePath.includes('ProjectDashboard')) {
+      return currentPath.includes('ProjectDashboard') || 
+             currentPath.includes('FEEDTracker') || 
+             currentPath.includes('NPVCalculator') || 
+             currentPath.includes('RiskRegister') || 
+             currentPath.includes('BudgetDashboard') || 
+             currentPath.includes('WeeklyReports') || 
+             currentPath.includes('ClientBriefing');
+    }
+    
+    return currentPath === basePath;
   };
 
   return (
