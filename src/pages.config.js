@@ -57,6 +57,7 @@ import BudgetDashboard from './pages/BudgetDashboard';
 import WeeklyReports from './pages/WeeklyReports';
 import ClientBriefing from './pages/ClientBriefing';
 import Settings from './pages/Settings';
+import QAQCDashboard from './pages/QAQCDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +72,7 @@ export const PAGES = {
     "WeeklyReports": WeeklyReports,
     "ClientBriefing": ClientBriefing,
     "Settings": Settings,
+    "QAQCDashboard": QAQCDashboard,
 }
 
 export const pagesConfig = {
