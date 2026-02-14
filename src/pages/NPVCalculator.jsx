@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Calculator, Save } from 'lucide-react';
+import { ArrowLeft, Calculator, Save, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,10 +18,16 @@ export default function NPVCalculator() {
   const [formData, setFormData] = useState({
     scenarioName: '',
     capexEurM: 2500,
-    annualOpexEurM: 150,
-    annualRevenueEurM: 400,
+    productionCapacityGWh: 40,
+    rampUpYears: 3,
+    batteryCellPriceEurKWh: 80,
+    rawMaterialCostEurKWh: 45,
+    energyCostEurKWh: 5,
+    laborCostEurM: 50,
+    maintenanceCostEurM: 30,
     discountRatePercent: 8.0,
-    projectDurationYears: 10
+    projectDurationYears: 20,
+    taxRatePercent: 25
   });
 
   const [results, setResults] = useState(null);
@@ -49,22 +55,108 @@ export default function NPVCalculator() {
   });
 
   const calculateNPV = () => {
-    const annualNetCashflow = formData.annualRevenueEurM - formData.annualOpexEurM;
     const discountRate = formData.discountRatePercent / 100;
+    const taxRate = formData.taxRatePercent / 100;
     
     let npv = -formData.capexEurM;
+    let cashFlows = [];
+    let cumulativeCashFlow = -formData.capexEurM;
+    let paybackYear = null;
+    
     for (let year = 1; year <= formData.projectDurationYears; year++) {
-      npv += annualNetCashflow / Math.pow(1 + discountRate, year);
+      // Ramp-up production capacity
+      let capacityUtilization = year <= formData.rampUpYears 
+        ? year / formData.rampUpYears 
+        : 1.0;
+      
+      const productionGWh = formData.productionCapacityGWh * capacityUtilization;
+      
+      // Revenue calculation
+      const revenueEurM = (productionGWh * 1000000 * formData.batteryCellPriceEurKWh) / 1000000;
+      
+      // Operating costs
+      const rawMaterialEurM = (productionGWh * 1000000 * formData.rawMaterialCostEurKWh) / 1000000;
+      const energyEurM = (productionGWh * 1000000 * formData.energyCostEurKWh) / 1000000;
+      const laborEurM = formData.laborCostEurM;
+      const maintenanceEurM = formData.maintenanceCostEurM * capacityUtilization;
+      
+      const totalOpexEurM = rawMaterialEurM + energyEurM + laborEurM + maintenanceEurM;
+      
+      // EBITDA
+      const ebitdaEurM = revenueEurM - totalOpexEurM;
+      
+      // Depreciation (straight-line over project duration)
+      const depreciationEurM = formData.capexEurM / formData.projectDurationYears;
+      
+      // EBIT
+      const ebitEurM = ebitdaEurM - depreciationEurM;
+      
+      // Tax
+      const taxEurM = Math.max(0, ebitEurM * taxRate);
+      
+      // Net Income
+      const netIncomeEurM = ebitEurM - taxEurM;
+      
+      // Operating Cash Flow (Net Income + Depreciation)
+      const cashFlowEurM = netIncomeEurM + depreciationEurM;
+      
+      // NPV calculation
+      const discountedCashFlow = cashFlowEurM / Math.pow(1 + discountRate, year);
+      npv += discountedCashFlow;
+      
+      // Track cumulative cash flow for payback
+      cumulativeCashFlow += cashFlowEurM;
+      if (paybackYear === null && cumulativeCashFlow > 0) {
+        paybackYear = year;
+      }
+      
+      cashFlows.push({
+        year,
+        revenue: revenueEurM,
+        opex: totalOpexEurM,
+        ebitda: ebitdaEurM,
+        ebit: ebitEurM,
+        tax: taxEurM,
+        netIncome: netIncomeEurM,
+        cashFlow: cashFlowEurM,
+        cumulativeCashFlow: cumulativeCashFlow,
+        discountedCashFlow: discountedCashFlow,
+        capacityUtilization: capacityUtilization * 100
+      });
     }
-
-    const paybackPeriod = formData.capexEurM / annualNetCashflow;
+    
+    const avgAnnualCashFlow = cashFlows.reduce((sum, cf) => sum + cf.cashFlow, 0) / formData.projectDurationYears;
+    const irr = calculateIRR([...[-formData.capexEurM], ...cashFlows.map(cf => cf.cashFlow)]);
     
     setResults({
       npvResultEurM: npv,
-      annualNetCashflowEurM: annualNetCashflow,
-      paybackPeriodYears: paybackPeriod,
-      isViable: npv > 0
+      paybackPeriodYears: paybackYear || formData.projectDurationYears,
+      avgAnnualCashFlowEurM: avgAnnualCashFlow,
+      irrPercent: irr,
+      isViable: npv > 0,
+      cashFlows
     });
+  };
+  
+  const calculateIRR = (cashFlows) => {
+    const maxIterations = 100;
+    const tolerance = 0.0001;
+    let rate = 0.1;
+    
+    for (let i = 0; i < maxIterations; i++) {
+      let npv = 0;
+      let dnpv = 0;
+      
+      for (let j = 0; j < cashFlows.length; j++) {
+        npv += cashFlows[j] / Math.pow(1 + rate, j);
+        dnpv -= j * cashFlows[j] / Math.pow(1 + rate, j + 1);
+      }
+      
+      if (Math.abs(npv) < tolerance) return rate * 100;
+      rate = rate - npv / dnpv;
+    }
+    
+    return rate * 100;
   };
 
   const handleSave = () => {
@@ -126,23 +218,74 @@ export default function NPVCalculator() {
                   style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label style={{ color: '#94A3B8' }}>Production Capacity (GWh/year)</Label>
+                  <Input
+                    type="number"
+                    value={formData.productionCapacityGWh}
+                    onChange={(e) => setFormData({ ...formData, productionCapacityGWh: parseFloat(e.target.value) })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+                <div>
+                  <Label style={{ color: '#94A3B8' }}>Ramp-Up Period (years)</Label>
+                  <Input
+                    type="number"
+                    value={formData.rampUpYears}
+                    onChange={(e) => setFormData({ ...formData, rampUpYears: parseInt(e.target.value) })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+              </div>
               <div>
-                <Label style={{ color: '#94A3B8' }}>Annual Operating Costs (€M)</Label>
+                <Label style={{ color: '#94A3B8' }}>Battery Cell Price (€/kWh)</Label>
                 <Input
                   type="number"
-                  value={formData.annualOpexEurM}
-                  onChange={(e) => setFormData({ ...formData, annualOpexEurM: parseFloat(e.target.value) })}
+                  value={formData.batteryCellPriceEurKWh}
+                  onChange={(e) => setFormData({ ...formData, batteryCellPriceEurKWh: parseFloat(e.target.value) })}
                   style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                 />
               </div>
-              <div>
-                <Label style={{ color: '#94A3B8' }}>Annual Revenue (€M)</Label>
-                <Input
-                  type="number"
-                  value={formData.annualRevenueEurM}
-                  onChange={(e) => setFormData({ ...formData, annualRevenueEurM: parseFloat(e.target.value) })}
-                  style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label style={{ color: '#94A3B8' }}>Raw Material Cost (€/kWh)</Label>
+                  <Input
+                    type="number"
+                    value={formData.rawMaterialCostEurKWh}
+                    onChange={(e) => setFormData({ ...formData, rawMaterialCostEurKWh: parseFloat(e.target.value) })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+                <div>
+                  <Label style={{ color: '#94A3B8' }}>Energy Cost (€/kWh)</Label>
+                  <Input
+                    type="number"
+                    value={formData.energyCostEurKWh}
+                    onChange={(e) => setFormData({ ...formData, energyCostEurKWh: parseFloat(e.target.value) })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label style={{ color: '#94A3B8' }}>Annual Labor Cost (€M)</Label>
+                  <Input
+                    type="number"
+                    value={formData.laborCostEurM}
+                    onChange={(e) => setFormData({ ...formData, laborCostEurM: parseFloat(e.target.value) })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+                <div>
+                  <Label style={{ color: '#94A3B8' }}>Annual Maintenance (€M)</Label>
+                  <Input
+                    type="number"
+                    value={formData.maintenanceCostEurM}
+                    onChange={(e) => setFormData({ ...formData, maintenanceCostEurM: parseFloat(e.target.value) })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
               </div>
               <div>
                 <Label style={{ color: '#94A3B8' }}>Discount Rate (%)</Label>
@@ -154,14 +297,26 @@ export default function NPVCalculator() {
                   style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                 />
               </div>
-              <div>
-                <Label style={{ color: '#94A3B8' }}>Project Duration (Years)</Label>
-                <Input
-                  type="number"
-                  value={formData.projectDurationYears}
-                  onChange={(e) => setFormData({ ...formData, projectDurationYears: parseInt(e.target.value) })}
-                  style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label style={{ color: '#94A3B8' }}>Project Duration (Years)</Label>
+                  <Input
+                    type="number"
+                    value={formData.projectDurationYears}
+                    onChange={(e) => setFormData({ ...formData, projectDurationYears: parseInt(e.target.value) })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
+                <div>
+                  <Label style={{ color: '#94A3B8' }}>Tax Rate (%)</Label>
+                  <Input
+                    type="number"
+                    step="0.5"
+                    value={formData.taxRatePercent}
+                    onChange={(e) => setFormData({ ...formData, taxRatePercent: parseFloat(e.target.value) })}
+                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                  />
+                </div>
               </div>
               <div className="flex gap-3 pt-4">
                 <Button onClick={calculateNPV} style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
@@ -176,8 +331,11 @@ export default function NPVCalculator() {
                 )}
               </div>
               <div className="p-4 rounded-lg" style={{ background: 'rgba(2, 128, 144, 0.1)', border: '1px solid rgba(2, 128, 144, 0.3)' }}>
-                <p className="text-sm" style={{ color: '#CADCFC' }}>
-                  💡 Adjust parameters to see real-time impact on NPV and payback period
+                <p className="text-sm font-semibold mb-2" style={{ color: '#CADCFC' }}>
+                  💡 Battery Factory Financial Model
+                </p>
+                <p className="text-xs" style={{ color: '#94A3B8' }}>
+                  Includes production ramp-up, depreciation, taxes, and detailed cash flow analysis
                 </p>
               </div>
             </CardContent>
@@ -224,26 +382,65 @@ export default function NPVCalculator() {
                   </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-3">
                   <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-                    <CardContent className="p-4">
+                    <CardContent className="p-3">
                       <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>Payback Period</div>
-                      <div className="text-2xl font-bold" style={{ color: '#CADCFC' }}>{results.paybackPeriodYears.toFixed(1)} years</div>
+                      <div className="text-xl font-bold" style={{ color: '#CADCFC' }}>{results.paybackPeriodYears.toFixed(1)}y</div>
                     </CardContent>
                   </Card>
                   <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-                    <CardContent className="p-4">
-                      <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>Total Investment</div>
-                      <div className="text-2xl font-bold" style={{ color: '#CADCFC' }}>€{formData.capexEurM}M</div>
+                    <CardContent className="p-3">
+                      <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>IRR</div>
+                      <div className="text-xl font-bold" style={{ color: results.irrPercent > formData.discountRatePercent ? '#10B981' : '#EF4444' }}>
+                        {results.irrPercent.toFixed(1)}%
+                      </div>
                     </CardContent>
                   </Card>
                   <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-                    <CardContent className="p-4">
-                      <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>Annual Net Cash Flow</div>
-                      <div className="text-2xl font-bold" style={{ color: '#10B981' }}>€{results.annualNetCashflowEurM.toFixed(1)}M</div>
+                    <CardContent className="p-3">
+                      <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>CAPEX</div>
+                      <div className="text-xl font-bold" style={{ color: '#CADCFC' }}>€{formData.capexEurM}M</div>
+                    </CardContent>
+                  </Card>
+                  <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
+                    <CardContent className="p-3">
+                      <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>Avg Cash Flow</div>
+                      <div className="text-xl font-bold" style={{ color: '#10B981' }}>€{results.avgAnnualCashFlowEurM.toFixed(0)}M</div>
                     </CardContent>
                   </Card>
                 </div>
+                
+                {/* Cash Flow Chart */}
+                <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }} className="mt-4">
+                  <CardHeader>
+                    <CardTitle style={{ color: '#CADCFC', fontSize: '1rem' }}>20-Year Cash Flow Projection</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 overflow-x-auto">
+                      <div className="flex gap-2 h-full items-end" style={{ minWidth: `${results.cashFlows.length * 40}px` }}>
+                        {results.cashFlows.map((cf, idx) => {
+                          const maxCashFlow = Math.max(...results.cashFlows.map(c => c.cashFlow));
+                          const height = (cf.cashFlow / maxCashFlow) * 100;
+                          return (
+                            <div key={idx} className="flex-1 flex flex-col items-center gap-1">
+                              <div 
+                                className="w-full rounded-t transition-all hover:opacity-80"
+                                style={{ 
+                                  height: `${Math.max(height, 5)}%`,
+                                  background: cf.cashFlow > 0 ? 'linear-gradient(180deg, #10B981 0%, #059669 100%)' : '#EF4444',
+                                  minWidth: '24px'
+                                }}
+                                title={`Year ${cf.year}: €${cf.cashFlow.toFixed(1)}M`}
+                              />
+                              <div className="text-xs" style={{ color: '#94A3B8' }}>Y{cf.year}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </>
             ) : (
               <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
