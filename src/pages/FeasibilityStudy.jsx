@@ -174,7 +174,17 @@ export default function FeasibilityStudy() {
             </div>
             <Button 
               onClick={() => saveStudyMutation.mutate(formData)}
-              disabled={!formData.studyName}
+              disabled={
+                !formData.studyName || 
+                !formData.studyDate || 
+                !formData.executiveSummary ||
+                !formData.marketSize ||
+                !formData.capexEurM ||
+                !formData.annualOpexEurM ||
+                !formData.annualRevenueEurM ||
+                !formData.estimatedDurationMonths ||
+                !formData.keyRisks
+              }
               className="w-full sm:w-auto"
               style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}
             >
@@ -212,25 +222,28 @@ export default function FeasibilityStudy() {
                         value={formData.studyName}
                         onChange={(e) => setFormData({ ...formData, studyName: e.target.value })}
                         placeholder="e.g., Q1 2026 Feasibility Assessment"
+                        required
                         style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                       />
                     </div>
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Study Date</Label>
+                      <Label style={{ color: '#94A3B8' }}>Study Date *</Label>
                       <Input
                         type="date"
                         value={formData.studyDate}
                         onChange={(e) => setFormData({ ...formData, studyDate: e.target.value })}
+                        required
                         style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                       />
                     </div>
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Executive Summary</Label>
+                      <Label style={{ color: '#94A3B8' }}>Executive Summary *</Label>
                       <Textarea
                         value={formData.executiveSummary}
                         onChange={(e) => setFormData({ ...formData, executiveSummary: e.target.value })}
                         rows={6}
                         placeholder="Brief overview of the project feasibility..."
+                        required
                         style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                       />
                     </div>
@@ -238,8 +251,8 @@ export default function FeasibilityStudy() {
 
                   <TabsContent value="market" className="space-y-4">
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Market Demand</Label>
-                      <Select value={formData.marketDemand} onValueChange={(value) => setFormData({ ...formData, marketDemand: value })}>
+                      <Label style={{ color: '#94A3B8' }}>Market Demand *</Label>
+                      <Select value={formData.marketDemand} onValueChange={(value) => setFormData({ ...formData, marketDemand: value })} required>
                         <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
                           <SelectValue />
                         </SelectTrigger>
@@ -251,18 +264,19 @@ export default function FeasibilityStudy() {
                       </Select>
                     </div>
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Market Size Description</Label>
+                      <Label style={{ color: '#94A3B8' }}>Market Size Description *</Label>
                       <Textarea
                         value={formData.marketSize}
                         onChange={(e) => setFormData({ ...formData, marketSize: e.target.value })}
                         rows={3}
                         placeholder="Describe the total addressable market..."
+                        required
                         style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                       />
                     </div>
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Competitive Position</Label>
-                      <Select value={formData.competitivePosition} onValueChange={(value) => setFormData({ ...formData, competitivePosition: value })}>
+                      <Label style={{ color: '#94A3B8' }}>Competitive Position *</Label>
+                      <Select value={formData.competitivePosition} onValueChange={(value) => setFormData({ ...formData, competitivePosition: value })} required>
                         <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
                           <SelectValue />
                         </SelectTrigger>
@@ -320,32 +334,35 @@ export default function FeasibilityStudy() {
                   <TabsContent value="financial" className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <Label style={{ color: '#94A3B8' }}>CAPEX (€M)</Label>
+                        <Label style={{ color: '#94A3B8' }}>CAPEX (€M) *</Label>
                         <Input
                           type="number"
                           step="0.1"
                           value={formData.capexEurM}
                           onChange={(e) => setFormData({ ...formData, capexEurM: e.target.value })}
+                          required
                           style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                         />
                       </div>
                       <div>
-                        <Label style={{ color: '#94A3B8' }}>Annual OPEX (€M)</Label>
+                        <Label style={{ color: '#94A3B8' }}>Annual OPEX (€M) *</Label>
                         <Input
                           type="number"
                           step="0.1"
                           value={formData.annualOpexEurM}
                           onChange={(e) => setFormData({ ...formData, annualOpexEurM: e.target.value })}
+                          required
                           style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                         />
                       </div>
                       <div>
-                        <Label style={{ color: '#94A3B8' }}>Annual Revenue (€M)</Label>
+                        <Label style={{ color: '#94A3B8' }}>Annual Revenue (€M) *</Label>
                         <Input
                           type="number"
                           step="0.1"
                           value={formData.annualRevenueEurM}
                           onChange={(e) => setFormData({ ...formData, annualRevenueEurM: e.target.value })}
+                          required
                           style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                         />
                       </div>
@@ -434,17 +451,18 @@ export default function FeasibilityStudy() {
                       </Select>
                     </div>
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Estimated Duration (months)</Label>
+                      <Label style={{ color: '#94A3B8' }}>Estimated Duration (months) *</Label>
                       <Input
                         type="number"
                         value={formData.estimatedDurationMonths}
                         onChange={(e) => setFormData({ ...formData, estimatedDurationMonths: e.target.value })}
+                        required
                         style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                       />
                     </div>
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Overall Risk Level</Label>
-                      <Select value={formData.overallRiskLevel} onValueChange={(value) => setFormData({ ...formData, overallRiskLevel: value })}>
+                      <Label style={{ color: '#94A3B8' }}>Overall Risk Level *</Label>
+                      <Select value={formData.overallRiskLevel} onValueChange={(value) => setFormData({ ...formData, overallRiskLevel: value })} required>
                         <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
                           <SelectValue />
                         </SelectTrigger>
@@ -457,12 +475,13 @@ export default function FeasibilityStudy() {
                       </Select>
                     </div>
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Key Risks</Label>
+                      <Label style={{ color: '#94A3B8' }}>Key Risks *</Label>
                       <Textarea
                         value={formData.keyRisks}
                         onChange={(e) => setFormData({ ...formData, keyRisks: e.target.value })}
                         rows={3}
                         placeholder="List main risks..."
+                        required
                         style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                       />
                     </div>
