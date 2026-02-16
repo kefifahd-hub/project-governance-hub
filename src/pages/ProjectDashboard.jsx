@@ -126,7 +126,7 @@ export default function ProjectDashboard() {
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       {/* Header */}
       <div className="shadow-sm" style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <Button
             variant="ghost"
             onClick={() => navigate(createPageUrl('Home'))}
@@ -134,13 +134,14 @@ export default function ProjectDashboard() {
             style={{ color: '#CADCFC' }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Projects
+            <span className="hidden sm:inline">Back to Projects</span>
+            <span className="sm:hidden">Back</span>
           </Button>
 
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>{project.name}</h1>
-              <p className="mt-2" style={{ color: '#94A3B8' }}>{project.description}</p>
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>{project.name}</h1>
+              <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>{project.description}</p>
               <div className="flex items-center gap-4 mt-4">
                 <div className="text-sm">
                   <span style={{ color: '#94A3B8' }}>Owner: </span>
@@ -154,7 +155,7 @@ export default function ProjectDashboard() {
             </div>
 
             {/* Health Score Display */}
-            <Card className="w-64" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
+            <Card className="w-full lg:w-64" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium" style={{ color: '#94A3B8' }}>Overall Health</CardTitle>
               </CardHeader>
@@ -162,7 +163,7 @@ export default function ProjectDashboard() {
                 <div className="flex items-center gap-3">
                   <div className={`w-4 h-4 rounded-full ${healthStatus.color.split(' ')[0]}`} />
                   <div>
-                    <div className="text-2xl font-bold" style={{ color: '#F8FAFC' }}>{healthScore.toFixed(1)}%</div>
+                    <div className="text-xl sm:text-2xl font-bold" style={{ color: '#F8FAFC' }}>{healthScore.toFixed(1)}%</div>
                     <div className={`text-sm font-medium ${healthStatus.color.split(' ')[1]}`}>
                       {healthStatus.label}
                     </div>
@@ -175,9 +176,9 @@ export default function ProjectDashboard() {
       </div>
 
       {/* Tools Grid */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <h2 className="text-xl font-semibold mb-6" style={{ color: '#CADCFC' }}>Governance Tools</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6" style={{ color: '#CADCFC' }}>Governance Tools</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {tools.map((tool) => {
             const Icon = tool.icon;
             return (

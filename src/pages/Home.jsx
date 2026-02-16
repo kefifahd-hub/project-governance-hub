@@ -131,12 +131,12 @@ export default function Home() {
     return (
       <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
         <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }} className="shadow-sm">
-          <div className="max-w-7xl mx-auto px-6 py-8">
-            <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
-            <p className="mt-2" style={{ color: '#94A3B8' }}>Get started by creating your first project</p>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
+            <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>Get started by creating your first project</p>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-6 py-20 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 text-center">
           <h2 className="text-2xl font-bold mb-4" style={{ color: '#CADCFC' }}>Welcome to PMO Governance Platform</h2>
           <p className="mb-8" style={{ color: '#94A3B8' }}>Create your first project to start tracking milestones, risks, and budgets</p>
         </div>
@@ -148,11 +148,11 @@ export default function Home() {
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       {/* Header */}
       <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }} className="shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
-              <p className="mt-2" style={{ color: '#94A3B8' }}>
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
+              <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>
                 {selectedProjectId ? 'Project overview and key metrics' : 'Select a project from the sidebar to get started'}
               </p>
             </div>
@@ -160,6 +160,7 @@ export default function Home() {
               <Button 
                 variant="outline"
                 onClick={handleEditClick}
+                className="w-full sm:w-auto"
                 style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}
               >
                 <Settings2 className="w-4 h-4 mr-2" />
@@ -171,7 +172,7 @@ export default function Home() {
       </div>
 
       {/* Dashboard Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {!selectedProjectId ? (
           <div className="text-center py-12">
             <p style={{ color: '#94A3B8' }}>Select a project to view dashboard</p>
@@ -207,7 +208,7 @@ export default function Home() {
             </Card>
 
             {/* Key Metrics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
@@ -216,7 +217,7 @@ export default function Home() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold" style={{ color: '#CADCFC' }}>€{currentProject.totalBudgetEurM}M</div>
+                  <div className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>€{currentProject.totalBudgetEurM}M</div>
                 </CardContent>
               </Card>
 
@@ -228,7 +229,7 @@ export default function Home() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-1" style={{ color: '#CADCFC' }}>{currentProject.currentPhase}</div>
+                  <div className="text-xl sm:text-2xl font-bold mb-1" style={{ color: '#CADCFC' }}>{currentProject.currentPhase}</div>
                   <div className="text-sm" style={{ color: '#94A3B8' }}>{currentPhaseCompletion?.toFixed(0) || 0}% Complete</div>
                 </CardContent>
               </Card>
@@ -241,7 +242,7 @@ export default function Home() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold mb-1" style={{ color: criticalRisks > 0 ? '#EF4444' : '#CADCFC' }}>{activeRisks}</div>
+                  <div className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: criticalRisks > 0 ? '#EF4444' : '#CADCFC' }}>{activeRisks}</div>
                   <div className="text-sm" style={{ color: '#94A3B8' }}>{criticalRisks} Critical</div>
                 </CardContent>
               </Card>
@@ -254,7 +255,7 @@ export default function Home() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold mb-1" style={{ color: '#CADCFC' }}>
+                  <div className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: '#CADCFC' }}>
                     {daysUntilNext !== null ? `${daysUntilNext} days` : 'N/A'}
                   </div>
                   <div className="text-sm truncate" style={{ color: '#94A3B8' }}>{nextMilestone?.phaseName || 'No upcoming'}</div>
@@ -263,7 +264,7 @@ export default function Home() {
             </div>
 
             {/* Charts Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <BudgetTrendChart data={budgetData} />
               <RiskDistributionChart data={risks} />
               <ScheduleProgressChart data={scheduleData} />
@@ -271,7 +272,7 @@ export default function Home() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <Button variant="outline" onClick={() => navigate(createPageUrl(`RiskRegister?id=${selectedProjectId}`))} style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}>
                 Add Risk
               </Button>
