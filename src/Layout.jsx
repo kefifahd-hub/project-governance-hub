@@ -37,8 +37,8 @@ export default function Layout({ children, currentPageName }) {
     <div className="flex flex-col min-h-screen">
       {showSidebar && <ProjectSidebar />}
       
-      <div className="flex-1 pb-20" style={{ marginLeft: showSidebar ? '256px' : '0' }}>
-        <div className={showSidebar ? 'lg:ml-0' : ''} style={{ marginLeft: showSidebar ? '-256px' : '0' }} className="lg:ml-0">
+      <div className="flex-1 pb-20" style={{ marginLeft: showSidebar ? '0' : '0' }}>
+        <div style={{ marginLeft: showSidebar ? '0' : '0' }} className="lg:ml-64">
           {children}
         </div>
       </div>

@@ -17,7 +17,7 @@ export default function ProjectSidebar() {
 
   return (
     <div 
-      className="fixed left-0 top-0 h-screen w-64 overflow-y-auto"
+      className="fixed left-0 top-0 h-screen w-64 overflow-y-auto hidden lg:block z-40"
       style={{ background: 'rgba(15, 23, 42, 0.98)', borderRight: '1px solid rgba(202, 220, 252, 0.1)' }}
     >
       <div className="p-6">
