@@ -161,6 +161,10 @@ export default function FeasibilityStudy() {
   };
 
   const financials = calculateFinancials();
+  
+  const isAdvancedStudy = formData.studyMaturity === 'Detailed' || formData.studyMaturity === 'Final';
+  const needsJustification = financials && (financials.npvEurM < 0 || financials.irrPercent < formData.discountRate);
+  const isHighRisk = formData.overallRiskLevel === 'High' || formData.overallRiskLevel === 'Critical';
 
   if (!project) {
     return (
