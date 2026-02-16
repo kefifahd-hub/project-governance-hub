@@ -114,19 +114,20 @@ export default function RiskRegister() {
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <Button variant="ghost" onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))} className="mb-4" style={{ color: '#CADCFC' }}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
+            <span className="hidden sm:inline">Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
           </Button>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>Risk Register</h1>
-              <p className="mt-2" style={{ color: '#94A3B8' }}>{project.projectName}</p>
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>Risk Register</h1>
+              <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>{project.projectName}</p>
             </div>
             <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
               <DialogTrigger asChild>
-                <Button style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
+                <Button className="w-full sm:w-auto" style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Risk
                 </Button>
@@ -216,39 +217,39 @@ export default function RiskRegister() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-            <CardContent className="p-4 text-center">
-              <div className="text-3xl font-bold mb-1" style={{ color: '#CADCFC' }}>{stats.total}</div>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <div className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: '#CADCFC' }}>{stats.total}</div>
               <div className="text-sm" style={{ color: '#94A3B8' }}>Total Risks</div>
             </CardContent>
           </Card>
           <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-            <CardContent className="p-4 text-center">
-              <div className="text-3xl font-bold mb-1 text-red-500">{stats.critical}</div>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <div className="text-2xl sm:text-3xl font-bold mb-1 text-red-500">{stats.critical}</div>
               <div className="text-sm" style={{ color: '#94A3B8' }}>Critical</div>
             </CardContent>
           </Card>
           <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-            <CardContent className="p-4 text-center">
-              <div className="text-3xl font-bold mb-1" style={{ color: '#CADCFC' }}>{stats.open}</div>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <div className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: '#CADCFC' }}>{stats.open}</div>
               <div className="text-sm" style={{ color: '#94A3B8' }}>Open</div>
             </CardContent>
           </Card>
           <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-            <CardContent className="p-4 text-center">
-              <div className="text-3xl font-bold mb-1 text-green-500">{stats.closed}</div>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <div className="text-2xl sm:text-3xl font-bold mb-1 text-green-500">{stats.closed}</div>
               <div className="text-sm" style={{ color: '#94A3B8' }}>Closed</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Filters */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+            <SelectTrigger className="w-full sm:w-40" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -260,7 +261,7 @@ export default function RiskRegister() {
             </SelectContent>
           </Select>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-40" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+            <SelectTrigger className="w-full sm:w-40" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
@@ -274,7 +275,7 @@ export default function RiskRegister() {
             </SelectContent>
           </Select>
           <Select value={levelFilter} onValueChange={setLevelFilter}>
-            <SelectTrigger className="w-40" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+            <SelectTrigger className="w-full sm:w-40" style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
               <SelectValue placeholder="Level" />
             </SelectTrigger>
             <SelectContent>
@@ -295,21 +296,21 @@ export default function RiskRegister() {
               className={risk.riskLevel === 'Critical' && risk.status === 'Open' ? 'ring-2 ring-red-500' : ''}
               style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}
             >
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <AlertTriangle className={`w-6 h-6 mt-1 ${risk.riskLevel === 'Critical' ? 'text-red-500' : ''}`} />
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+                  <AlertTriangle className={`w-5 h-5 sm:w-6 sm:h-6 mt-1 flex-shrink-0 ${risk.riskLevel === 'Critical' ? 'text-red-500' : ''}`} />
                   <div className="flex-1">
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                       <div className="flex-1">
-                        <p className="text-lg mb-2" style={{ color: '#CADCFC' }}>{risk.riskDescription}</p>
-                        <div className="flex gap-2">
+                        <p className="text-base sm:text-lg mb-2" style={{ color: '#CADCFC' }}>{risk.riskDescription}</p>
+                        <div className="flex flex-wrap gap-2">
                           <Badge className={getRiskLevelColor(risk.riskLevel)}>{risk.riskLevel}</Badge>
                           <Badge style={{ background: 'rgba(202, 220, 252, 0.2)', color: '#CADCFC' }}>{risk.category}</Badge>
                           <Badge style={{ background: 'rgba(202, 220, 252, 0.2)', color: '#CADCFC' }}>{risk.status}</Badge>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold" style={{ color: '#CADCFC' }}>{risk.riskScore}</div>
+                      <div className="text-left sm:text-right">
+                        <div className="text-xl sm:text-2xl font-bold" style={{ color: '#CADCFC' }}>{risk.riskScore}</div>
                         <div className="text-xs" style={{ color: '#94A3B8' }}>Risk Score</div>
                       </div>
                     </div>
