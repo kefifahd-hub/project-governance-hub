@@ -41,6 +41,14 @@ export default function ProjectDashboard() {
 
   const tools = [
     {
+      id: 'feasibility',
+      name: 'Feasibility Study',
+      description: 'Comprehensive project viability assessment',
+      icon: FileText,
+      color: 'bg-blue-600',
+      page: 'FeasibilityStudy'
+    },
+    {
       id: 'feed',
       name: 'FEED Tracker',
       description: 'Track phase milestones and quality gates',
