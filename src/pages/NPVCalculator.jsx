@@ -182,18 +182,19 @@ export default function NPVCalculator() {
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <Button variant="ghost" onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))} className="mb-4" style={{ color: '#CADCFC' }}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
+            <span className="hidden sm:inline">Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
           </Button>
-          <h1 className="text-3xl font-bold" style={{ color: '#CADCFC' }}>NPV Calculator</h1>
-          <p className="mt-2" style={{ color: '#94A3B8' }}>{project.projectName}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>NPV Calculator</h1>
+          <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>{project.projectName}</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           {/* Input Form */}
           <Card style={{ background: 'rgba(15, 23, 42, 0.95)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
             <CardHeader>
@@ -218,9 +219,9 @@ export default function NPVCalculator() {
                   style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label style={{ color: '#94A3B8' }}>Production Capacity (GWh/year)</Label>
+                  <Label className="text-xs sm:text-sm" style={{ color: '#94A3B8' }}>Production Capacity (GWh/year)</Label>
                   <Input
                     type="number"
                     value={formData.productionCapacityGWh}
@@ -229,7 +230,7 @@ export default function NPVCalculator() {
                   />
                 </div>
                 <div>
-                  <Label style={{ color: '#94A3B8' }}>Ramp-Up Period (years)</Label>
+                  <Label className="text-xs sm:text-sm" style={{ color: '#94A3B8' }}>Ramp-Up Period (years)</Label>
                   <Input
                     type="number"
                     value={formData.rampUpYears}
@@ -247,9 +248,9 @@ export default function NPVCalculator() {
                   style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label style={{ color: '#94A3B8' }}>Raw Material Cost (€/kWh)</Label>
+                  <Label className="text-xs sm:text-sm" style={{ color: '#94A3B8' }}>Raw Material Cost (€/kWh)</Label>
                   <Input
                     type="number"
                     value={formData.rawMaterialCostEurKWh}
@@ -258,7 +259,7 @@ export default function NPVCalculator() {
                   />
                 </div>
                 <div>
-                  <Label style={{ color: '#94A3B8' }}>Energy Cost (€/kWh)</Label>
+                  <Label className="text-xs sm:text-sm" style={{ color: '#94A3B8' }}>Energy Cost (€/kWh)</Label>
                   <Input
                     type="number"
                     value={formData.energyCostEurKWh}
@@ -267,9 +268,9 @@ export default function NPVCalculator() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label style={{ color: '#94A3B8' }}>Annual Labor Cost (€M)</Label>
+                  <Label className="text-xs sm:text-sm" style={{ color: '#94A3B8' }}>Annual Labor Cost (€M)</Label>
                   <Input
                     type="number"
                     value={formData.laborCostEurM}
@@ -278,7 +279,7 @@ export default function NPVCalculator() {
                   />
                 </div>
                 <div>
-                  <Label style={{ color: '#94A3B8' }}>Annual Maintenance (€M)</Label>
+                  <Label className="text-xs sm:text-sm" style={{ color: '#94A3B8' }}>Annual Maintenance (€M)</Label>
                   <Input
                     type="number"
                     value={formData.maintenanceCostEurM}
@@ -297,9 +298,9 @@ export default function NPVCalculator() {
                   style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label style={{ color: '#94A3B8' }}>Project Duration (Years)</Label>
+                  <Label className="text-xs sm:text-sm" style={{ color: '#94A3B8' }}>Project Duration (Years)</Label>
                   <Input
                     type="number"
                     value={formData.projectDurationYears}
@@ -308,7 +309,7 @@ export default function NPVCalculator() {
                   />
                 </div>
                 <div>
-                  <Label style={{ color: '#94A3B8' }}>Tax Rate (%)</Label>
+                  <Label className="text-xs sm:text-sm" style={{ color: '#94A3B8' }}>Tax Rate (%)</Label>
                   <Input
                     type="number"
                     step="0.5"
@@ -318,13 +319,13 @@ export default function NPVCalculator() {
                   />
                 </div>
               </div>
-              <div className="flex gap-3 pt-4">
-                <Button onClick={calculateNPV} style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                <Button onClick={calculateNPV} className="w-full sm:w-auto" style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
                   <Calculator className="w-4 h-4 mr-2" />
                   Calculate
                 </Button>
                 {results && (
-                  <Button onClick={handleSave} variant="outline" style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}>
+                  <Button onClick={handleSave} variant="outline" className="w-full sm:w-auto" style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}>
                     <Save className="w-4 h-4 mr-2" />
                     Save Scenario
                   </Button>
@@ -366,7 +367,7 @@ export default function NPVCalculator() {
                     <div className="text-sm mb-2" style={{ color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       Net Present Value
                     </div>
-                    <div className="text-6xl font-bold mb-4" style={{ 
+                    <div className="text-4xl sm:text-6xl font-bold mb-4" style={{ 
                       color: results.isViable ? '#10B981' : '#EF4444',
                       fontFamily: "'Courier New', monospace"
                     }}>
@@ -382,31 +383,31 @@ export default function NPVCalculator() {
                   </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-                    <CardContent className="p-3">
-                      <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>Payback Period</div>
-                      <div className="text-xl font-bold" style={{ color: '#CADCFC' }}>{results.paybackPeriodYears.toFixed(1)}y</div>
+                    <CardContent className="p-2 sm:p-3">
+                      <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>Payback</div>
+                      <div className="text-lg sm:text-xl font-bold" style={{ color: '#CADCFC' }}>{results.paybackPeriodYears.toFixed(1)}y</div>
                     </CardContent>
                   </Card>
                   <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-                    <CardContent className="p-3">
+                    <CardContent className="p-2 sm:p-3">
                       <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>IRR</div>
-                      <div className="text-xl font-bold" style={{ color: results.irrPercent > formData.discountRatePercent ? '#10B981' : '#EF4444' }}>
+                      <div className="text-lg sm:text-xl font-bold" style={{ color: results.irrPercent > formData.discountRatePercent ? '#10B981' : '#EF4444' }}>
                         {results.irrPercent.toFixed(1)}%
                       </div>
                     </CardContent>
                   </Card>
                   <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-                    <CardContent className="p-3">
+                    <CardContent className="p-2 sm:p-3">
                       <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>CAPEX</div>
-                      <div className="text-xl font-bold" style={{ color: '#CADCFC' }}>€{formData.capexEurM}M</div>
+                      <div className="text-lg sm:text-xl font-bold" style={{ color: '#CADCFC' }}>€{formData.capexEurM}M</div>
                     </CardContent>
                   </Card>
                   <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-                    <CardContent className="p-3">
-                      <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>Avg Cash Flow</div>
-                      <div className="text-xl font-bold" style={{ color: '#10B981' }}>€{results.avgAnnualCashFlowEurM.toFixed(0)}M</div>
+                    <CardContent className="p-2 sm:p-3">
+                      <div className="text-xs mb-1" style={{ color: '#94A3B8', textTransform: 'uppercase' }}>Avg CF</div>
+                      <div className="text-lg sm:text-xl font-bold" style={{ color: '#10B981' }}>€{results.avgAnnualCashFlowEurM.toFixed(0)}M</div>
                     </CardContent>
                   </Card>
                 </div>
@@ -414,11 +415,11 @@ export default function NPVCalculator() {
                 {/* Cash Flow Chart */}
                 <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }} className="mt-4">
                   <CardHeader>
-                    <CardTitle style={{ color: '#CADCFC', fontSize: '1rem' }}>20-Year Cash Flow Projection</CardTitle>
+                    <CardTitle className="text-sm sm:text-base" style={{ color: '#CADCFC' }}>20-Year Cash Flow Projection</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-64 overflow-x-auto">
-                      <div className="flex gap-2 h-full items-end" style={{ minWidth: `${results.cashFlows.length * 40}px` }}>
+                    <div className="h-48 sm:h-64 overflow-x-auto">
+                      <div className="flex gap-1 sm:gap-2 h-full items-end" style={{ minWidth: `${results.cashFlows.length * 32}px` }}>
                         {results.cashFlows.map((cf, idx) => {
                           const maxCashFlow = Math.max(...results.cashFlows.map(c => c.cashFlow));
                           const height = (cf.cashFlow / maxCashFlow) * 100;
@@ -429,11 +430,11 @@ export default function NPVCalculator() {
                                 style={{ 
                                   height: `${Math.max(height, 5)}%`,
                                   background: cf.cashFlow > 0 ? 'linear-gradient(180deg, #10B981 0%, #059669 100%)' : '#EF4444',
-                                  minWidth: '24px'
+                                  minWidth: '16px'
                                 }}
                                 title={`Year ${cf.year}: €${cf.cashFlow.toFixed(1)}M`}
                               />
-                              <div className="text-xs" style={{ color: '#94A3B8' }}>Y{cf.year}</div>
+                              <div className="text-[10px] sm:text-xs" style={{ color: '#94A3B8' }}>Y{cf.year}</div>
                             </div>
                           );
                         })}

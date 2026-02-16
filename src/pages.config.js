@@ -47,34 +47,34 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import BudgetDashboard from './pages/BudgetDashboard';
+import ClientBriefing from './pages/ClientBriefing';
 import FEEDTracker from './pages/FEEDTracker';
 import Home from './pages/Home';
 import NPVCalculator from './pages/NPVCalculator';
 import NewProject from './pages/NewProject';
 import ProjectDashboard from './pages/ProjectDashboard';
-import RiskRegister from './pages/RiskRegister';
-import BudgetDashboard from './pages/BudgetDashboard';
-import WeeklyReports from './pages/WeeklyReports';
-import ClientBriefing from './pages/ClientBriefing';
-import Settings from './pages/Settings';
 import QAQCDashboard from './pages/QAQCDashboard';
+import RiskRegister from './pages/RiskRegister';
 import ScheduleMonitoring from './pages/ScheduleMonitoring';
+import Settings from './pages/Settings';
+import WeeklyReports from './pages/WeeklyReports';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "BudgetDashboard": BudgetDashboard,
+    "ClientBriefing": ClientBriefing,
     "FEEDTracker": FEEDTracker,
     "Home": Home,
     "NPVCalculator": NPVCalculator,
     "NewProject": NewProject,
     "ProjectDashboard": ProjectDashboard,
-    "RiskRegister": RiskRegister,
-    "BudgetDashboard": BudgetDashboard,
-    "WeeklyReports": WeeklyReports,
-    "ClientBriefing": ClientBriefing,
-    "Settings": Settings,
     "QAQCDashboard": QAQCDashboard,
+    "RiskRegister": RiskRegister,
     "ScheduleMonitoring": ScheduleMonitoring,
+    "Settings": Settings,
+    "WeeklyReports": WeeklyReports,
 }
 
 export const pagesConfig = {
