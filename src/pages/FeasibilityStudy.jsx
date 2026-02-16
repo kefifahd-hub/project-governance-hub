@@ -37,6 +37,7 @@ export default function FeasibilityStudy() {
   const [formData, setFormData] = useState({
     studyName: '',
     studyDate: new Date().toISOString().split('T')[0],
+    studyMaturity: 'Preliminary',
     executiveSummary: '',
     marketDemand: 'Medium',
     marketSize: '',
@@ -59,7 +60,12 @@ export default function FeasibilityStudy() {
     overallRiskLevel: 'Medium',
     keyRisks: '',
     recommendation: 'Further Study Required',
-    conditionsRemarks: ''
+    conditionsRemarks: '',
+    detailedMarketAnalysis: '',
+    competitorAnalysis: '',
+    technicalJustification: '',
+    financialJustification: '',
+    riskMitigationPlan: ''
   });
 
   const calculateFinancials = () => {
@@ -111,6 +117,7 @@ export default function FeasibilityStudy() {
       setFormData({
         studyName: '',
         studyDate: new Date().toISOString().split('T')[0],
+        studyMaturity: 'Preliminary',
         executiveSummary: '',
         marketDemand: 'Medium',
         marketSize: '',
@@ -133,7 +140,12 @@ export default function FeasibilityStudy() {
         overallRiskLevel: 'Medium',
         keyRisks: '',
         recommendation: 'Further Study Required',
-        conditionsRemarks: ''
+        conditionsRemarks: '',
+        detailedMarketAnalysis: '',
+        competitorAnalysis: '',
+        technicalJustification: '',
+        financialJustification: '',
+        riskMitigationPlan: ''
       });
     }
   });
@@ -183,7 +195,12 @@ export default function FeasibilityStudy() {
                 !formData.annualOpexEurM ||
                 !formData.annualRevenueEurM ||
                 !formData.estimatedDurationMonths ||
-                !formData.keyRisks
+                !formData.keyRisks ||
+                (isAdvancedStudy && !formData.detailedMarketAnalysis) ||
+                (isAdvancedStudy && !formData.competitorAnalysis) ||
+                (needsJustification && !formData.financialJustification) ||
+                (isHighRisk && !formData.riskMitigationPlan) ||
+                ((formData.technicalReadiness === 'Emerging' || formData.technicalReadiness === 'Experimental') && !formData.technicalJustification)
               }
               className="w-full sm:w-auto"
               style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}
@@ -237,6 +254,23 @@ export default function FeasibilityStudy() {
                       />
                     </div>
                     <div>
+                      <Label style={{ color: '#94A3B8' }}>Study Maturity Level *</Label>
+                      <Select value={formData.studyMaturity} onValueChange={(value) => setFormData({ ...formData, studyMaturity: value })} required>
+                        <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Preliminary">Preliminary (High-Level)</SelectItem>
+                          <SelectItem value="Intermediate">Intermediate (Detailed Market & Tech)</SelectItem>
+                          <SelectItem value="Detailed">Detailed (Full Financial Model)</SelectItem>
+                          <SelectItem value="Final">Final (Investment Ready)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs mt-1" style={{ color: '#94A3B8' }}>
+                        Higher maturity requires more detailed information
+                      </p>
+                    </div>
+                    <div>
                       <Label style={{ color: '#94A3B8' }}>Executive Summary *</Label>
                       <Textarea
                         value={formData.executiveSummary}
@@ -274,6 +308,22 @@ export default function FeasibilityStudy() {
                         style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                       />
                     </div>
+                    {isAdvancedStudy && (
+                      <div>
+                        <Label style={{ color: '#94A3B8' }}>Detailed Market Analysis *</Label>
+                        <Textarea
+                          value={formData.detailedMarketAnalysis}
+                          onChange={(e) => setFormData({ ...formData, detailedMarketAnalysis: e.target.value })}
+                          rows={4}
+                          placeholder="Provide detailed market trends, growth projections, customer segments..."
+                          required
+                          style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                        />
+                        <p className="text-xs mt-1" style={{ color: '#FFA500' }}>
+                          ⚠️ Required for Detailed/Final studies
+                        </p>
+                      </div>
+                    )}
                     <div>
                       <Label style={{ color: '#94A3B8' }}>Competitive Position *</Label>
                       <Select value={formData.competitivePosition} onValueChange={(value) => setFormData({ ...formData, competitivePosition: value })} required>
@@ -287,6 +337,22 @@ export default function FeasibilityStudy() {
                         </SelectContent>
                       </Select>
                     </div>
+                    {isAdvancedStudy && (
+                      <div>
+                        <Label style={{ color: '#94A3B8' }}>Competitor Analysis *</Label>
+                        <Textarea
+                          value={formData.competitorAnalysis}
+                          onChange={(e) => setFormData({ ...formData, competitorAnalysis: e.target.value })}
+                          rows={4}
+                          placeholder="Analyze key competitors, their strengths/weaknesses, market share..."
+                          required
+                          style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                        />
+                        <p className="text-xs mt-1" style={{ color: '#FFA500' }}>
+                          ⚠️ Required for Detailed/Final studies
+                        </p>
+                      </div>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="technical" className="space-y-4">
@@ -303,6 +369,22 @@ export default function FeasibilityStudy() {
                         </SelectContent>
                       </Select>
                     </div>
+                    {(formData.technicalReadiness === 'Emerging' || formData.technicalReadiness === 'Experimental') && (
+                      <div>
+                        <Label style={{ color: '#94A3B8' }}>Technical Justification *</Label>
+                        <Textarea
+                          value={formData.technicalJustification}
+                          onChange={(e) => setFormData({ ...formData, technicalJustification: e.target.value })}
+                          rows={4}
+                          placeholder="Explain why this technology is viable, validation plans, and risk mitigation..."
+                          required
+                          style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                        />
+                        <p className="text-xs mt-1" style={{ color: '#FFA500' }}>
+                          ⚠️ Required when using emerging/experimental technology
+                        </p>
+                      </div>
+                    )}
                     <div>
                       <Label style={{ color: '#94A3B8' }}>Infrastructure Availability</Label>
                       <Select value={formData.infrastructureAvailability} onValueChange={(value) => setFormData({ ...formData, infrastructureAvailability: value })}>
@@ -388,7 +470,7 @@ export default function FeasibilityStudy() {
                     </div>
 
                     {financials && (
-                      <div className="mt-6 p-4 rounded-lg" style={{ background: 'rgba(0, 168, 150, 0.1)', border: '1px solid rgba(0, 168, 150, 0.3)' }}>
+                      <div className="mt-6 p-4 rounded-lg" style={{ background: financials.npvEurM >= 0 ? 'rgba(0, 168, 150, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: financials.npvEurM >= 0 ? '1px solid rgba(0, 168, 150, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)' }}>
                         <h4 className="font-semibold mb-3" style={{ color: '#CADCFC' }}>Calculated Metrics</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <div>
@@ -399,13 +481,34 @@ export default function FeasibilityStudy() {
                           </div>
                           <div>
                             <div className="text-xs mb-1" style={{ color: '#94A3B8' }}>IRR</div>
-                            <div className="text-xl font-bold" style={{ color: '#CADCFC' }}>{financials.irrPercent.toFixed(1)}%</div>
+                            <div className="text-xl font-bold" style={{ color: financials.irrPercent >= formData.discountRate ? '#10B981' : '#EF4444' }}>{financials.irrPercent.toFixed(1)}%</div>
                           </div>
                           <div>
                             <div className="text-xs mb-1" style={{ color: '#94A3B8' }}>Payback</div>
                             <div className="text-xl font-bold" style={{ color: '#CADCFC' }}>{financials.paybackYears.toFixed(1)} yrs</div>
                           </div>
                         </div>
+                        {needsJustification && (
+                          <p className="text-xs mt-3" style={{ color: '#FFA500' }}>
+                            ⚠️ Negative NPV or IRR below discount rate - financial justification required below
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    {needsJustification && (
+                      <div className="mt-4">
+                        <Label style={{ color: '#94A3B8' }}>Financial Justification *</Label>
+                        <Textarea
+                          value={formData.financialJustification}
+                          onChange={(e) => setFormData({ ...formData, financialJustification: e.target.value })}
+                          rows={4}
+                          placeholder="Explain strategic value, non-financial benefits, or how assumptions will improve..."
+                          required
+                          style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                        />
+                        <p className="text-xs mt-1" style={{ color: '#EF4444' }}>
+                          ⚠️ Required when NPV is negative or IRR below discount rate
+                        </p>
                       </div>
                     )}
                   </TabsContent>
@@ -485,6 +588,22 @@ export default function FeasibilityStudy() {
                         style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                       />
                     </div>
+                    {isHighRisk && (
+                      <div>
+                        <Label style={{ color: '#94A3B8' }}>Risk Mitigation Plan *</Label>
+                        <Textarea
+                          value={formData.riskMitigationPlan}
+                          onChange={(e) => setFormData({ ...formData, riskMitigationPlan: e.target.value })}
+                          rows={4}
+                          placeholder="Detailed plan to mitigate high/critical risks..."
+                          required
+                          style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                        />
+                        <p className="text-xs mt-1" style={{ color: '#EF4444' }}>
+                          ⚠️ Required for High/Critical risk projects
+                        </p>
+                      </div>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="compliance" className="space-y-4">
