@@ -19,8 +19,26 @@ const DEPRECIATION_LIFE_YEARS = 10;
 
 // ─── Cell Production ────────────────────────────────────────────────────────
 export function calcCellProduction(cellConfig, revenueMap) {
+  // Build a sorted list of quarters that have data for interpolation
+  const availableQtrs = Object.keys(revenueMap).sort((a, b) => {
+    const [aq, ay] = a.split(' '); const [bq, by] = b.split(' ');
+    return ay !== by ? Number(ay) - Number(by) : Number(aq[1]) - Number(bq[1]);
+  });
+
+  // For a given quarter, find the nearest available data (carry forward/backward)
+  const getRevenueData = (q) => {
+    if (revenueMap[q]) return revenueMap[q];
+    // Find the most recent prior quarter with data
+    const [qq, qy] = q.split(' ');
+    const qi = QUARTERS.indexOf(q);
+    for (let i = qi - 1; i >= 0; i--) {
+      if (revenueMap[QUARTERS[i]]) return revenueMap[QUARTERS[i]];
+    }
+    return {};
+  };
+
   return QUARTERS.map((q, qi) => {
-    const rv = revenueMap[q] || {};
+    const rv = getRevenueData(q);
     const rampPct = (rv.rampPct ?? 0) / 100;
     const yieldPct = (rv.yieldPct ?? cellConfig.initialYield ?? 95) / 100;
     const expectedCellVol = cellConfig.ppm * 60 * (cellConfig.plannedOperatingHoursQtr ?? 1769.25) * ((cellConfig.availability ?? 81) / 100);
