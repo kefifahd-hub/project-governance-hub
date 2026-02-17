@@ -302,7 +302,9 @@ export function calcCashFlow(plData, capexData, financingData, grants, wcAssumpt
     const netCashChange = cfo + cfi + cff;
     cashBalance += netCashChange;
 
-    return { quarter: q, cfo, cfi, cff, netCashChange, cashBalance, freeCashFlow: cfo + cfi, ltDrawdown, ltRepayment, equity };
+    const ltInterestMEur = financeCostQtr?.ltInterestMEur ?? 0;
+    const wcInterestMEur = financeCostQtr?.wcInterestMEur ?? 0;
+    return { quarter: q, cfo, cfi, cff, netCashChange, cashBalance, freeCashFlow: cfo + cfi, ltDrawdown, ltRepayment, equity, ltInterestMEur, wcInterestMEur };
   });
 }
 
