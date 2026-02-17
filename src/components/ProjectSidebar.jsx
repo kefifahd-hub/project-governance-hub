@@ -86,18 +86,22 @@ export default function ProjectSidebar() {
           {/* Divider */}
           <div className="my-2 text-xs px-3 uppercase tracking-wider" style={{ color: '#475569' }}>Tools</div>
 
-          {/* Phase-relevant tools */}
-          {phaseTools.map(tool => {
+          {/* All tools — active ones clickable, inactive ones greyed out */}
+          {ALL_TOOLS.map(tool => {
             const Icon = tool.icon;
-            const active = isActivePage(tool.page);
+            const enabled = phaseTools.some(t => t.page === tool.page);
+            const active = enabled && isActivePage(tool.page);
             return (
               <button
                 key={tool.page}
-                onClick={() => navigate(createPageUrl(`${tool.page}?id=${projectId}`))}
+                onClick={() => enabled && navigate(createPageUrl(`${tool.page}?id=${projectId}`))}
+                disabled={!enabled}
                 className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all"
                 style={{
-                  color: active ? '#00A896' : '#94A3B8',
+                  color: active ? '#00A896' : enabled ? '#94A3B8' : '#334155',
                   background: active ? 'rgba(0,168,150,0.1)' : 'transparent',
+                  cursor: enabled ? 'pointer' : 'default',
+                  opacity: enabled ? 1 : 0.45,
                 }}
               >
                 <Icon className="w-4 h-4 shrink-0" />
