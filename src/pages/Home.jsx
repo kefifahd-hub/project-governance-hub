@@ -57,6 +57,20 @@ export default function Home() {
     enabled: !!selectedProjectId
   });
 
+  const { data: financeModels = [] } = useQuery({
+    queryKey: ['financeModels', selectedProjectId],
+    queryFn: () => base44.entities.FinanceModel.filter({ projectId: selectedProjectId }),
+    enabled: !!selectedProjectId
+  });
+
+  const financeModelId = financeModels[0]?.id;
+
+  const { data: capexData = [] } = useQuery({
+    queryKey: ['capexPlan', financeModelId],
+    queryFn: () => base44.entities.CapexPlan.filter({ financeModelId }),
+    enabled: !!financeModelId
+  });
+
   const { data: scheduleData = [] } = useQuery({
     queryKey: ['scheduleData', selectedProjectId],
     queryFn: () => base44.entities.ScheduleActivity.filter({ projectId: selectedProjectId }),
