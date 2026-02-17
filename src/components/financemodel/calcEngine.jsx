@@ -352,37 +352,67 @@ export function calcBalanceSheet(plData, cashFlowData, capexData, financingData,
   });
 }
 
-// ─── DCF Valuation ───────────────────────────────────────────────────────────
+// ─── DCF Valuation (FCFE approach per spec) ──────────────────────────────────
 export function calcDCF(cashFlowData, dcfAssumptions) {
   const d = dcfAssumptions ?? {};
   const discountRate = (d.discountRatePct ?? 18) / 100;
   const terminalGrowth = (d.terminalGrowthRatePct ?? 1.5) / 100;
   const valuationYear = d.valuationYear ?? 2026;
 
-  // Aggregate quarterly FCF to annual
+  // Aggregate quarterly FCFE (Free Cash Flow to Equity) to annual
+  // FCFE = FCF + debt financing (drawdowns - repayments - interest), EXCLUDING equity injections
+  const annualFCFE = {};
   const annualFCF = {};
   cashFlowData.forEach(cf => {
     const year = parseInt(cf.quarter.split(' ')[1]);
+    if (!annualFCFE[year]) annualFCFE[year] = 0;
     if (!annualFCF[year]) annualFCF[year] = 0;
+    // FCFE = FCF + debt flows (ltDrawdown - ltRepayment - interest), no equity
+    const debtFlows = (cf.ltDrawdown ?? 0) - (cf.ltRepayment ?? 0) - (cf.ltInterestMEur ?? 0) - (cf.wcInterestMEur ?? 0);
+    annualFCFE[year] += cf.freeCashFlow + debtFlows;
     annualFCF[year] += cf.freeCashFlow;
   });
 
   let npvOfCashFlows = 0;
-  const years = Object.keys(annualFCF).map(Number).sort();
+  const years = Object.keys(annualFCFE).map(Number).sort();
   const annualRows = years.map(year => {
+    const fcfe = annualFCFE[year];
     const fcf = annualFCF[year];
     const yearOffset = year - valuationYear;
     const discountFactor = yearOffset >= 0 ? Math.pow(1 + discountRate, yearOffset) : 1;
-    const discountedFCF = yearOffset >= 0 ? fcf / discountFactor : 0;
-    npvOfCashFlows += discountedFCF;
-    return { year, fcf, discountedFCF };
+    const discountedFCFE = yearOffset >= 0 ? fcfe / discountFactor : 0;
+    npvOfCashFlows += discountedFCFE;
+    return { year, fcf, fcfe, discountedFCFE };
   });
 
-  const finalYearFCF = annualFCF[2040] ?? 0;
+  const finalYearFCFE = annualFCFE[2040] ?? 0;
   const finalYearOffset = 2040 - valuationYear;
-  const terminalValue = finalYearOffset >= 0 ? (finalYearFCF * (1 + terminalGrowth)) / (discountRate - terminalGrowth) : 0;
+  const terminalValue = (finalYearOffset >= 0 && discountRate > terminalGrowth)
+    ? (finalYearFCFE * (1 + terminalGrowth)) / (discountRate - terminalGrowth)
+    : 0;
   const npvTerminalValue = terminalValue / Math.pow(1 + discountRate, finalYearOffset);
   const totalNPV = npvOfCashFlows + npvTerminalValue;
 
-  return { annualRows, npvOfCashFlows, terminalValue, npvTerminalValue, totalNPV };
+  // IRR: find rate where totalNPV = 0 (Newton's method approximation)
+  let irr = null;
+  try {
+    let lo = -0.99, hi = 5.0;
+    const calcNPV = (r) => {
+      let npv = 0;
+      years.forEach(year => {
+        const t = year - valuationYear;
+        if (t >= 0) npv += annualFCFE[year] / Math.pow(1 + r, t);
+      });
+      const tv = (finalYearFCFE * (1 + terminalGrowth)) / Math.max(0.001, r - terminalGrowth);
+      npv += tv / Math.pow(1 + r, finalYearOffset);
+      return npv;
+    };
+    for (let i = 0; i < 100; i++) {
+      const mid = (lo + hi) / 2;
+      if (calcNPV(mid) > 0) lo = mid; else hi = mid;
+    }
+    irr = (lo + hi) / 2;
+  } catch {}
+
+  return { annualRows, npvOfCashFlows, terminalValue, npvTerminalValue, totalNPV, irr };
 }
