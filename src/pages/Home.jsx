@@ -209,7 +209,11 @@ export default function Home() {
 
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
+              <Card 
+                className="cursor-pointer hover:-translate-y-1 transition-transform"
+                style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}
+                onClick={() => navigate(createPageUrl(`FinanceModel?id=${selectedProjectId}`))}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardDescription style={{ color: '#94A3B8', textTransform: 'uppercase', fontSize: '0.875rem' }}>Total Budget</CardDescription>
