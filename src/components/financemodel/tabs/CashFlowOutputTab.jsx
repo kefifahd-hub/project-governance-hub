@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import HelpTooltip from '../HelpTooltip';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { QUARTERS } from '../calcEngine';
 
@@ -40,7 +41,20 @@ export default function CashFlowOutputTab({ cashFlowData }) {
       </div>
 
       <Card style={{ background: 'rgba(30,39,97,0.4)', borderColor: 'rgba(202,220,252,0.1)' }}>
-        <CardHeader><CardTitle style={{ color: '#CADCFC' }}>Cash Balance Over Time (€M)</CardTitle></CardHeader>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CardTitle style={{ color: '#CADCFC' }}>Cash Balance Over Time (€M)</CardTitle>
+            <HelpTooltip title="Cash Flow Statement">
+              Three-section cash flow showing how cash moves each quarter.<br /><br />
+              <strong>CFO (Operations)</strong> = Net Profit + Depreciation + Finance Costs + WC Changes − Grant Amortization.<br />
+              <strong>CFI (Investing)</strong> = −CAPEX + Grant Cash Receipts.<br />
+              <strong>CFF (Financing)</strong> = Equity Injections + LT Debt Drawdown − LT Repayment − Interest.<br />
+              <strong>FCF</strong> = CFO + CFI (before financing — key valuation metric).<br />
+              <strong>Cash Balance</strong> = cumulative sum of all three activities.<br /><br />
+              Watch for negative cash — may require additional financing or equity.
+            </HelpTooltip>
+          </div>
+        </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
