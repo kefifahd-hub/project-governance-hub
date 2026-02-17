@@ -14,10 +14,57 @@ import { Switch } from '@/components/ui/switch';
 const inputStyle = { background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' };
 const labelStyle = { color: '#94A3B8', fontSize: '0.75rem' };
 
+const SECTION_HELP = {
+  'Utility Assumptions': {
+    title: 'Utility Assumptions',
+    body: `How much energy and water is consumed per GWh of batteries produced, and what it costs.\n\nElectricity: 18 MWh per MWh of battery = the most significant utility cost.\nGas: used for drying processes.\nWater & Wastewater: process water for electrode slurry, cooling, cleaning.\n\nCost formula per quarter:\nElectricity cost = Production (GWh) × 18 × 1000 × €111.2/MWh / 1,000,000\n\nDefaults from R11 model: Electricity 18 GWh/GWh @ €111.2/MWh, Gas 15 GWh/GWh @ €55/MWh.`
+  },
+  'Overhead Assumptions': {
+    title: 'Overhead Assumptions',
+    body: `Fixed and variable overhead costs beyond direct materials and labour.\n\nOperational: factory running costs (Rent, Insurance, R&M, Cleaning, Waste, etc.)\nG&A: corporate functions (Finance, HR, IT, Legal, Purchasing)\nLaunch: one-time ramp-up costs active only before SOP (Travel, Trial Materials, Recruitment, Training)\n\nCost Basis options:\n• Per Quarter (fixed): enter amount in EUR, e.g. 250,000 = €0.25M/qtr\n• Per GWh (variable): scales with production\n• % Revenue: scales with sales`
+  },
+  'Other OPEX (% of Revenue)': {
+    title: 'Other OPEX',
+    body: `Costs expressed as a % of revenue:\n\nOutbound Logistics (1%): shipping finished batteries to customers.\nRoyalty (3%): IP licensing fees to technology partners.\nWarranty (2%): reserve for battery warranty claims.\nR&D (0%): handled in a separate R&D model, set to 0 here.\n\nThese are deducted below Gross Profit in the P&L as part of SG&A.`
+  },
+  'Financing Assumptions': {
+    title: 'Financing Assumptions',
+    body: `How the project is funded.\n\nLong-Term Debt: €150M total, drawn down over 15 quarters, repaid over 24 quarters at 8% interest.\n\nWorking Capital Financing: short-term debt to fund receivables/inventory gaps, at 8%.\n\nEquity Injections: shareholder capital contributions entered as JSON array:\n[{"quarter":"Q1 2026","amount":1.5}, ...]\n\nDefault R11 equity schedule: €1.5M + €1.25M + €25M + €125M = €152.75M total.`
+  },
+  'Grant Assumptions (up to 3)': {
+    title: 'Grant Assumptions',
+    body: `Government subsidies received as cash, then amortized through the P&L.\n\nReceipt Quarter: when cash hits the bank (e.g. Q1 2027).\nAmortization Start: when it's recognized as income in P&L — typically SOP (Q4 2028).\nAmortization Years: spread over 10 years = €3.75M/quarter for a €150M grant.\n\nGrant income appears as "Other Income" above EBIT. The unamortized balance sits as Deferred Income on the Balance Sheet.\n\nDefault: €150M IPCEI grant, received Q1 2027, amortized from Q4 2028.`
+  },
+  'Tax Assumptions': {
+    title: 'Tax Assumptions',
+    body: `Corporate income tax settings.\n\nTax Rate: 25% applied to Profit Before Tax.\n\nLoss Carry-Forward: when enabled (recommended), the model tracks cumulative losses from the pre-SOP ramp-up phase. No tax is payable until all prior losses are fully recovered by future profits. This is standard accounting for new factories with large upfront costs.`
+  },
+  'Working Capital Assumptions': {
+    title: 'Working Capital Assumptions',
+    body: `Payment terms that drive cash timing gaps between P&L and cash flow.\n\nAR Days (30): customers pay 30 days after invoice — creates a receivable.\nAP Days (45): you pay suppliers after 45 days — creates a payable (favorable).\nInventory Days (69): 42 days transit + 7 days warehouse + 20 days WIP/FP.\n\nFormulas:\nAR = Revenue × (AR Days / 90)\nAP = COGS × (AP Days / 90)\nInventory = Materials cost × (Inv Days / 90)\nWC Change = delta of (AR - AP + Inventory) vs prior quarter`
+  },
+  'DCF Assumptions': {
+    title: 'DCF Assumptions',
+    body: `Discounted Cash Flow valuation settings.\n\nValuation Year (2026): the reference year from which future cash flows are discounted back to present value.\n\nDiscount Rate (18%): the WACC (Weighted Average Cost of Capital) — reflects risk. Higher = lower NPV. R11 uses 18%.\n\nTerminal Growth Rate (1.5%): assumed perpetual growth rate after 2040 for the terminal value calculation.\n\nFormula: Terminal Value = Final Year FCF × (1 + g) / (WACC - g)\n\nReference NPV from R11 Excel model: €88.2M.`
+  },
+};
+
 function Section({ title, children }) {
+  const help = SECTION_HELP[title];
   return (
     <Card style={{ background: 'rgba(30,39,97,0.4)', borderColor: 'rgba(202,220,252,0.1)' }}>
-      <CardHeader className="pb-2"><CardTitle className="text-sm" style={{ color: '#CADCFC' }}>{title}</CardTitle></CardHeader>
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2">
+          <CardTitle className="text-sm" style={{ color: '#CADCFC' }}>{title}</CardTitle>
+          {help && (
+            <HelpTooltip title={help.title}>
+              {help.body.split('\n').map((line, i) => (
+                <span key={i}>{line}<br /></span>
+              ))}
+            </HelpTooltip>
+          )}
+        </div>
+      </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
   );
