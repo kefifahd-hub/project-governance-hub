@@ -38,21 +38,20 @@ export default function ProjectSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const selectedProjectId = searchParams.get('id');
-  const [expandedId, setExpandedId] = useState(selectedProjectId);
+  const projectId = searchParams.get('id');
 
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.filter({ status: 'Active' }, '-created_date'),
+  const { data: project } = useQuery({
+    queryKey: ['project', projectId],
+    queryFn: async () => { const r = await base44.entities.Project.filter({ id: projectId }); return r[0]; },
+    enabled: !!projectId,
   });
 
   const currentPath = location.pathname;
   const isActivePage = (page) => currentPath.includes(page);
 
-  const getToolsForProject = (phase) => {
-    const phaseTools = PHASE_TOOLS[phase] || [];
-    return ALL_TOOLS.filter(t => phaseTools.includes(t.page));
-  };
+  const phaseTools = ALL_TOOLS.filter(t => (PHASE_TOOLS[project?.currentPhase] || []).includes(t.page));
+
+  if (!projectId || !project) return null;
 
   return (
     <div
@@ -60,103 +59,61 @@ export default function ProjectSidebar() {
       style={{ background: 'rgba(15, 23, 42, 0.98)', borderRight: '1px solid rgba(202, 220, 252, 0.1)' }}
     >
       <div className="p-4">
-        <Button
-          onClick={() => navigate(createPageUrl('NewProject'))}
-          className="w-full mb-4"
-          size="sm"
-          style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Project
-        </Button>
+        {/* Project info header */}
+        <div className="mb-4 px-2 py-3 rounded-lg" style={{ background: 'rgba(0,168,150,0.1)', border: '1px solid rgba(0,168,150,0.2)' }}>
+          <div className="font-semibold text-sm truncate" style={{ color: '#CADCFC' }}>{project.projectName}</div>
+          <div className="text-xs mt-0.5" style={{ color: '#00A896' }}>{project.currentPhase}</div>
+        </div>
 
-        <div className="space-y-1">
-          {projects.map((project) => {
-            const isSelected = selectedProjectId === project.id;
-            const isExpanded = expandedId === project.id;
-            const phaseTools = getToolsForProject(project.currentPhase);
+        <div className="space-y-0.5">
+          {/* Dashboard */}
+          <button
+            onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))}
+            className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all"
+            style={{
+              color: isActivePage('Home') ? '#00A896' : '#94A3B8',
+              background: isActivePage('Home') ? 'rgba(0,168,150,0.1)' : 'transparent',
+            }}
+          >
+            <LayoutDashboard className="w-4 h-4 shrink-0" />
+            Dashboard
+          </button>
 
+          {/* Divider */}
+          <div className="my-2 text-xs px-3 uppercase tracking-wider" style={{ color: '#475569' }}>Tools</div>
+
+          {/* Phase-relevant tools */}
+          {phaseTools.map(tool => {
+            const Icon = tool.icon;
+            const active = isActivePage(tool.page);
             return (
-              <div key={project.id}>
-                {/* Project Row */}
-                <button
-                  onClick={() => {
-                    setExpandedId(isExpanded ? null : project.id);
-                    navigate(createPageUrl(`Home?id=${project.id}`));
-                  }}
-                  className="w-full text-left p-3 rounded-lg transition-all flex items-center justify-between"
-                  style={{
-                    background: isSelected ? 'rgba(0, 168, 150, 0.15)' : 'rgba(30, 39, 97, 0.3)',
-                    borderLeft: isSelected ? '3px solid #00A896' : '3px solid transparent',
-                    color: isSelected ? '#CADCFC' : '#94A3B8',
-                  }}
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Briefcase className="w-4 h-4 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="font-medium truncate text-sm">{project.projectName}</div>
-                      <div className="text-xs truncate opacity-70">{project.currentPhase}</div>
-                    </div>
-                  </div>
-                  {isExpanded
-                    ? <ChevronDown className="w-3 h-3 shrink-0 opacity-60" />
-                    : <ChevronRight className="w-3 h-3 shrink-0 opacity-60" />
-                  }
-                </button>
-
-                {/* Tool Links — only show when project is expanded/selected */}
-                {isExpanded && (
-                  <div className="ml-3 mt-1 space-y-0.5 border-l pl-3" style={{ borderColor: 'rgba(0,168,150,0.3)' }}>
-                    {/* Dashboard */}
-                    <button
-                      onClick={() => navigate(createPageUrl(`Home?id=${project.id}`))}
-                      className="w-full text-left px-2 py-1.5 rounded text-xs flex items-center gap-2 transition-all"
-                      style={{
-                        color: isActivePage('Home') && isSelected ? '#00A896' : '#94A3B8',
-                        background: isActivePage('Home') && isSelected ? 'rgba(0,168,150,0.1)' : 'transparent',
-                      }}
-                    >
-                      <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
-                      Dashboard
-                    </button>
-
-                    {/* Phase-relevant tools */}
-                    {phaseTools.map(tool => {
-                      const Icon = tool.icon;
-                      const active = isActivePage(tool.page) && isSelected;
-                      return (
-                        <button
-                          key={tool.page}
-                          onClick={() => navigate(createPageUrl(`${tool.page}?id=${project.id}`))}
-                          className="w-full text-left px-2 py-1.5 rounded text-xs flex items-center gap-2 transition-all"
-                          style={{
-                            color: active ? '#00A896' : '#94A3B8',
-                            background: active ? 'rgba(0,168,150,0.1)' : 'transparent',
-                          }}
-                        >
-                          <Icon className="w-3.5 h-3.5 shrink-0" />
-                          {tool.label}
-                        </button>
-                      );
-                    })}
-
-                    {/* Client Briefing — always */}
-                    <button
-                      onClick={() => navigate(createPageUrl(`ClientBriefing?id=${project.id}`))}
-                      className="w-full text-left px-2 py-1.5 rounded text-xs flex items-center gap-2 transition-all"
-                      style={{
-                        color: isActivePage('ClientBriefing') && isSelected ? '#00A896' : '#94A3B8',
-                        background: isActivePage('ClientBriefing') && isSelected ? 'rgba(0,168,150,0.1)' : 'transparent',
-                      }}
-                    >
-                      <Briefcase className="w-3.5 h-3.5 shrink-0" />
-                      Client Briefing
-                    </button>
-                  </div>
-                )}
-              </div>
+              <button
+                key={tool.page}
+                onClick={() => navigate(createPageUrl(`${tool.page}?id=${projectId}`))}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all"
+                style={{
+                  color: active ? '#00A896' : '#94A3B8',
+                  background: active ? 'rgba(0,168,150,0.1)' : 'transparent',
+                }}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                {tool.label}
+              </button>
             );
           })}
+
+          {/* Client Briefing — always */}
+          <button
+            onClick={() => navigate(createPageUrl(`ClientBriefing?id=${projectId}`))}
+            className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all"
+            style={{
+              color: isActivePage('ClientBriefing') ? '#00A896' : '#94A3B8',
+              background: isActivePage('ClientBriefing') ? 'rgba(0,168,150,0.1)' : 'transparent',
+            }}
+          >
+            <Briefcase className="w-4 h-4 shrink-0" />
+            Client Briefing
+          </button>
         </div>
       </div>
     </div>
