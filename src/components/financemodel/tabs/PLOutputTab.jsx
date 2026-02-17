@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { QUARTERS } from '../calcEngine';
+import HelpTooltip from '../HelpTooltip';
 
 const fmt = (v, decimals = 1) => v != null ? `€${v.toFixed(decimals)}M` : '-';
 const pct = (v) => v != null ? `${v.toFixed(1)}%` : '-';
@@ -55,7 +56,19 @@ export default function PLOutputTab({ plData }) {
       <Card style={{ background: 'rgba(30,39,97,0.4)', borderColor: 'rgba(202,220,252,0.1)' }}>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle style={{ color: '#CADCFC' }}>P&L Statement (Annual, €M)</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle style={{ color: '#CADCFC' }}>P&L Statement (Annual, €M)</CardTitle>
+              <HelpTooltip title="Profit & Loss Statement">
+                Annual P&L aggregated from quarterly calculations. Showing Q4 of each year (full-year cumulative quarter).<br /><br />
+                <strong>Revenue</strong> = sum of all cell production × selling price.<br />
+                <strong>COGS</strong> = BOM + Labour + Utilities + Overheads + Depreciation + Outbound.<br />
+                <strong>Gross Profit</strong> = Revenue − COGS.<br />
+                <strong>EBIT</strong> = GP − SG&A + Grant Income.<br />
+                <strong>EBITDA</strong> = EBIT + Depreciation (non-cash add-back).<br />
+                <strong>Net Profit</strong> = PBT − Tax (with loss carry-forward).<br /><br />
+                Production starts at SOP (Q4 2028). Before that, revenue = 0 but costs accrue.
+              </HelpTooltip>
+            </div>
             <Badge className="bg-blue-900 text-blue-200">Q4 2025 → Q4 2040</Badge>
           </div>
         </CardHeader>
