@@ -1,15 +1,31 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function BudgetTrendChart({ data = [] }) {
-  const chartData = data
-    .sort((a, b) => new Date(a.month) - new Date(b.month))
-    .slice(-6)
-    .map(item => ({
-      month: new Date(item.month).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
-      planned: item.plannedEurK,
-      actual: item.actualEurK
-    }));
+// Accepts either BudgetTracking data OR CapexPlan data
+export default function BudgetTrendChart({ data = [], capexData = [] }) {
+  // If capexData is provided, aggregate by quarter and show CAPEX spend trend
+  const chartData = capexData.length > 0
+    ? Object.entries(
+        capexData.reduce((acc, item) => {
+          acc[item.quarter] = (acc[item.quarter] || 0) + (item.amountMEur || 0);
+          return acc;
+        }, {})
+      )
+      .sort((a, b) => {
+        const [aq, ay] = a[0].split(' ');
+        const [bq, by] = b[0].split(' ');
+        return ay !== by ? ay - by : aq.localeCompare(bq);
+      })
+      .slice(0, 8)
+      .map(([quarter, total]) => ({ quarter, planned: +(total * 1000).toFixed(0) }))
+    : data
+      .sort((a, b) => new Date(a.month) - new Date(b.month))
+      .slice(-6)
+      .map(item => ({
+        quarter: new Date(item.month).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+        planned: item.plannedEurK,
+        actual: item.actualEurK
+      }));
 
   return (
     <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
