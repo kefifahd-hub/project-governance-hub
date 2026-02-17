@@ -41,6 +41,14 @@ export default function ProjectDashboard() {
 
   const tools = [
     {
+      id: 'finance',
+      name: 'Finance Model',
+      description: 'Full P&L, Cash Flow, Balance Sheet & DCF',
+      icon: DollarSign,
+      color: 'bg-emerald-600',
+      page: 'FinanceModel'
+    },
+    {
       id: 'feasibility',
       name: 'Feasibility Study',
       description: 'Comprehensive project viability assessment',

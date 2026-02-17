@@ -31,6 +31,7 @@ export default function Layout({ children, currentPageName }) {
 
   const tools = [
     { name: 'Feasibility Study', page: 'FeasibilityStudy' },
+    { name: 'Finance Model', page: 'FinanceModel' },
     { name: 'FEED Tracker', page: 'FEEDTracker' },
     { name: 'NPV Calculator', page: 'NPVCalculator' },
     { name: 'Risk Register', page: 'RiskRegister' },
