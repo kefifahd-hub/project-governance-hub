@@ -6,7 +6,7 @@ import { createPageUrl } from '../utils';
 
 // Phase → which tools are relevant
 const PHASE_TOOLS = {
-  'Feasibility': ['SiteSelection', 'FeasibilityStudy', 'NPVCalculator', 'FinanceModel'],
+  'Feasibility': ['SiteSelection', 'FeasibilityStudy', 'NPVCalculator', 'FinanceModel', 'SiteSelection'],
   'Pre-FEED':    ['SiteSelection', 'FeasibilityStudy', 'NPVCalculator', 'FinanceModel', 'RiskRegister'],
   'FEED':        ['FeasibilityStudy', 'FinanceModel', 'NPVCalculator', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard'],
   'Investment Decision': ['FinanceModel', 'NPVCalculator', 'RiskRegister', 'BudgetDashboard'],
