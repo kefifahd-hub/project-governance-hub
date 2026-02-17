@@ -30,6 +30,7 @@ export default function Layout({ children, currentPageName }) {
   });
 
   const tools = [
+    { name: 'Site Selection', page: 'SiteSelection' },
     { name: 'Feasibility Study', page: 'FeasibilityStudy' },
     { name: 'Finance Model', page: 'FinanceModel' },
     { name: 'FEED Tracker', page: 'FEEDTracker' },
