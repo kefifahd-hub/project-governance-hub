@@ -15,6 +15,7 @@ const PHASE_TOOLS = {
   'Procurement':         ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard'],
   'Construction':        ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard'],
   'Commissioning':       ['ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister'],
+
   'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports'],
 };
 
