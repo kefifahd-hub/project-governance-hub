@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Activity, DollarSign, ClipboardCheck, AlertTriangle, FileText, Briefcase, CheckSquare, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Activity, DollarSign, ClipboardCheck, AlertTriangle, FileText, Briefcase, CheckSquare, BarChart3, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createPageUrl } from '../utils';
@@ -40,6 +40,14 @@ export default function ProjectDashboard() {
   const healthStatus = getHealthStatus(healthScore);
 
   const tools = [
+    {
+      id: 'siteselection',
+      name: 'Site Selection',
+      description: 'Evaluate and compare candidate sites with structured scoring matrix',
+      icon: MapPin,
+      color: 'bg-violet-600',
+      page: 'SiteSelection'
+    },
     {
       id: 'finance',
       name: 'Finance Model',
