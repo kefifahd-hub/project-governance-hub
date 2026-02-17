@@ -47,7 +47,14 @@ export default function ModelSetupTab({ model, cells, modelId, projectId, onRefr
   return (
     <div className="space-y-6">
       <Card style={{ background: 'rgba(30, 39, 97, 0.4)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-        <CardHeader><CardTitle style={{ color: '#CADCFC' }}>Finance Model Configuration</CardTitle></CardHeader>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CardTitle style={{ color: '#CADCFC' }}>Finance Model Configuration</CardTitle>
+            <HelpTooltip title="Finance Model Configuration">
+              The master record for your financial model. Give it a descriptive name (e.g. "Verkor Base Case R11") and a version number. Use <strong>Start Quarter</strong> to set when the model begins (e.g. Q4 2025) and <strong>End Year</strong> for the horizon (e.g. 2040). The Status tracks approval: Draft → Under Review → Approved.
+            </HelpTooltip>
+          </div>
+        </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div><Label style={labelStyle}>Model Name</Label><Input value={modelForm.modelName} onChange={e => setModelForm({ ...modelForm, modelName: e.target.value })} style={inputStyle} placeholder="e.g., Verkor Base Case R11" /></div>
@@ -77,7 +84,20 @@ export default function ModelSetupTab({ model, cells, modelId, projectId, onRefr
 
       {modelId && (
         <Card style={{ background: 'rgba(30, 39, 97, 0.4)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-          <CardHeader><CardTitle style={{ color: '#CADCFC' }}>Cell Configurations (up to 3)</CardTitle></CardHeader>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <CardTitle style={{ color: '#CADCFC' }}>Cell Configurations (up to 3)</CardTitle>
+              <HelpTooltip title="Cell Configurations">
+                Define up to 3 battery cell chemistries to model in parallel (e.g. LMO, LMNO, NMC).<br /><br />
+                <strong>PPM</strong> = parts per minute the line produces.<br />
+                <strong>Availability</strong> = planned uptime % (e.g. 81%).<br />
+                <strong>Planned Hours/Qtr</strong> = total scheduled operating hours per quarter (e.g. 1769.25 = 48 weeks × 7 days × 21 hrs / 4).<br />
+                <strong>Initial Yield</strong> = % of cells passing quality at SOP.<br />
+                <strong>Mature Yield</strong> = steady-state yield once line is ramped up.<br /><br />
+                Capacity = PPM × 60 × Hours × Availability × Cell Energy (Wh) / 1,000,000,000 → GWh/quarter.
+              </HelpTooltip>
+            </div>
+          </CardHeader>
           <CardContent className="space-y-4">
             {cells.map(cell => (
               <div key={cell.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'rgba(0,168,150,0.1)', border: '1px solid rgba(0,168,150,0.3)' }}>
