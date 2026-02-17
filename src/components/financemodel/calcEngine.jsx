@@ -274,6 +274,8 @@ export function calcCashFlow(plData, capexData, financingData, grants, wcAssumpt
 
   const fa = financingData ?? {};
   const ltTotal = fa.ltDebtTotalMEur ?? 150;
+  const ltRate = (fa.ltInterestRatePct ?? 8) / 100 / 4;
+  const wcRate = (fa.wcInterestRatePct ?? 8) / 100 / 4;
   const drawdownQtrs = fa.ltDrawdownPeriodQtrs ?? 15;
   const repayQtrs = fa.ltRepaymentPeriodQtrs ?? 24;
 
@@ -283,6 +285,7 @@ export function calcCashFlow(plData, capexData, financingData, grants, wcAssumpt
   const grantCashByQtr = {};
   grants.forEach(g => { grantCashByQtr[g.receiptQuarter] = (grantCashByQtr[g.receiptQuarter] || 0) + (g.cashReceiptMEur ?? 0); });
 
+  let ltBalance = 0;
   return QUARTERS.map((q, qi) => {
     const pl = plData[qi];
     const capex = capexData[qi]?.capexMEur ?? 0;
@@ -295,15 +298,21 @@ export function calcCashFlow(plData, capexData, financingData, grants, wcAssumpt
     const cfo = pl.netProfit + pl.depreciation + pl.financeCost - wcChange - pl.grantIncome;
     const grantCash = grantCashByQtr[q] ?? 0;
     const cfi = -capex + grantCash;
+
+    if (qi < drawdownQtrs) ltBalance += ltTotal / drawdownQtrs;
+    if (qi >= drawdownQtrs && qi < drawdownQtrs + repayQtrs) ltBalance -= ltTotal / repayQtrs;
+    ltBalance = Math.max(0, ltBalance);
+
     const ltDrawdown = qi < drawdownQtrs ? ltTotal / drawdownQtrs : 0;
     const ltRepayment = (qi >= drawdownQtrs && qi < drawdownQtrs + repayQtrs) ? ltTotal / repayQtrs : 0;
+    const ltInterestMEur = ltBalance * ltRate;
+    const wcBalance = pl.rev * (2 / 3);
+    const wcInterestMEur = wcBalance * wcRate;
     const equity = equityInjections.find(e => e.quarter === q)?.amount ?? 0;
     const cff = equity + ltDrawdown - ltRepayment - pl.financeCost;
     const netCashChange = cfo + cfi + cff;
     cashBalance += netCashChange;
 
-    const ltInterestMEur = financeCostQtr?.ltInterestMEur ?? 0;
-    const wcInterestMEur = financeCostQtr?.wcInterestMEur ?? 0;
     return { quarter: q, cfo, cfi, cff, netCashChange, cashBalance, freeCashFlow: cfo + cfi, ltDrawdown, ltRepayment, equity, ltInterestMEur, wcInterestMEur };
   });
 }
