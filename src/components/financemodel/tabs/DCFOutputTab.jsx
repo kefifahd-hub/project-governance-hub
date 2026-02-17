@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import HelpTooltip from '../HelpTooltip';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell } from 'recharts';
 
 const fmt = (v, d = 1) => v != null ? `€${v.toFixed(d)}M` : '-';
@@ -14,7 +15,17 @@ export default function DCFOutputTab({ dcfResult, cashFlowData, dcfAssumptions }
     <div className="space-y-4">
       {/* NPV Result Card */}
       <Card style={{ background: 'linear-gradient(135deg, rgba(0,168,150,0.2) 0%, rgba(30,39,97,0.8) 100%)', borderColor: 'rgba(0,168,150,0.4)', boxShadow: '0 0 30px rgba(0,168,150,0.2)' }}>
-        <CardContent className="p-8 text-center">
+        <CardContent className="p-8 text-center relative">
+          <div className="absolute top-3 right-3">
+            <HelpTooltip title="DCF Valuation">
+              Discounted Cash Flow (DCF) values the project by discounting all future Free Cash Flows back to today.<br /><br />
+              <strong>FCF</strong> = Cash from Operations + Cash from Investing (before financing).<br />
+              <strong>NPV of Cash Flows</strong> = sum of all discounted annual FCFs from 2026–2040.<br />
+              <strong>Terminal Value</strong> = FCF in 2040 × (1 + 1.5%) / (18% − 1.5%) — assumes perpetual growth after model horizon.<br />
+              <strong>Total NPV</strong> = NPV of FCFs + NPV of Terminal Value.<br /><br />
+              Reference value from R11 Excel model: <strong>€88.2M</strong>.
+            </HelpTooltip>
+          </div>
           <div className="text-xs uppercase tracking-widest mb-2" style={{ color: '#94A3B8' }}>Total DCF Valuation</div>
           <div className="text-5xl font-bold mb-2" style={{ color: totalNPV >= 0 ? '#34D399' : '#EF4444', fontFamily: 'monospace' }}>
             {fmt(totalNPV, 1)}
