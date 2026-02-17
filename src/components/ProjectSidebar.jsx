@@ -48,8 +48,12 @@ export default function ProjectSidebar() {
 
   const currentPath = location.pathname;
   const isActivePage = (page) => currentPath.includes(page);
+  const isHomePage = currentPath.endsWith('/Home') || currentPath === '/';
 
-  const phaseTools = ALL_TOOLS.filter(t => (PHASE_TOOLS[project?.currentPhase] || []).includes(t.page));
+  // Normalize phase matching (trim + case-insensitive fallback)
+  const phase = project?.currentPhase?.trim();
+  const matchedPhase = Object.keys(PHASE_TOOLS).find(k => k.toLowerCase() === phase?.toLowerCase()) || phase;
+  const phaseTools = ALL_TOOLS.filter(t => (PHASE_TOOLS[matchedPhase] || []).includes(t.page));
 
   if (!projectId || !project) return null;
 
