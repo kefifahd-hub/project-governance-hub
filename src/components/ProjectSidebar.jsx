@@ -75,8 +75,8 @@ export default function ProjectSidebar() {
             onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))}
             className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all"
             style={{
-              color: isActivePage('Home') ? '#00A896' : '#94A3B8',
-              background: isActivePage('Home') ? 'rgba(0,168,150,0.1)' : 'transparent',
+              color: isHomePage ? '#00A896' : '#94A3B8',
+              background: isHomePage ? 'rgba(0,168,150,0.1)' : 'transparent',
             }}
           >
             <LayoutDashboard className="w-4 h-4 shrink-0" />
