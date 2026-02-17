@@ -60,6 +60,7 @@ import RiskRegister from './pages/RiskRegister';
 import ScheduleMonitoring from './pages/ScheduleMonitoring';
 import Settings from './pages/Settings';
 import WeeklyReports from './pages/WeeklyReports';
+import FinanceModel from './pages/FinanceModel';
 import __Layout from './Layout.jsx';
 
 
@@ -77,6 +78,7 @@ export const PAGES = {
     "ScheduleMonitoring": ScheduleMonitoring,
     "Settings": Settings,
     "WeeklyReports": WeeklyReports,
+    "FinanceModel": FinanceModel,
 }
 
 export const pagesConfig = {
