@@ -42,14 +42,15 @@ export default function BudgetTrendChart({ data = [], capexData = [] }) {
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(202, 220, 252, 0.1)" />
-            <XAxis dataKey="month" stroke="#94A3B8" />
-            <YAxis stroke="#94A3B8" />
+            <XAxis dataKey="quarter" stroke="#94A3B8" tick={{ fontSize: 11 }} />
+            <YAxis stroke="#94A3B8" tickFormatter={v => `€${(v/1000).toFixed(1)}M`} />
             <Tooltip 
               contentStyle={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+              formatter={(value) => [`€${(value/1000).toFixed(2)}M`, capexData.length > 0 ? 'CAPEX Spend' : 'Amount']}
             />
             <Legend />
-            <Line type="monotone" dataKey="planned" stroke="#00A896" strokeWidth={2} name="Planned (€K)" />
-            <Line type="monotone" dataKey="actual" stroke="#028090" strokeWidth={2} name="Actual (€K)" />
+            <Line type="monotone" dataKey="planned" stroke="#00A896" strokeWidth={2} name={capexData.length > 0 ? 'CAPEX (€K)' : 'Planned (€K)'} dot={false} />
+            {capexData.length === 0 && <Line type="monotone" dataKey="actual" stroke="#028090" strokeWidth={2} name="Actual (€K)" dot={false} />}
           </LineChart>
         </ResponsiveContainer>
         )}
