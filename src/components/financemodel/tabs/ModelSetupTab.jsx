@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Save, Plus, Trash2 } from 'lucide-react';
+import HelpTooltip from '../HelpTooltip';
 
 const inputStyle = { background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' };
 const labelStyle = { color: '#94A3B8' };
