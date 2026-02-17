@@ -14,7 +14,7 @@ const PHASE_TOOLS = {
   'Detailed Engineering':['FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports'],
   'Procurement':         ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard'],
   'Construction':        ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard'],
-  'Commissioning':       ['ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard'],
+  'Commissioning':       ['ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister'],
   'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports'],
 };
 
