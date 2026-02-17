@@ -141,8 +141,8 @@ export default function Layout({ children, currentPageName }) {
 
       {showSidebar && <ProjectSidebar />}
       
-      <div className="flex-1 pb-20 pt-14" style={{ marginLeft: showSidebar ? '0' : '0' }}>
-        <div style={{ marginLeft: showSidebar ? '0' : '0' }} className="lg:ml-64">
+      <div className="flex-1 pb-20 pt-14">
+        <div className={showSidebar ? 'lg:ml-64' : ''}>
           {children}
         </div>
       </div>
