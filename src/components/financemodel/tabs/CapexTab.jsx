@@ -54,7 +54,21 @@ export default function CapexTab({ capexItems, modelId, onRefresh }) {
       </div>
 
       <Card style={{ background: 'rgba(30,39,97,0.4)', borderColor: 'rgba(202,220,252,0.1)' }}>
-        <CardHeader><CardTitle style={{ color: '#CADCFC' }}>Add CAPEX Item</CardTitle></CardHeader>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CardTitle style={{ color: '#CADCFC' }}>Add CAPEX Item</CardTitle>
+            <HelpTooltip title="CAPEX Plan">
+              Log all capital expenditure by category and quarter.<br /><br />
+              <strong>Categories:</strong><br />
+              • <strong>Buildings</strong> (~€255M): CSA, MEP, Clean Room, Fitout, etc.<br />
+              • <strong>Equipment</strong> (~€80M): Manufacturing lines, Capital Spares.<br />
+              • <strong>Land</strong> (~€20M): Site acquisition. Note: land is NOT depreciated.<br /><br />
+              <strong>Escalation</strong> adds 3% annual inflation on construction costs.<br />
+              <strong>Contingency</strong> is typically 20% of base CAPEX.<br /><br />
+              Total CAPEX target from R11 model: <strong>€382.3M</strong>. Depreciation starts at SOP (Q4 2028) over 10 years straight-line.
+            </HelpTooltip>
+          </div>
+        </CardHeader>
         <CardContent>
           <div className="grid grid-cols-5 gap-3">
             <div><Label style={labelStyle}>Category</Label>
