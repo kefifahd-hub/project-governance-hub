@@ -51,6 +51,7 @@ import BudgetDashboard from './pages/BudgetDashboard';
 import ClientBriefing from './pages/ClientBriefing';
 import FEEDTracker from './pages/FEEDTracker';
 import FeasibilityStudy from './pages/FeasibilityStudy';
+import FinanceModel from './pages/FinanceModel';
 import Home from './pages/Home';
 import NPVCalculator from './pages/NPVCalculator';
 import NewProject from './pages/NewProject';
@@ -60,7 +61,7 @@ import RiskRegister from './pages/RiskRegister';
 import ScheduleMonitoring from './pages/ScheduleMonitoring';
 import Settings from './pages/Settings';
 import WeeklyReports from './pages/WeeklyReports';
-import FinanceModel from './pages/FinanceModel';
+import SiteSelection from './pages/SiteSelection';
 import __Layout from './Layout.jsx';
 
 
@@ -69,6 +70,7 @@ export const PAGES = {
     "ClientBriefing": ClientBriefing,
     "FEEDTracker": FEEDTracker,
     "FeasibilityStudy": FeasibilityStudy,
+    "FinanceModel": FinanceModel,
     "Home": Home,
     "NPVCalculator": NPVCalculator,
     "NewProject": NewProject,
@@ -78,7 +80,7 @@ export const PAGES = {
     "ScheduleMonitoring": ScheduleMonitoring,
     "Settings": Settings,
     "WeeklyReports": WeeklyReports,
-    "FinanceModel": FinanceModel,
+    "SiteSelection": SiteSelection,
 }
 
 export const pagesConfig = {
