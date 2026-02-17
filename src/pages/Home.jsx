@@ -265,10 +265,18 @@ export default function Home() {
 
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              <BudgetTrendChart data={budgetData} />
-              <RiskDistributionChart data={risks} />
-              <ScheduleProgressChart data={scheduleData} />
-              <QAQCStatsChart qaData={qaRecords} ncData={nonConformities} />
+              <div className="cursor-pointer" onClick={() => navigate(createPageUrl(`BudgetDashboard?id=${selectedProjectId}`))}>
+                <BudgetTrendChart data={budgetData} />
+              </div>
+              <div className="cursor-pointer" onClick={() => navigate(createPageUrl(`RiskRegister?id=${selectedProjectId}`))}>
+                <RiskDistributionChart data={risks} />
+              </div>
+              <div className="cursor-pointer" onClick={() => navigate(createPageUrl(`ScheduleMonitoring?id=${selectedProjectId}`))}>
+                <ScheduleProgressChart data={scheduleData} />
+              </div>
+              <div className="cursor-pointer" onClick={() => navigate(createPageUrl(`QAQCDashboard?id=${selectedProjectId}`))}>
+                <QAQCStatsChart qaData={qaRecords} ncData={nonConformities} />
+              </div>
             </div>
 
             {/* Quick Actions */}
