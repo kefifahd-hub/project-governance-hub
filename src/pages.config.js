@@ -50,7 +50,6 @@
 import BudgetDashboard from './pages/BudgetDashboard';
 import ClientBriefing from './pages/ClientBriefing';
 import FEEDTracker from './pages/FEEDTracker';
-import FeasibilityStudy from './pages/FeasibilityStudy';
 import FinanceModel from './pages/FinanceModel';
 import Home from './pages/Home';
 import NPVCalculator from './pages/NPVCalculator';
@@ -69,7 +68,6 @@ export const PAGES = {
     "BudgetDashboard": BudgetDashboard,
     "ClientBriefing": ClientBriefing,
     "FEEDTracker": FEEDTracker,
-    "FeasibilityStudy": FeasibilityStudy,
     "FinanceModel": FinanceModel,
     "Home": Home,
     "NPVCalculator": NPVCalculator,
