@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import QualityGateTimeline from '../components/feasibility/QualityGateTimeline';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, DollarSign, TrendingUp, AlertTriangle, Calendar, Activity, Settings2 } from 'lucide-react';
 import BudgetTrendChart from '../components/dashboard/BudgetTrendChart';
