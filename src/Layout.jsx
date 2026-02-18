@@ -13,7 +13,7 @@ export default function Layout({ children, currentPageName }) {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
   
-  const showSidebar = !['NewProject', 'Settings'].includes(currentPageName);
+  const showSidebar = !['NewProject', 'Settings'].includes(currentPageName) && !!projectId;
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],

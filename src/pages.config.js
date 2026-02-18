@@ -60,8 +60,8 @@ import QAQCDashboard from './pages/QAQCDashboard';
 import RiskRegister from './pages/RiskRegister';
 import ScheduleMonitoring from './pages/ScheduleMonitoring';
 import Settings from './pages/Settings';
-import WeeklyReports from './pages/WeeklyReports';
 import SiteSelection from './pages/SiteSelection';
+import WeeklyReports from './pages/WeeklyReports';
 import __Layout from './Layout.jsx';
 
 
@@ -79,8 +79,8 @@ export const PAGES = {
     "RiskRegister": RiskRegister,
     "ScheduleMonitoring": ScheduleMonitoring,
     "Settings": Settings,
-    "WeeklyReports": WeeklyReports,
     "SiteSelection": SiteSelection,
+    "WeeklyReports": WeeklyReports,
 }
 
 export const pagesConfig = {
