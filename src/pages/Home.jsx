@@ -186,6 +186,9 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Quality Gate Timeline */}
+      {selectedProjectId && <QualityGateTimeline projectId={selectedProjectId} />}
+
       {/* Dashboard Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {!selectedProjectId ? (
