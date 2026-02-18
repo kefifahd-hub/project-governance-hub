@@ -9,7 +9,7 @@ export default function DCFOutputTab({ dcfResult, cashFlowData, dcfAssumptions }
   if (!dcfResult) return <div style={{ color: '#94A3B8' }} className="p-8 text-center">No data to display. Configure inputs first.</div>;
 
   const { annualRows, npvOfCashFlows, terminalValue, npvTerminalValue, totalNPV } = dcfResult;
-  const chartData = annualRows.map(r => ({ year: r.year, fcf: parseFloat(r.fcf.toFixed(1)), discounted: parseFloat(r.discountedFCF.toFixed(1)) }));
+  const chartData = annualRows.map(r => ({ year: r.year, fcf: parseFloat((r.fcf ?? 0).toFixed(1)), discounted: parseFloat((r.discountedFCF ?? 0).toFixed(1)) }));
 
   return (
     <div className="space-y-4">
