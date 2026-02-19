@@ -8,13 +8,12 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
-const SECURITY_CODE = 'Kefi00';
 const STORAGE_KEY = 'pmo_auth';
 
 export default function Layout({ children, currentPageName }) {
   const [code, setCode] = useState('');
   const [error, setError] = useState(false);
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem(STORAGE_KEY) === 'true');
+  const [authed, setAuthed] = useState(true);
 
   // All hooks must be called unconditionally before any early return
   const location = useLocation();

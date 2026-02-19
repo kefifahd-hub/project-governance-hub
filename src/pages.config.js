@@ -47,7 +47,9 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ActionTracker from './pages/ActionTracker';
 import BudgetDashboard from './pages/BudgetDashboard';
+import ChangeManagement from './pages/ChangeManagement';
 import ClientBriefing from './pages/ClientBriefing';
 import FEEDTracker from './pages/FEEDTracker';
 import FinanceModel from './pages/FinanceModel';
@@ -61,13 +63,13 @@ import ScheduleMonitoring from './pages/ScheduleMonitoring';
 import Settings from './pages/Settings';
 import SiteSelection from './pages/SiteSelection';
 import WeeklyReports from './pages/WeeklyReports';
-import ChangeManagement from './pages/ChangeManagement';
-import ActionTracker from './pages/ActionTracker';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "ActionTracker": ActionTracker,
     "BudgetDashboard": BudgetDashboard,
+    "ChangeManagement": ChangeManagement,
     "ClientBriefing": ClientBriefing,
     "FEEDTracker": FEEDTracker,
     "FinanceModel": FinanceModel,
@@ -81,8 +83,6 @@ export const PAGES = {
     "Settings": Settings,
     "SiteSelection": SiteSelection,
     "WeeklyReports": WeeklyReports,
-    "ChangeManagement": ChangeManagement,
-    "ActionTracker": ActionTracker,
 }
 
 export const pagesConfig = {
