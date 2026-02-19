@@ -80,7 +80,6 @@ export default function Layout({ children, currentPageName }) {
   }
   
   const showSidebar = !['NewProject', 'Settings'].includes(currentPageName) && !!projectId;
-
   const tools = [
     { name: 'Site Selection', page: 'SiteSelection' },
     { name: 'Feasibility Study', page: 'FeasibilityStudy' },
