@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { Home, Wrench, Settings, Menu, ChevronDown, Briefcase } from 'lucide-react';
+import { Home, Wrench, Settings, Menu, ChevronDown, Briefcase, GitPullRequest } from 'lucide-react';
 import { createPageUrl } from './utils';
 import ProjectSidebar from './components/ProjectSidebar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
