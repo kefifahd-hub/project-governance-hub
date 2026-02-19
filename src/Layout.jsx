@@ -40,6 +40,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'QA/QC', page: 'QAQCDashboard' },
     { name: 'Schedule Monitoring', page: 'ScheduleMonitoring' },
     { name: 'Weekly Reports', page: 'WeeklyReports' },
+    { name: 'Change Management', page: 'ChangeManagement' },
     { name: 'Client Briefing', page: 'ClientBriefing' }
   ];
   
