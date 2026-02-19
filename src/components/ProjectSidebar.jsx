@@ -20,6 +20,7 @@ const PHASE_TOOLS = {
 };
 
 const ALL_TOOLS = [
+  { page: 'ActionTracker',      label: 'Action Tracker',       icon: ListTodo },
   { page: 'SiteSelection',      label: 'Site Selection',       icon: MapPin },
   { page: 'FeasibilityStudy',   label: 'Feasibility Study',    icon: FileText },
   { page: 'NPVCalculator',      label: 'NPV Calculator',       icon: Calculator },
