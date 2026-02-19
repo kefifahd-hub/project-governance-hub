@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import WeeklyReportView from '@/components/reports/WeeklyReportView';
 import DailySiteReportView from '@/components/reports/DailySiteReportView';
 import ReportArchive from '@/components/reports/ReportArchive';
+
 import { BarChart2, HardHat, Archive } from 'lucide-react';
 
 const TABS = [

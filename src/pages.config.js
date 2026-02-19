@@ -58,12 +58,12 @@ import NPVCalculator from './pages/NPVCalculator';
 import NewProject from './pages/NewProject';
 import ProjectDashboard from './pages/ProjectDashboard';
 import QAQCDashboard from './pages/QAQCDashboard';
+import Reports from './pages/Reports';
 import RiskRegister from './pages/RiskRegister';
 import ScheduleMonitoring from './pages/ScheduleMonitoring';
 import Settings from './pages/Settings';
 import SiteSelection from './pages/SiteSelection';
 import WeeklyReports from './pages/WeeklyReports';
-import Reports from './pages/Reports';
 import __Layout from './Layout.jsx';
 
 
@@ -79,12 +79,12 @@ export const PAGES = {
     "NewProject": NewProject,
     "ProjectDashboard": ProjectDashboard,
     "QAQCDashboard": QAQCDashboard,
+    "Reports": Reports,
     "RiskRegister": RiskRegister,
     "ScheduleMonitoring": ScheduleMonitoring,
     "Settings": Settings,
     "SiteSelection": SiteSelection,
     "WeeklyReports": WeeklyReports,
-    "Reports": Reports,
 }
 
 export const pagesConfig = {
