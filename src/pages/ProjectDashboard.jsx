@@ -41,6 +41,14 @@ export default function ProjectDashboard() {
 
   const tools = [
     {
+      id: 'actiontracker',
+      name: 'Action Tracker',
+      description: 'Day-to-day task, issue, decision & RFI management',
+      icon: ListTodo,
+      color: 'bg-violet-500',
+      page: 'ActionTracker'
+    },
+    {
       id: 'siteselection',
       name: 'Site Selection',
       description: 'Evaluate and compare candidate sites with structured scoring matrix',
