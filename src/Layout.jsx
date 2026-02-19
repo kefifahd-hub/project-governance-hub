@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Home, Wrench, Settings, Menu, ChevronDown, Briefcase } from 'lucide-react';
 import { createPageUrl } from './utils';
