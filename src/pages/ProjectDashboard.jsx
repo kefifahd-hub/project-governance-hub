@@ -127,6 +127,14 @@ export default function ProjectDashboard() {
       icon: BarChart3,
       color: 'bg-cyan-500',
       page: 'ScheduleMonitoring'
+    },
+    {
+      id: 'changemanagement',
+      name: 'Change Management',
+      description: 'Track, assess and approve project change requests',
+      icon: GitPullRequest,
+      color: 'bg-pink-600',
+      page: 'ChangeManagement'
     }
   ];
 
