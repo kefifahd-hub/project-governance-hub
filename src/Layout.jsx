@@ -81,20 +81,6 @@ export default function Layout({ children, currentPageName }) {
   
   const showSidebar = !['NewProject', 'Settings'].includes(currentPageName) && !!projectId;
 
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.filter({ status: 'Active' }, '-created_date')
-  });
-
-  const { data: currentProject } = useQuery({
-    queryKey: ['project', projectId],
-    queryFn: async () => {
-      const result = await base44.entities.Project.filter({ id: projectId });
-      return result[0];
-    },
-    enabled: !!projectId
-  });
-
   const tools = [
     { name: 'Site Selection', page: 'SiteSelection' },
     { name: 'Feasibility Study', page: 'FeasibilityStudy' },
