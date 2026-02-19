@@ -16,6 +16,26 @@ export default function Layout({ children, currentPageName }) {
   const [error, setError] = useState(false);
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(STORAGE_KEY) === 'true');
 
+  // All hooks must be called unconditionally before any early return
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get('id');
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => base44.entities.Project.filter({ status: 'Active' }, '-created_date'),
+    enabled: authed,
+  });
+
+  const { data: currentProject } = useQuery({
+    queryKey: ['project', projectId],
+    queryFn: async () => {
+      const result = await base44.entities.Project.filter({ id: projectId });
+      return result[0];
+    },
+    enabled: authed && !!projectId,
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (code === SECURITY_CODE) {
@@ -58,10 +78,6 @@ export default function Layout({ children, currentPageName }) {
       </div>
     );
   }
-
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
-  const projectId = searchParams.get('id');
   
   const showSidebar = !['NewProject', 'Settings'].includes(currentPageName) && !!projectId;
 
