@@ -11,9 +11,9 @@ const PHASE_TOOLS = {
   'FEED':        ['FeasibilityStudy', 'FinanceModel', 'NPVCalculator', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard'],
   'Investment Decision': ['FinanceModel', 'NPVCalculator', 'RiskRegister', 'BudgetDashboard'],
   'Project Setup':       ['FinanceModel', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring'],
-  'Detailed Engineering':['FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports'],
-  'Procurement':         ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard'],
-  'Construction':        ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard'],
+  'Detailed Engineering':['FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'ChangeManagement'],
+  'Procurement':         ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement'],
+  'Construction':        ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement'],
   'Commissioning':       ['ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister', 'ChangeManagement'],
 
   'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports'],
