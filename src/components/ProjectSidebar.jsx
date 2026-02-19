@@ -14,7 +14,7 @@ const PHASE_TOOLS = {
   'Detailed Engineering':['FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports'],
   'Procurement':         ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard'],
   'Construction':        ['RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard'],
-  'Commissioning':       ['ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister'],
+  'Commissioning':       ['ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister', 'ChangeManagement'],
 
   'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports'],
 };
@@ -30,6 +30,7 @@ const ALL_TOOLS = [
   { page: 'ScheduleMonitoring', label: 'Schedule Monitoring',  icon: BarChart3 },
   { page: 'WeeklyReports',      label: 'Weekly Reports',       icon: FileBarChart },
   { page: 'QAQCDashboard',      label: 'QA/QC',                icon: CheckSquare },
+  { page: 'ChangeManagement',   label: 'Change Management',    icon: GitPullRequest },
 ];
 
 // Always visible regardless of phase
