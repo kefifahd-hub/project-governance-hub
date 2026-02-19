@@ -62,6 +62,7 @@ import Settings from './pages/Settings';
 import SiteSelection from './pages/SiteSelection';
 import WeeklyReports from './pages/WeeklyReports';
 import ChangeManagement from './pages/ChangeManagement';
+import ActionTracker from './pages/ActionTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +82,7 @@ export const PAGES = {
     "SiteSelection": SiteSelection,
     "WeeklyReports": WeeklyReports,
     "ChangeManagement": ChangeManagement,
+    "ActionTracker": ActionTracker,
 }
 
 export const pagesConfig = {
