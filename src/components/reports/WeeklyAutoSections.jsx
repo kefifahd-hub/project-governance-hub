@@ -41,7 +41,7 @@ function MiniTable({ headers, rows }) {
   );
 }
 
-export default function WeeklyAutoSections({ projectId, enabledSections, reportingPeriodStart, reportingPeriodEnd }) {
+export default function WeeklyAutoSections({ projectId, enabledSections, reportingPeriodStart, reportingPeriodEnd, readOnly }) {
   const periodStart = parseISO(reportingPeriodStart);
   const periodEnd = parseISO(reportingPeriodEnd);
   const isInPeriod = (dateStr) => { try { return isWithinInterval(parseISO(dateStr), { start: periodStart, end: periodEnd }); } catch { return false; } };
