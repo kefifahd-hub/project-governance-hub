@@ -62,6 +62,8 @@ export default function WeeklyReports() {
     createReportMutation.mutate(formData);
   };
 
+  const toArray = (val) => Array.isArray(val) ? val : (typeof val === 'string' ? val.split('\n').filter(s => s.trim()) : []);
+
   const getStatusColor = (status) => {
     if (status === 'Green') return 'bg-green-500';
     if (status === 'Yellow') return 'bg-yellow-500';

@@ -61,11 +61,11 @@ import QAQCDashboard from './pages/QAQCDashboard';
 import Reports from './pages/Reports';
 import RiskRegister from './pages/RiskRegister';
 import ScheduleMonitoring from './pages/ScheduleMonitoring';
+import ScheduleSync from './pages/ScheduleSync';
 import Settings from './pages/Settings';
 import SiteSelection from './pages/SiteSelection';
-import WeeklyReports from './pages/WeeklyReports';
-import ScheduleSync from './pages/ScheduleSync';
 import UserAccess from './pages/UserAccess';
+import WeeklyReports from './pages/WeeklyReports';
 import __Layout from './Layout.jsx';
 
 
@@ -84,11 +84,11 @@ export const PAGES = {
     "Reports": Reports,
     "RiskRegister": RiskRegister,
     "ScheduleMonitoring": ScheduleMonitoring,
+    "ScheduleSync": ScheduleSync,
     "Settings": Settings,
     "SiteSelection": SiteSelection,
-    "WeeklyReports": WeeklyReports,
-    "ScheduleSync": ScheduleSync,
     "UserAccess": UserAccess,
+    "WeeklyReports": WeeklyReports,
 }
 
 export const pagesConfig = {
