@@ -11,10 +11,10 @@ const PHASE_TOOLS = {
   'FEED':        ['FeasibilityStudy', 'FinanceModel', 'NPVCalculator', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard'],
   'Investment Decision': ['FinanceModel', 'NPVCalculator', 'RiskRegister', 'BudgetDashboard'],
   'Project Setup':       ['FinanceModel', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring'],
-  'Detailed Engineering':['ActionTracker', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'ChangeManagement', 'Reports'],
-  'Procurement':         ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'Reports'],
-  'Construction':        ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'Reports'],
-  'Commissioning':       ['ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister', 'ChangeManagement', 'ActionTracker', 'Reports'],
+  'Detailed Engineering':['ActionTracker', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'ChangeManagement', 'UserAccess', 'Reports'],
+  'Procurement':         ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'UserAccess', 'Reports'],
+  'Construction':        ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'UserAccess', 'Reports'],
+  'Commissioning':       ['ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister', 'ChangeManagement', 'ActionTracker', 'UserAccess', 'Reports'],
   'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports'],
 };
 
