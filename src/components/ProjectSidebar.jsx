@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper } from 'lucide-react';
+import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw } from 'lucide-react';
 import { createPageUrl } from '../utils';
 
 // Phase → which tools are relevant
@@ -11,11 +11,10 @@ const PHASE_TOOLS = {
   'FEED':        ['FeasibilityStudy', 'FinanceModel', 'NPVCalculator', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard'],
   'Investment Decision': ['FinanceModel', 'NPVCalculator', 'RiskRegister', 'BudgetDashboard'],
   'Project Setup':       ['FinanceModel', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring'],
-  'Detailed Engineering':['ActionTracker', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'ChangeManagement', 'Reports'],
-  'Procurement':         ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'Reports'],
-  'Construction':        ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'Reports'],
-  'Commissioning':       ['ScheduleMonitoring', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister', 'ChangeManagement', 'ActionTracker', 'Reports'],
-
+  'Detailed Engineering':['ActionTracker', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'ChangeManagement', 'Reports'],
+  'Procurement':         ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'Reports'],
+  'Construction':        ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'Reports'],
+  'Commissioning':       ['ScheduleMonitoring', 'ScheduleSync', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister', 'ChangeManagement', 'ActionTracker', 'Reports'],
   'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports'],
 };
 
@@ -29,6 +28,7 @@ const ALL_TOOLS = [
   { page: 'RiskRegister',       label: 'Risk Register',        icon: AlertTriangle },
   { page: 'BudgetDashboard',    label: 'Budget Tracking',      icon: PiggyBank },
   { page: 'ScheduleMonitoring', label: 'Schedule Monitoring',  icon: BarChart3 },
+  { page: 'ScheduleSync',       label: 'Schedule Sync',        icon: RefreshCcw },
   { page: 'WeeklyReports',      label: 'Weekly Reports',       icon: FileBarChart },
   { page: 'QAQCDashboard',      label: 'QA/QC',                icon: CheckSquare },
   { page: 'ChangeManagement',   label: 'Change Management',    icon: GitPullRequest },
