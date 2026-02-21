@@ -69,8 +69,8 @@ export default function WeeklyReportView({ projectId }) {
   });
 
   const weeks = buildWeekList(
-    project?.startDate ? parseISO(project.startDate) : subWeeks(now, 52),
-    project?.targetCompletion ? parseISO(project.targetCompletion) : addWeeks(now, 26)
+    new Date(currentYear, 0, 1),
+    new Date(currentYear, 11, 31)
   );
 
   const reportMap = {};
