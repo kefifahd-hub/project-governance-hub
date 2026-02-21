@@ -96,7 +96,7 @@ export default function WeeklyReportView({ projectId }) {
   // Count missing past weeks
   const missingWeeks = weeks.filter(w => {
     const daysPast = (now - w.weekEnd) / 86400000;
-    return daysPast > 7 && !reportMap[`${w.cw}-${w.year}`];
+    return daysPast > 7 && !reportMap[`${w.cw}-${w.year}`] && w.weekEnd <= now;
   }).length;
 
   function handleGenerate() {
