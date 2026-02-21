@@ -65,6 +65,7 @@ import Settings from './pages/Settings';
 import SiteSelection from './pages/SiteSelection';
 import WeeklyReports from './pages/WeeklyReports';
 import ScheduleSync from './pages/ScheduleSync';
+import UserAccess from './pages/UserAccess';
 import __Layout from './Layout.jsx';
 
 
@@ -87,6 +88,7 @@ export const PAGES = {
     "SiteSelection": SiteSelection,
     "WeeklyReports": WeeklyReports,
     "ScheduleSync": ScheduleSync,
+    "UserAccess": UserAccess,
 }
 
 export const pagesConfig = {
