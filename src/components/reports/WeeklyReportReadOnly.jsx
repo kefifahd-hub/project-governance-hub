@@ -34,6 +34,7 @@ export default function WeeklyReportReadOnly({ report, projectId }) {
         </div>
         <div className="flex items-center gap-2">
           <Badge style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)' }}>✅ Published</Badge>
+          <ExportPdfButton report={report} />
           <Button size="sm" variant="outline" onClick={() => revertMutation.mutate()} disabled={revertMutation.isPending} style={{ borderColor: 'rgba(239,68,68,0.3)', color: '#ef4444', fontSize: '0.7rem' }}>
             {revertMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <RotateCcw className="w-3 h-3 mr-1" />}
             Revert to Draft
