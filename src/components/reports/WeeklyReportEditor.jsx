@@ -71,6 +71,7 @@ export default function WeeklyReportEditor({ report, projectId }) {
         <div className="flex gap-2 flex-wrap">
           <Badge style={{ background: 'rgba(59,130,246,0.2)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.3)' }}>📝 Draft</Badge>
           <Button size="sm" variant="outline" onClick={() => setShowSectionConfig(true)} style={{ borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>⚙️ Sections</Button>
+          <ExportPdfButton report={form} />
           <Button size="sm" variant="outline" onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending} style={{ borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>
             {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             <span className="ml-1">Save</span>
