@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { RotateCcw, Loader2 } from 'lucide-react';
 import WeeklyAutoSections from './WeeklyAutoSections';
+import ExportPdfButton from './ExportPdfButton';
 
 const RAG_COLORS = { Green: '#10b981', Amber: '#f59e0b', Red: '#ef4444' };
 
