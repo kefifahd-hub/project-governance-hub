@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CheckCircle2, Save, Send, Loader2, AlertTriangle, TrendingUp, DollarSign, List, Shield, RefreshCw, Flag, Telescope } from 'lucide-react';
 import WeeklyAutoSections from './WeeklyAutoSections';
 import SectionConfigModal from './SectionConfigModal';
+import ExportPdfButton from './ExportPdfButton';
 
 const RAG_OPTIONS = ['Green', 'Amber', 'Red'];
 const RAG_COLORS = { Green: '#10b981', Amber: '#f59e0b', Red: '#ef4444' };
