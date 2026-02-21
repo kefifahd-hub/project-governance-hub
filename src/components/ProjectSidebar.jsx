@@ -32,6 +32,7 @@ const ALL_TOOLS = [
   { page: 'WeeklyReports',      label: 'Weekly Reports',       icon: FileBarChart },
   { page: 'QAQCDashboard',      label: 'QA/QC',                icon: CheckSquare },
   { page: 'ChangeManagement',   label: 'Change Management',    icon: GitPullRequest },
+  { page: 'UserAccess',         label: 'Users & Access',       icon: Users },
   { page: 'Reports',            label: 'Reports',              icon: Newspaper },
 ];
 
