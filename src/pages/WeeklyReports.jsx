@@ -120,27 +120,27 @@ export default function WeeklyReports() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {report.highlights?.length > 0 && (
+                {toArray(report.highlights).length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-2" style={{ color: '#CADCFC' }}>✅ Highlights</h3>
                     <ul className="list-disc list-inside space-y-1" style={{ color: '#94A3B8' }}>
-                      {report.highlights.map((h, i) => <li key={i}>{h}</li>)}
+                      {toArray(report.highlights).map((h, i) => <li key={i}>{h}</li>)}
                     </ul>
                   </div>
                 )}
-                {report.concerns?.length > 0 && (
+                {toArray(report.concerns).length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-2" style={{ color: '#CADCFC' }}>⚠️ Concerns</h3>
                     <ul className="list-disc list-inside space-y-1" style={{ color: '#94A3B8' }}>
-                      {report.concerns.map((c, i) => <li key={i}>{c}</li>)}
+                      {toArray(report.concerns).map((c, i) => <li key={i}>{c}</li>)}
                     </ul>
                   </div>
                 )}
-                {report.nextWeek?.length > 0 && (
+                {toArray(report.nextWeek).length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-2" style={{ color: '#CADCFC' }}>📋 Next Week</h3>
                     <ul className="list-disc list-inside space-y-1" style={{ color: '#94A3B8' }}>
-                      {report.nextWeek.map((n, i) => <li key={i}>{n}</li>)}
+                      {toArray(report.nextWeek).map((n, i) => <li key={i}>{n}</li>)}
                     </ul>
                   </div>
                 )}
