@@ -92,6 +92,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Schedule Monitoring', page: 'ScheduleMonitoring' },
     { name: 'Weekly Reports', page: 'WeeklyReports' },
     { name: 'Schedule Sync', page: 'ScheduleSync' },
+    { name: 'Users & Access', page: 'UserAccess' },
     { name: 'Change Management', page: 'ChangeManagement' },
     { name: 'Reports', page: 'Reports' },
     { name: 'Client Briefing', page: 'ClientBriefing' }
