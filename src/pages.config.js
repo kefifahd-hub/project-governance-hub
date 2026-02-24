@@ -66,6 +66,7 @@ import Settings from './pages/Settings';
 import SiteSelection from './pages/SiteSelection';
 import UserAccess from './pages/UserAccess';
 import WeeklyReports from './pages/WeeklyReports';
+import FeasibilityStudy from './pages/FeasibilityStudy';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +90,7 @@ export const PAGES = {
     "SiteSelection": SiteSelection,
     "UserAccess": UserAccess,
     "WeeklyReports": WeeklyReports,
+    "FeasibilityStudy": FeasibilityStudy,
 }
 
 export const pagesConfig = {
