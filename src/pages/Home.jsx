@@ -143,7 +143,7 @@ export default function Home() {
     updateProjectMutation.mutate(editFormData);
   };
 
-  if (!selectedProjectId && !isLoading) {
+  if (!selectedProjectId) {
     return <PlatformWelcome projects={projects} />;
   }
 
