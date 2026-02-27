@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import ActionTracker from './pages/ActionTracker';
+import Brainiac from './pages/Brainiac';
 import BudgetDashboard from './pages/BudgetDashboard';
 import ChangeManagement from './pages/ChangeManagement';
 import ClientBriefing from './pages/ClientBriefing';
@@ -67,12 +68,12 @@ import Settings from './pages/Settings';
 import SiteSelection from './pages/SiteSelection';
 import UserAccess from './pages/UserAccess';
 import WeeklyReports from './pages/WeeklyReports';
-import Brainiac from './pages/Brainiac';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ActionTracker": ActionTracker,
+    "Brainiac": Brainiac,
     "BudgetDashboard": BudgetDashboard,
     "ChangeManagement": ChangeManagement,
     "ClientBriefing": ClientBriefing,
@@ -92,7 +93,6 @@ export const PAGES = {
     "SiteSelection": SiteSelection,
     "UserAccess": UserAccess,
     "WeeklyReports": WeeklyReports,
-    "Brainiac": Brainiac,
 }
 
 export const pagesConfig = {

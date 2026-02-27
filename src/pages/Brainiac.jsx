@@ -118,9 +118,9 @@ export default function Brainiac() {
       </div>
 
       {/* Main area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden" style={{ height: 'calc(100vh - 120px)' }}>
         {/* Canvas area */}
-        <div className="flex-1 p-4 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden" style={{ padding: '12px' }}>
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
