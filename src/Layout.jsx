@@ -222,7 +222,7 @@ export default function Layout({ children, currentPageName }) {
                     background: active ? (item.glow ? 'rgba(167,139,250,0.1)' : 'rgba(0, 168, 150, 0.1)') : 'transparent'
                   }}
                 >
-                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${item.glow ? 'drop-shadow-[0_0_6px_#a78bfa]' : ''}`} />
                   <span className="text-[10px] sm:text-xs font-medium">{item.name}</span>
                 </Link>
               );
