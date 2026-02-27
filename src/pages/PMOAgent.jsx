@@ -103,14 +103,6 @@ export default function PMOAgent() {
 
     let aiResponse = '';
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `${historyForAI}\n\nPMO Agent:`,
-        response_json_schema: null,
-        add_context_from_internet: false,
-        file_urls: null,
-      });
-      // InvokeLLM with system instruction baked into conversation
-      // We need to send the full prompt including system
       const fullResult = await base44.integrations.Core.InvokeLLM({
         prompt: `[SYSTEM INSTRUCTIONS]\n${systemPrompt}\n\n[CONVERSATION]\n${historyForAI}\n\nRespond as PMO Agent now. Be concise, use the project data above, lead with the answer.`,
       });
