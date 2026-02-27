@@ -20,6 +20,18 @@ export default function Layout({ children, currentPageName }) {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
 
+  // Persist last project and redirect Home on refresh if no id
+  React.useEffect(() => {
+    if (projectId) {
+      sessionStorage.setItem('pmo_last_project_id', projectId);
+    } else if (currentPageName === 'Home') {
+      const lastId = sessionStorage.getItem('pmo_last_project_id');
+      if (lastId) {
+        window.location.replace(createPageUrl(`Home?id=${lastId}`));
+      }
+    }
+  }, [projectId, currentPageName]);
+
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
     queryFn: () => base44.entities.Project.filter({ status: 'Active' }, '-created_date'),
