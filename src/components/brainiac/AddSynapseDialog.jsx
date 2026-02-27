@@ -508,7 +508,7 @@ export default function AddSynapseDialog({ open, onClose, neurons, synapses = []
               </div>
             )}
 
-            <Field label="CONDITION (OPTIONAL)" hint='💡 Examples: "report.status == \'Draft\'", "cr.capex_impact > 0"'>
+            <Field label="CONDITION (OPTIONAL)" hint={'💡 Examples: "report.status == \'Draft\'", "cr.capex_impact > 0"'}>
               <Textarea value={form.trigger_condition} onChange={e => set('trigger_condition', e.target.value)}
                 rows={2} placeholder="Only fire when this expression is true..."
                 className="text-xs font-mono" style={codeStyle} />
