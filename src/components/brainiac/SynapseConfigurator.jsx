@@ -4,33 +4,53 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Save, RotateCcw, Trash2, Pause, Play, History, FlaskConical, ChevronDown, ChevronUp, X, Plus } from 'lucide-react';
-import ProcessingRuleEditor from './ProcessingRuleEditor';
+import { Save, RotateCcw, Trash2, Pause, Play, History, FlaskConical, ChevronDown, ChevronUp, X, Plus, GripVertical } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const inputStyle = { background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.2)', color: '#F8FAFC' };
-const codeStyle = { background: 'rgba(5,10,25,0.8)', borderColor: 'rgba(202,220,252,0.15)', color: '#a5f3fc', resize: 'vertical' };
+const codeStyle = { background: 'rgba(5,10,25,0.8)', borderColor: 'rgba(202,220,252,0.15)', color: '#a5f3fc', resize: 'vertical', fontFamily: 'monospace' };
 
 const ALL_ENTITIES = [
-  'ChangeRequest', 'ChangeImpactAssessment', 'ChangeApproval',
-  'ActionItem', 'ActionBucket', 'ActionPhase', 'ActionChecklist', 'ActionComment',
-  'FinanceModel', 'CapexPlan', 'RevenueAssumptions', 'DCFAssumptions', 'BOMAssumptions',
-  'WeeklyReport', 'WeeklyReportSectionConfig', 'DailySiteReport',
-  'Milestone', 'QualityGate', 'Risk', 'QARecord', 'NonConformity',
-  'ScheduleTask', 'ScheduleActivity', 'ScheduleSource', 'ScheduleVersion', 'ScheduleDelta',
-  'Project', 'BudgetTracking', 'FeasibilityStudy', 'FEEDItem',
-  'CandidateSite', 'SiteAssessment', 'SiteCriteria',
-  'Neuron', 'Synapse', 'SynapseLog', 'SynapseVersion', 'ProcessingRule',
-  'Organization', 'PlatformUser', 'PlatformRole', 'AuditLog',
+  'ChangeRequest','ChangeImpactAssessment','ChangeApproval',
+  'ActionItem','ActionBucket','ActionPhase','ActionChecklist','ActionComment',
+  'FinanceModel','CapexPlan','RevenueAssumptions','DCFAssumptions','BOMAssumptions',
+  'WeeklyReport','WeeklyReportSectionConfig','DailySiteReport',
+  'Milestone','QualityGate','Risk','QARecord','NonConformity',
+  'ScheduleTask','ScheduleActivity','ScheduleSource','ScheduleVersion','ScheduleDelta',
+  'Project','BudgetTracking','FeasibilityStudy','FEEDItem',
+  'CandidateSite','SiteAssessment','SiteCriteria',
+  'Neuron','Synapse','SynapseLog','SynapseVersion','ProcessingRule',
+  'Organization','PlatformUser','PlatformRole','AuditLog',
 ];
 
-const SORT_DIRECTIONS = ['ASC', 'DESC'];
-const TARGET_ACTIONS = ['Update', 'Append', 'Create', 'Merge', 'Alert Only'];
-const TRIGGER_TYPES = ['Real-time', 'On Event', 'Scheduled', 'On Demand', 'On Record Change'];
-const SYNAPSE_TYPES = ['One-Way', 'Bidirectional', 'Event-Triggered', 'Scheduled'];
-const COMMON_EVENTS = ['on_cr_approval', 'on_report_generation', 'on_schedule_import', 'on_risk_creation', 'on_gate_review', 'on_action_created', 'on_milestone_passed', 'on_budget_update'];
+const TRIGGER_TYPES = ['Real-time','On Event','Scheduled','On Demand','On Record Change'];
+const SYNAPSE_TYPES = ['One-Way','Bidirectional','Event-Triggered','Scheduled'];
+const SORT_DIRECTIONS = ['ASC','DESC'];
+const TARGET_ACTIONS = ['Update','Append','Create','Merge','Alert Only'];
+const RULE_TYPES = ['Formula','Filter','Aggregate','Transform','Conditional','Validate','Enrich','Lookup','Alert','Format'];
+const COMMON_EVENTS = ['on_cr_approval','on_report_generation','on_schedule_import','on_risk_creation','on_gate_review','on_action_created','on_milestone_passed','on_budget_update'];
 
+const RULE_COLORS = {
+  Formula: '#f59e0b', Filter: '#3b82f6', Aggregate: '#8b5cf6',
+  Transform: '#06b6d4', Conditional: '#f97316', Validate: '#10b981',
+  Enrich: '#ec4899', Lookup: '#a78bfa', Alert: '#ef4444', Format: '#84cc16',
+};
+
+const RULE_PLACEHOLDERS = {
+  Formula: 'budget_variance = total_capex - capex_spent;\nbudget_pct = ROUND((capex_spent / total_capex) * 100, 1)',
+  Filter: "severity IN ('Critical', 'High') AND status = 'Open'",
+  Aggregate: "COUNT(id) AS total_count;\nSUM(capex_impact) AS total_impact;\nGROUP BY priority",
+  Transform: 'amount → currency(USD, 0);\ndate → format(DD MMM YYYY);\nstatus → map(Open=🔵, Done=🟢)',
+  Conditional: "IF budget_pct <= 90 THEN cost_rag = 'Green';\nELIF budget_pct <= 100 THEN cost_rag = 'Amber';\nELSE cost_rag = 'Red'",
+  Validate: "npv NOT NULL default 0;\ndue_date IS FUTURE;\nrag_status IN ('Green','Amber','Red')",
+  Enrich: 'LOOKUP User WHERE id = assignee_id → ADD full_name, org_name',
+  Lookup: 'LOOKUP QualityGate WHERE phase = current_phase → GET gate_date, readiness_pct',
+  Alert: "WHEN contingency_pct < 50 THEN NOTIFY(Admin, PM) MESSAGE 'Contingency at {{contingency_pct}}%'",
+  Format: "TEMPLATE 'Budget: ${{total_capex}} | Spent: ${{capex_spent}} ({{budget_pct}}%)'",
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────
 const Section = ({ title, children, defaultOpen = true }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -53,135 +73,108 @@ const Field = ({ label, children, hint }) => (
   </div>
 );
 
-// ─── Tag Input ────────────────────────────────────────────────────────────
-function TagInput({ value, onChange, placeholder, suggestions = [] }) {
-  const [input, setInput] = useState('');
-  const [showSug, setShowSug] = useState(false);
-  const tags = Array.isArray(value) ? value : (value ? value.split(',').map(t => t.trim()).filter(Boolean) : []);
-
-  const add = (tag) => {
-    const t = tag.trim();
-    if (t && !tags.includes(t)) { onChange([...tags, t]); }
-    setInput('');
-    setShowSug(false);
-  };
-
-  const remove = (tag) => onChange(tags.filter(t => t !== tag));
-
-  const filtered = suggestions.filter(s => s.toLowerCase().includes(input.toLowerCase()) && !tags.includes(s));
+// ─── Rule Card ───────────────────────────────────────────────────────────
+function RuleCard({ rule, index, total, onUpdate, onDelete, onMove }) {
+  const [open, setOpen] = useState(false);
+  const color = RULE_COLORS[rule.rule_type] || '#94a3b8';
 
   return (
-    <div className="relative">
-      <div className="min-h-[32px] flex flex-wrap gap-1 p-1 rounded-md border" style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.2)' }}>
-        {tags.map(t => (
-          <span key={t} className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded"
-            style={{ background: 'rgba(0,168,150,0.2)', color: '#00A896' }}>
-            {t}
-            <button onClick={() => remove(t)}><X className="w-2.5 h-2.5" /></button>
-          </span>
-        ))}
-        <input value={input} onChange={e => { setInput(e.target.value); setShowSug(true); }}
-          onKeyDown={e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(input); } }}
-          onBlur={() => setTimeout(() => setShowSug(false), 150)}
-          placeholder={tags.length === 0 ? placeholder : ''}
-          className="flex-1 min-w-[80px] bg-transparent text-xs outline-none" style={{ color: '#F8FAFC' }} />
+    <div className="rounded-lg border overflow-hidden" style={{ borderColor: `${color}33` }}>
+      <div className="flex items-center gap-2 px-3 py-2" style={{ background: `${color}11` }}>
+        <span className="text-[10px] font-bold w-5 text-center" style={{ color: '#64748b' }}>{rule.step_order}</span>
+        <Badge className="text-[10px] px-1.5 py-0 h-5" style={{ background: `${color}22`, color, border: `1px solid ${color}44` }}>{rule.rule_type}</Badge>
+        <span className="flex-1 text-xs truncate font-medium" style={{ color: '#CADCFC' }}>{rule.rule_name || 'Untitled rule'}</span>
+        <div className="flex items-center gap-1">
+          <button onClick={() => onMove(index, -1)} disabled={index === 0} className="p-0.5 opacity-50 hover:opacity-100 disabled:opacity-20">
+            <ChevronUp className="w-3 h-3" style={{ color: '#94a3b8' }} />
+          </button>
+          <button onClick={() => onMove(index, 1)} disabled={index === total - 1} className="p-0.5 opacity-50 hover:opacity-100 disabled:opacity-20">
+            <ChevronDown className="w-3 h-3" style={{ color: '#94a3b8' }} />
+          </button>
+          <button onClick={() => onUpdate({ ...rule, is_active: !rule.is_active })}
+            className="text-[10px] px-1.5 py-0.5 rounded"
+            style={{ background: rule.is_active ? 'rgba(16,185,129,0.15)' : 'rgba(100,116,139,0.15)', color: rule.is_active ? '#10b981' : '#64748b' }}>
+            {rule.is_active ? 'ON' : 'OFF'}
+          </button>
+          <button onClick={() => setOpen(o => !o)} className="p-0.5">
+            {open ? <ChevronUp className="w-3.5 h-3.5" style={{ color: '#64748b' }} /> : <ChevronDown className="w-3.5 h-3.5" style={{ color: '#64748b' }} />}
+          </button>
+          <button onClick={() => onDelete(index)} className="p-0.5">
+            <X className="w-3.5 h-3.5 text-red-400" />
+          </button>
+        </div>
       </div>
-      {showSug && filtered.length > 0 && (
-        <div className="absolute left-0 right-0 z-20 rounded-lg shadow-xl mt-1 max-h-32 overflow-y-auto"
-          style={{ background: 'rgba(15,23,42,0.98)', border: '1px solid rgba(202,220,252,0.15)' }}>
-          {filtered.map(s => (
-            <button key={s} onMouseDown={() => add(s)}
-              className="w-full text-left px-3 py-1.5 text-xs hover:bg-white/5" style={{ color: '#CADCFC' }}>
-              {s}
-            </button>
-          ))}
+      {open && (
+        <div className="p-3 flex flex-col gap-2" style={{ background: 'rgba(5,10,25,0.6)' }}>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="RULE TYPE">
+              <Select value={rule.rule_type} onValueChange={v => onUpdate({ ...rule, rule_type: v })}>
+                <SelectTrigger className="h-7 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+                <SelectContent>{RULE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </Field>
+            <Field label="RULE NAME">
+              <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
+                placeholder="e.g. Calculate budget variance" className="h-7 text-xs" style={inputStyle} />
+            </Field>
+          </div>
+          <Field label="EXPRESSION">
+            <Textarea value={rule.expression || ''} onChange={e => onUpdate({ ...rule, expression: e.target.value })}
+              rows={4} placeholder={RULE_PLACEHOLDERS[rule.rule_type] || 'Enter rule logic...'}
+              className="text-xs" style={codeStyle} />
+          </Field>
+          <Field label="OUTPUT FIELDS" hint="Comma-separated field names this rule produces">
+            <Input value={rule.output_fields || ''} onChange={e => onUpdate({ ...rule, output_fields: e.target.value })}
+              placeholder="e.g. budget_variance, cost_rag, formatted_summary" className="h-7 text-xs" style={inputStyle} />
+          </Field>
+          <Field label="DESCRIPTION">
+            <Textarea value={rule.description || ''} onChange={e => onUpdate({ ...rule, description: e.target.value })}
+              rows={2} placeholder="Plain English: what does this rule do?"
+              style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.1)', color: '#94a3b8' }} />
+          </Field>
         </div>
       )}
     </div>
   );
 }
 
-// ─── Field Checklist for Data Source ─────────────────────────────────────
-function FieldChecklist({ fields, selected, onChange }) {
-  const allSelected = fields.length > 0 && fields.every(f => selected.includes(f));
+// ─── Field Mapping Textarea ───────────────────────────────────────────────
+function FieldMappingTextarea({ value, onChange }) {
+  // Convert JSON object to "key → value" per line
+  const toText = (v) => {
+    if (!v) return '';
+    try {
+      const obj = typeof v === 'string' ? JSON.parse(v) : v;
+      return Object.entries(obj).map(([k, val]) => `${k} → ${val}`).join('\n');
+    } catch { return typeof v === 'string' ? v : ''; }
+  };
 
-  return (
-    <div>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-2">
-        {fields.map(f => (
-          <label key={f} className="flex items-center gap-1.5 text-xs cursor-pointer py-0.5" style={{ color: selected.includes(f) ? '#CADCFC' : '#64748b' }}>
-            <input type="checkbox" checked={selected.includes(f)}
-              onChange={() => onChange(selected.includes(f) ? selected.filter(x => x !== f) : [...selected, f])}
-              className="w-3 h-3 accent-teal-500" />
-            <span className="font-mono">{f}</span>
-          </label>
-        ))}
-      </div>
-      <div className="flex gap-2 mt-1">
-        <button onClick={() => onChange(fields)} className="text-[10px] px-2 py-1 rounded border" style={{ borderColor: 'rgba(0,168,150,0.3)', color: '#00A896' }}>Select All</button>
-        <button onClick={() => onChange([])} className="text-[10px] px-2 py-1 rounded border" style={{ borderColor: 'rgba(202,220,252,0.15)', color: '#64748b' }}>Select None</button>
-      </div>
-    </div>
-  );
-}
-
-// ─── Field Mapping Table ──────────────────────────────────────────────────
-function FieldMappingTable({ value, onChange, sourceFields }) {
-  let rows = [];
-  try { rows = typeof value === 'string' ? Object.entries(JSON.parse(value || '{}')).map(([from, to]) => ({ from, to })) : []; } catch {}
-  if (rows.length === 0) rows = [{ from: '', to: '' }];
-
-  const save = (updated) => {
+  const toJson = (text) => {
     const obj = {};
-    updated.forEach(r => { if (r.from) obj[r.from] = r.to; });
-    onChange(JSON.stringify(obj));
+    text.split('\n').forEach(line => {
+      const parts = line.split('→');
+      if (parts.length === 2) {
+        const k = parts[0].trim();
+        const v = parts[1].trim();
+        if (k) obj[k] = v;
+      }
+    });
+    return JSON.stringify(obj);
   };
 
-  const autoMap = () => {
-    const mapped = sourceFields.map(f => ({ from: f, to: f }));
-    save(mapped.length ? mapped : rows);
-  };
+  const [text, setText] = useState(() => toText(value));
+
+  useEffect(() => { setText(toText(value)); }, [value]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(202,220,252,0.1)' }}>
-        <div className="grid grid-cols-[1fr,24px,1fr,28px] gap-0">
-          <div className="px-3 py-1.5 text-[10px] font-semibold" style={{ background: 'rgba(30,39,97,0.6)', color: '#64748b' }}>FROM (processed output)</div>
-          <div className="py-1.5 text-[10px] text-center" style={{ background: 'rgba(30,39,97,0.6)', color: '#64748b' }}>→</div>
-          <div className="px-3 py-1.5 text-[10px] font-semibold" style={{ background: 'rgba(30,39,97,0.6)', color: '#64748b' }}>TO (target field)</div>
-          <div style={{ background: 'rgba(30,39,97,0.6)' }} />
-        </div>
-        {rows.map((row, i) => (
-          <div key={i} className="grid grid-cols-[1fr,24px,1fr,28px] gap-0" style={{ borderTop: '1px solid rgba(202,220,252,0.05)' }}>
-            <div className="px-2 py-1">
-              <Input value={row.from} onChange={e => { const r = [...rows]; r[i] = { ...row, from: e.target.value }; save(r); }}
-                placeholder="source_field" className="h-7 text-xs border-0 p-0 font-mono focus:ring-0" style={{ background: 'transparent', color: '#a5f3fc' }} />
-            </div>
-            <div className="flex items-center justify-center text-xs" style={{ color: '#475569' }}>→</div>
-            <div className="px-2 py-1">
-              <Input value={row.to} onChange={e => { const r = [...rows]; r[i] = { ...row, to: e.target.value }; save(r); }}
-                placeholder="target_field" className="h-7 text-xs border-0 p-0 font-mono focus:ring-0" style={{ background: 'transparent', color: '#84cc16' }} />
-            </div>
-            <div className="flex items-center justify-center">
-              <button onClick={() => save(rows.filter((_, j) => j !== i))}>
-                <X className="w-3 h-3 text-red-400" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <button onClick={() => save([...rows, { from: '', to: '' }])}
-          className="text-[10px] px-2 py-1 rounded border" style={{ borderColor: 'rgba(202,220,252,0.15)', color: '#64748b' }}>
-          + Add Mapping
-        </button>
-        <button onClick={autoMap}
-          className="text-[10px] px-2 py-1 rounded border" style={{ borderColor: 'rgba(0,168,150,0.3)', color: '#00A896' }}>
-          Auto-Map by Name
-        </button>
-      </div>
-      <div className="text-[10px]" style={{ color: '#475569' }}>ℹ️ "Auto-Map by Name" matches source fields to target fields with the same name</div>
-    </div>
+    <Textarea
+      value={text}
+      onChange={e => { setText(e.target.value); onChange(toJson(e.target.value)); }}
+      rows={6}
+      placeholder={"npv → financial_npv\nirr → financial_irr\nbudget_pct → budget_percentage\ncost_rag → cost_rag_status"}
+      className="text-xs"
+      style={codeStyle}
+    />
   );
 }
 
@@ -189,70 +182,124 @@ function FieldMappingTable({ value, onChange, sourceFields }) {
 export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved, onDeleted }) {
   const qc = useQueryClient();
   const [form, setForm] = useState(null);
-  const [rules, setRules] = useState([]);
+  const [rules, setRules] = useState([]);       // local editing state for ProcessingRule records
   const [saving, setSaving] = useState(false);
   const [testResult, setTestResult] = useState(null);
   const [testing, setTesting] = useState(false);
   const [versionHistory, setVersionHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [sortBy, setSortBy] = useState('');
-  const [sortDir, setSortDir] = useState('ASC');
-  const [sourceFieldsList, setSourceFieldsList] = useState([]);
 
   const neuronMap = {};
   neurons.forEach(n => { neuronMap[n.id] = n; });
   const fromNeuron = neuronMap[synapse.from_neuron_id];
   const toNeuron = neuronMap[synapse.to_neuron_id];
 
+  // Load ProcessingRule records from DB
+  const { data: dbRules = [], refetch: refetchRules } = useQuery({
+    queryKey: ['processingRules', synapse.id],
+    queryFn: () => base44.entities.ProcessingRule.filter({ synapse_id: synapse.id }, 'step_order'),
+  });
+
   useEffect(() => {
     setForm({ ...synapse });
-    try {
-      const parsed = JSON.parse(synapse.processing_rules || '[]');
-      setRules(Array.isArray(parsed) ? parsed.map((r, i) => ({ ...r, id: r.id || `r_${i}` })) : []);
-    } catch { setRules([]); }
-    // Parse sort
-    const sortParts = (synapse.source_sort || '').split(' ');
-    setSortBy(sortParts[0] || '');
-    setSortDir(sortParts[1] || 'ASC');
-    // Derive field suggestions from source_fields
-    try {
-      const f = JSON.parse(synapse.source_fields || '[]');
-      setSourceFieldsList(Array.isArray(f) ? f : []);
-    } catch { setSourceFieldsList([]); }
     base44.entities.SynapseVersion.filter({ synapse_id: synapse.id }, '-version_number', 10).then(setVersionHistory).catch(() => {});
   }, [synapse]);
+
+  useEffect(() => {
+    // Sync local rules from DB records
+    setRules(dbRules.map(r => ({ ...r, _localId: r.id })));
+  }, [dbRules]);
 
   if (!form) return null;
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  // Parse source_fields as array
-  let selectedFields = [];
-  try { selectedFields = JSON.parse(form.source_fields || '[]'); } catch {}
+  const handleRuleUpdate = (idx, updated) => {
+    setRules(rs => rs.map((r, i) => i === idx ? updated : r));
+  };
 
-  const handleSourceFieldsChange = (fields) => {
-    set('source_fields', JSON.stringify(fields));
-    setSourceFieldsList(fields);
+  const handleRuleDelete = (idx) => {
+    setRules(rs => rs.filter((_, i) => i !== idx).map((r, i) => ({ ...r, step_order: i + 1 })));
+  };
+
+  const handleRuleMove = (idx, dir) => {
+    const next = [...rules];
+    const target = idx + dir;
+    if (target < 0 || target >= next.length) return;
+    [next[idx], next[target]] = [next[target], next[idx]];
+    next.forEach((r, i) => { r.step_order = i + 1; });
+    setRules([...next]);
+  };
+
+  const handleAddRule = () => {
+    setRules(rs => [...rs, {
+      _localId: `new_${Date.now()}`,
+      synapse_id: synapse.id,
+      step_order: rs.length + 1,
+      rule_type: 'Formula',
+      rule_name: '',
+      expression: '',
+      output_fields: '',
+      description: '',
+      is_active: true,
+    }]);
   };
 
   const handleSave = async () => {
     setSaving(true);
     const prevConfig = JSON.stringify(synapse);
-    const newSort = [sortBy, sortDir].filter(Boolean).join(' ');
-    const updated = { ...form, source_sort: newSort, processing_rules: JSON.stringify(rules), version: (form.version || 1) + 1 };
+
+    // Save synapse fields
+    const updated = {
+      ...form,
+      version: (form.version || 1) + 1,
+      processing_rules: JSON.stringify(rules.map(r => ({ rule_type: r.rule_type, rule_name: r.rule_name, expression: r.expression }))),
+    };
     await base44.entities.Synapse.update(synapse.id, updated);
+
+    // Sync ProcessingRule records
+    const existing = dbRules;
+    const existingIds = new Set(existing.map(r => r.id));
+    const savedIds = new Set(rules.filter(r => r.id).map(r => r.id));
+
+    // Delete removed rules
+    await Promise.all(existing.filter(r => !savedIds.has(r.id)).map(r => base44.entities.ProcessingRule.delete(r.id)));
+
+    // Update or create
+    await Promise.all(rules.map(r => {
+      const payload = {
+        synapse_id: synapse.id,
+        step_order: r.step_order,
+        rule_type: r.rule_type,
+        rule_name: r.rule_name || 'Untitled',
+        expression: r.expression || '',
+        output_fields: r.output_fields || '',
+        description: r.description || '',
+        is_active: r.is_active !== false,
+        rule_config: JSON.stringify({ expression: r.expression, output_fields: r.output_fields }),
+      };
+      if (r.id && existingIds.has(r.id)) {
+        return base44.entities.ProcessingRule.update(r.id, payload);
+      } else {
+        return base44.entities.ProcessingRule.create(payload);
+      }
+    }));
+
+    // Version log
     await base44.entities.SynapseVersion.create({
       synapse_id: synapse.id, version_number: (form.version || 1) + 1,
       changed_at: new Date().toISOString(), change_description: 'Manual configuration update',
       previous_config: prevConfig, new_config: JSON.stringify(updated),
     });
+
     qc.invalidateQueries({ queryKey: ['synapses'] });
+    qc.invalidateQueries({ queryKey: ['processingRules', synapse.id] });
     setSaving(false);
     onSaved && onSaved();
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Delete synapse "${synapse.synapse_name}"? This will stop data flow between these modules.`)) return;
+    if (!confirm(`Delete synapse "${synapse.synapse_name}"?`)) return;
     await base44.entities.Synapse.delete(synapse.id);
     qc.invalidateQueries({ queryKey: ['synapses'] });
     onDeleted && onDeleted();
@@ -266,26 +313,24 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   };
 
   const handleTest = async () => {
-    setTesting(true);
-    setTestResult(null);
+    setTesting(true); setTestResult(null);
     await new Promise(r => setTimeout(r, 1500));
-    setTestResult({
-      status: 'success',
-      rules_passed: rules.filter(r => r.is_active).length,
-      input: { entity: form.source_entity, filter: form.source_filter || 'none', records_pulled: Math.floor(Math.random() * 20) + 1 },
-      steps: rules.filter(r => r.is_active).map(r => ({ rule: r.rule_name || r.rule_type, status: 'passed', output_fields: selectedFields.slice(0, 3) })),
-      sample_output: { processed: true, rules_applied: rules.length, timestamp: new Date().toISOString() }
-    });
+    setTestResult({ rules_passed: rules.filter(r => r.is_active).length, records: Math.floor(Math.random() * 20) + 1 });
     setTesting(false);
   };
 
   const statusColor = { Active: '#10b981', Paused: '#f59e0b', Error: '#ef4444', Broken: '#ef4444' };
 
+  // Parse sort field + dir
+  const sortParts = (form.source_sort || '').split(' ');
+  const sortField = sortParts[0] || '';
+  const sortDir = sortParts[1] || 'DESC';
+
   return (
-    <div className="flex flex-col gap-3 overflow-y-auto h-full pb-6" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+    <div className="flex flex-col gap-3 pb-6">
       {/* Header */}
       <div className="rounded-xl p-4" style={{ background: 'rgba(30,39,97,0.4)', border: '1px solid rgba(202,220,252,0.1)' }}>
-        <div className="flex items-center gap-2 text-sm mb-1" style={{ color: '#CADCFC' }}>
+        <div className="flex items-center gap-2 text-sm mb-2" style={{ color: '#CADCFC' }}>
           <span>{fromNeuron?.icon} {fromNeuron?.display_name}</span>
           <span style={{ color: '#64748b' }}>──→</span>
           <span>{toNeuron?.icon} {toNeuron?.display_name}</span>
@@ -295,14 +340,10 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
             className="h-8 text-sm font-bold" style={inputStyle} />
         </Field>
         <div className="flex items-center gap-2 flex-wrap mt-2">
-          <Badge style={{ background: `${statusColor[form.health_status]}22`, color: statusColor[form.health_status] }}>{form.health_status}</Badge>
+          <Badge style={{ background: `${statusColor[form.health_status] || '#64748b'}22`, color: statusColor[form.health_status] || '#64748b' }}>{form.health_status}</Badge>
           <Select value={form.priority} onValueChange={v => set('priority', v)}>
-            <SelectTrigger className="h-6 text-[10px] w-24" style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.15)', color: '#94a3b8' }}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {['High', 'Medium', 'Low'].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-            </SelectContent>
+            <SelectTrigger className="h-6 text-[10px] w-24" style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.15)', color: '#94a3b8' }}><SelectValue /></SelectTrigger>
+            <SelectContent>{['High','Medium','Low'].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
           </Select>
           <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#94a3b8' }}>
             <input type="checkbox" checked={form.is_critical || false} onChange={e => set('is_critical', e.target.checked)} className="w-3 h-3" />
@@ -316,57 +357,66 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
       <Section title="1. Trigger — When does data flow?">
         <div className="grid grid-cols-2 gap-2">
           <Field label="TRIGGER TYPE">
-            <Select value={form.trigger_type} onValueChange={v => set('trigger_type', v)}>
+            <Select value={form.trigger_type || 'On Event'} onValueChange={v => set('trigger_type', v)}>
               <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
               <SelectContent>{TRIGGER_TYPES.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
           <Field label="SYNAPSE TYPE">
-            <Select value={form.synapse_type} onValueChange={v => set('synapse_type', v)}>
+            <Select value={form.synapse_type || 'One-Way'} onValueChange={v => set('synapse_type', v)}>
               <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
               <SelectContent>{SYNAPSE_TYPES.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
         </div>
 
-        {form.trigger_type === 'On Event' && (
-          <Field label="EVENT NAME" hint="💡 Fires when the named event is emitted by the source module">
-            <div className="relative">
-              <Input value={form.trigger_event || ''} onChange={e => set('trigger_event', e.target.value)}
-                placeholder="e.g. on_cr_approval" className="h-8 text-xs font-mono" style={inputStyle} list="events-list" />
-              <datalist id="events-list">
-                {COMMON_EVENTS.map(e => <option key={e} value={e} />)}
-              </datalist>
-            </div>
+        {(!form.trigger_type || form.trigger_type === 'On Event') && (
+          <Field label="EVENT NAME" hint="Fires when the named event is emitted by the source module">
+            <Input value={form.trigger_event || ''} onChange={e => set('trigger_event', e.target.value)}
+              placeholder="e.g. on_cr_approval, on_report_generation" className="h-8 text-xs font-mono" style={inputStyle} list="events-list" />
+            <datalist id="events-list">{COMMON_EVENTS.map(e => <option key={e} value={e} />)}</datalist>
           </Field>
         )}
 
         {form.trigger_type === 'Scheduled' && (
-          <Field label="SCHEDULE" hint="Examples: Every Monday 07:00 · Daily 18:00 · Hourly · cron: 0 9 * * 1-5">
-            <Input value={form.trigger_schedule || ''} onChange={e => set('trigger_schedule', e.target.value)}
-              placeholder="e.g. Every Monday 07:00 or cron: 0 9 * * 1" className="h-8 text-xs" style={inputStyle} />
-          </Field>
+          <div className="grid grid-cols-3 gap-2">
+            <Field label="FREQUENCY">
+              <Select value={form.trigger_schedule?.split(' ')[0] || 'Weekly'} onValueChange={v => set('trigger_schedule', `${v} ${form.trigger_schedule?.split(' ').slice(1).join(' ') || 'Monday 07:00'}`)}>
+                <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+                <SelectContent>{['Hourly','Daily','Weekly','Monthly'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+              </Select>
+            </Field>
+            <Field label="DAY (if weekly)">
+              <Select value="" onValueChange={() => {}}>
+                <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue placeholder="Day" /></SelectTrigger>
+                <SelectContent>{['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+              </Select>
+            </Field>
+            <Field label="TIME">
+              <Input value={form.trigger_schedule || ''} onChange={e => set('trigger_schedule', e.target.value)}
+                placeholder="07:00" className="h-8 text-xs" style={inputStyle} />
+            </Field>
+          </div>
         )}
 
         {form.trigger_type === 'On Record Change' && (
           <>
-            <Field label="WATCH ENTITY">
-              <Select value={form.trigger_event || ''} onValueChange={v => set('trigger_event', v)}>
-                <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue placeholder="Select entity to watch" /></SelectTrigger>
-                <SelectContent>{ALL_ENTITIES.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
-              </Select>
+            <Field label="WATCH ENTITY" hint="Synapse fires when a record in this entity changes">
+              <Input value={form.trigger_event || ''} onChange={e => set('trigger_event', e.target.value)}
+                placeholder="e.g. ChangeRequest, FinanceModel" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list" />
+              <datalist id="entity-list">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
             </Field>
-            <Field label="WATCH FIELDS" hint="Synapse fires only when one of these fields changes">
-              <TagInput value={selectedFields} onChange={fields => set('watch_fields', fields.join(','))}
-                placeholder="status, priority, amount..." suggestions={['status', 'priority', 'health_status', 'due_date', 'amount', 'capex_impact']} />
+            <Field label="WATCH FIELDS" hint="Only fire when one of these fields changes (comma-separated)">
+              <Textarea value={form.trigger_condition || ''} onChange={e => set('trigger_condition', e.target.value)}
+                rows={2} placeholder="e.g. status, capex_impact, rag_status" className="text-xs" style={codeStyle} />
             </Field>
           </>
         )}
 
-        <Field label="CONDITION (OPTIONAL)" hint="Expression that must be true for the synapse to fire. Leave empty to always fire.">
+        <Field label="CONDITION (OPTIONAL)" hint="Expression that must be true for synapse to fire. Leave empty to always fire.">
           <Textarea value={form.trigger_condition || ''} onChange={e => set('trigger_condition', e.target.value)}
-            rows={2} placeholder={"cr.status == 'Approved' AND cr.capex_impact > 0"}
-            className="text-xs font-mono" style={codeStyle} />
+            rows={3} placeholder={"cr.status == 'Approved' AND cr.capex_impact > 0"}
+            className="text-xs" style={codeStyle} />
         </Field>
 
         <div className="flex items-center gap-3">
@@ -381,68 +431,84 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
 
       {/* 2. DATA SOURCE */}
       <Section title="2. Data Source — What data flows?">
-        <Field label="SOURCE ENTITY">
-          <Select value={form.source_entity || ''} onValueChange={v => set('source_entity', v)}>
-            <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue placeholder="Select source entity" /></SelectTrigger>
-            <SelectContent>{ALL_ENTITIES.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
-          </Select>
+        <Field label="SOURCE ENTITY" required>
+          <Input value={form.source_entity || ''} onChange={e => set('source_entity', e.target.value)}
+            placeholder="e.g. ChangeRequest, FinanceModel, ActionItem, WeeklyReport" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list2" />
+          <datalist id="entity-list2">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
         </Field>
 
-        <Field label="FIELDS TO PULL">
-          {sourceFieldsList.length > 0 ? (
-            <FieldChecklist fields={sourceFieldsList} selected={selectedFields} onChange={handleSourceFieldsChange} />
-          ) : (
-            <div className="flex flex-col gap-2">
-              <Textarea value={form.source_fields || ''} onChange={e => { set('source_fields', e.target.value); try { setSourceFieldsList(JSON.parse(e.target.value)); } catch {} }}
-                rows={2} placeholder='["title", "status", "capex_impact", "due_date", "priority"]'
-                className="text-xs font-mono" style={codeStyle} />
-              <div className="text-[10px]" style={{ color: '#475569' }}>Enter as JSON array, or add fields below:</div>
-            </div>
-          )}
-          <div className="mt-2">
-            <TagInput value={selectedFields} onChange={handleSourceFieldsChange}
-              placeholder="Add field name and press Enter..."
-              suggestions={['id', 'title', 'status', 'priority', 'created_date', 'due_date', 'assignee', 'capex_impact', 'opex_impact', 'schedule_impact', 'description', 'notes']} />
-          </div>
+        <Field label="SOURCE FIELDS" hint="Comma-separated field names to pull from source entity">
+          <Textarea value={(() => { try { const f = JSON.parse(form.source_fields || '[]'); return Array.isArray(f) ? f.join(', ') : form.source_fields; } catch { return form.source_fields || ''; } })()}
+            onChange={e => {
+              const raw = e.target.value;
+              const arr = raw.split(',').map(s => s.trim()).filter(Boolean);
+              set('source_fields', JSON.stringify(arr));
+            }}
+            rows={3} placeholder="npv, irr, payback_period, total_capex, capex_spent, contingency_total, contingency_remaining, revenue_annual"
+            className="text-xs" style={codeStyle} />
         </Field>
 
-        <Field label="FILTER (OPTIONAL)" hint="SQL-like filter: status = 'Approved' AND capex_impact > 0">
+        <Field label="FILTER (OPTIONAL)" hint="SQL-like condition: status = 'Approved' AND capex_impact > 0">
           <Textarea value={form.source_filter || ''} onChange={e => set('source_filter', e.target.value)}
-            rows={2} placeholder={"status != 'Cancelled' AND priority IN ('Critical','High')"}
-            className="text-xs font-mono" style={codeStyle} />
+            rows={3} placeholder={"status != 'Cancelled' AND priority IN ('Critical','High')"}
+            className="text-xs" style={codeStyle} />
         </Field>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-[1fr,80px,80px] gap-2">
           <Field label="SORT BY">
-            <div className="flex gap-1">
-              <Input value={sortBy} onChange={e => setSortBy(e.target.value)}
-                placeholder="field_name" className="h-8 text-xs flex-1" style={inputStyle} />
-              <Select value={sortDir} onValueChange={setSortDir}>
-                <SelectTrigger className="h-8 text-xs w-16" style={inputStyle}><SelectValue /></SelectTrigger>
-                <SelectContent>{SORT_DIRECTIONS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
+            <Input value={sortField} onChange={e => set('source_sort', `${e.target.value} ${sortDir}`.trim())}
+              placeholder="e.g. approved_date, due_date" className="h-8 text-xs" style={inputStyle} />
           </Field>
-          <Field label="LIMIT" hint="Max records (empty = all)">
+          <Field label="DIRECTION">
+            <Select value={sortDir} onValueChange={v => set('source_sort', `${sortField} ${v}`.trim())}>
+              <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+              <SelectContent>{SORT_DIRECTIONS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+          <Field label="LIMIT" hint="0 = all">
             <Input type="number" value={form.source_limit || ''} onChange={e => set('source_limit', parseInt(e.target.value) || null)}
-              placeholder="e.g. 10" className="h-8 text-xs" style={inputStyle} />
+              placeholder="e.g. 1" className="h-8 text-xs" style={inputStyle} />
           </Field>
         </div>
       </Section>
 
       {/* 3. PROCESSING RULES */}
       <Section title="3. Processing Rules — How is data transformed?">
-        <ProcessingRuleEditor rules={rules} onChange={setRules} />
+        {rules.length === 0 && (
+          <div className="text-xs text-center py-4" style={{ color: '#475569' }}>
+            No rules yet — data passes through unchanged
+          </div>
+        )}
+        <div className="flex flex-col gap-2">
+          {rules.map((rule, i) => (
+            <RuleCard
+              key={rule._localId || rule.id || i}
+              rule={rule}
+              index={i}
+              total={rules.length}
+              onUpdate={(updated) => handleRuleUpdate(i, updated)}
+              onDelete={() => handleRuleDelete(i)}
+              onMove={(idx, dir) => handleRuleMove(idx, dir)}
+            />
+          ))}
+        </div>
+        <button onClick={handleAddRule}
+          className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg w-full"
+          style={{ border: '1px dashed rgba(167,139,250,0.3)', color: '#a78bfa' }}>
+          <Plus className="w-3.5 h-3.5" /> Add Rule
+        </button>
+        <div className="text-[10px]" style={{ color: '#475569' }}>
+          💡 Rules execute in order. Each rule can reference fields produced by previous rules.
+        </div>
       </Section>
 
       {/* 4. TARGET MAPPING */}
       <Section title="4. Target Mapping — Where does data go?">
         <div className="grid grid-cols-2 gap-2">
-          <Field label="TARGET ENTITY">
-            <Select value={form.target_entity || ''} onValueChange={v => set('target_entity', v)}>
-              <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue placeholder="Select target entity" /></SelectTrigger>
-              <SelectContent>{ALL_ENTITIES.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
-            </Select>
+          <Field label="TARGET ENTITY" required>
+            <Input value={form.target_entity || ''} onChange={e => set('target_entity', e.target.value)}
+              placeholder="e.g. WeeklyReportSection, DashboardMetric" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list3" />
+            <datalist id="entity-list3">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
           </Field>
           <Field label="TARGET ACTION">
             <Select value={form.target_action || 'Update'} onValueChange={v => set('target_action', v)}>
@@ -452,16 +518,35 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
           </Field>
         </div>
 
-        <Field label="FIELD MAPPING">
-          <FieldMappingTable value={form.target_fields || '{}'} onChange={v => set('target_fields', v)} sourceFields={sourceFieldsList} />
+        <Field label="TARGET SECTION (OPTIONAL)" hint="If target entity has named sections, specify which one">
+          <Input value={form.notes?.startsWith('target_section:') ? form.notes.replace('target_section:', '').split('\n')[0] : ''}
+            onChange={e => set('target_section_temp', e.target.value)}
+            placeholder="e.g. Cost & Financial, Schedule, Risk" className="h-8 text-xs" style={inputStyle} />
+        </Field>
+
+        <Field label="FIELD MAPPING" hint="One mapping per line: source_field → target_field">
+          <FieldMappingTextarea value={form.target_fields || '{}'} onChange={v => set('target_fields', v)} />
+        </Field>
+
+        <Field label="AUTO-MAP BY NAME">
+          <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: '#94a3b8' }}>
+            <input type="checkbox" checked={false} onChange={() => {
+              // Auto-populate mapping from source fields
+              try {
+                const fields = JSON.parse(form.source_fields || '[]');
+                const obj = {};
+                fields.forEach(f => { obj[f] = f; });
+                set('target_fields', JSON.stringify(obj));
+              } catch {}
+            }} className="w-3 h-3 accent-teal-500" />
+            Click to auto-map source fields to matching target field names
+          </label>
         </Field>
 
         <Field label="OUTPUT FORMAT">
           <Select value={form.output_format || 'Raw'} onValueChange={v => set('output_format', v)}>
             <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {['Raw', 'Aggregated', 'Formatted', 'Calculated'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
-            </SelectContent>
+            <SelectContent>{['Raw','Aggregated','Formatted','Calculated'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
       </Section>
@@ -472,23 +557,13 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
           className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-medium"
           style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10b98144', color: '#10b981' }}>
           <FlaskConical className="w-4 h-4" />
-          {testing ? 'Running test with live data…' : '▶ Test with Live Data'}
+          {testing ? 'Running test…' : '▶ Test with Live Data'}
         </button>
         {testResult && (
-          <div className="flex flex-col gap-2">
-            <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(5,10,25,0.8)', border: '1px solid rgba(16,185,129,0.3)' }}>
-              <div className="font-bold mb-2 text-emerald-400">✅ Test passed · {testResult.rules_passed} rules applied</div>
-              <div className="mb-2" style={{ color: '#64748b' }}>Input: <span style={{ color: '#CADCFC' }}>{testResult.input?.records_pulled} records from {testResult.input?.entity}</span></div>
-              {testResult.steps?.map((step, i) => (
-                <div key={i} className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981' }}>Step {i + 1}</span>
-                  <span style={{ color: '#94a3b8' }}>{step.rule}</span>
-                  <span className="ml-auto text-emerald-400">✓</span>
-                </div>
-              ))}
-              <pre className="whitespace-pre-wrap text-[10px] mt-2 font-mono" style={{ color: '#a5f3fc' }}>
-                {JSON.stringify(testResult.sample_output, null, 2)}
-              </pre>
+          <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(5,10,25,0.8)', border: '1px solid rgba(16,185,129,0.3)' }}>
+            <div className="font-bold mb-1 text-emerald-400">✅ Test passed · {testResult.rules_passed} rules applied</div>
+            <div style={{ color: '#94a3b8' }}>
+              Pulled {testResult.records} records from <span style={{ color: '#CADCFC' }}>{form.source_entity || '(no entity)'}</span>
             </div>
           </div>
         )}
@@ -514,7 +589,7 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
         </div>
       )}
 
-      {/* Notes */}
+      {/* Admin Notes */}
       <Field label="ADMIN NOTES">
         <Textarea value={form.notes || ''} onChange={e => set('notes', e.target.value)} rows={2}
           placeholder="Notes for other admins about this synapse"
@@ -528,11 +603,10 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
           style={{ background: 'linear-gradient(135deg,#028090,#00A896)', color: '#F8FAFC' }}>
           <Save className="w-4 h-4 mr-1" />{saving ? 'Saving…' : `Save (v${(form.version || 1) + 1})`}
         </Button>
-        <Button onClick={handleTest} disabled={testing} size="sm" variant="outline"
-          style={{ borderColor: '#10b98144', color: '#10b981' }}>
+        <Button onClick={handleTest} disabled={testing} size="sm" variant="outline" style={{ borderColor: '#10b98144', color: '#10b981' }}>
           <FlaskConical className="w-4 h-4 mr-1" />Test
         </Button>
-        <Button onClick={() => { setForm({ ...synapse }); try { setRules(JSON.parse(synapse.processing_rules || '[]').map((r,i)=>({...r,id:r.id||`r_${i}`}))); } catch { setRules([]); } }}
+        <Button onClick={() => { setForm({ ...synapse }); setRules(dbRules.map(r => ({ ...r, _localId: r.id }))); }}
           size="sm" variant="outline" style={{ borderColor: 'rgba(202,220,252,0.1)', color: '#64748b' }}>
           <RotateCcw className="w-4 h-4 mr-1" />Revert
         </Button>
