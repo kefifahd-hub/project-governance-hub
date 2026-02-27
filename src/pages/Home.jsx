@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { createPageUrl } from '../utils';
+import PlatformWelcome from '../components/PlatformWelcome';
 
 export default function Home() {
   const navigate = useNavigate();
