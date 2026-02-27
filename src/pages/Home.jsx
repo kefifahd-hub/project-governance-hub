@@ -143,21 +143,8 @@ export default function Home() {
     updateProjectMutation.mutate(editFormData);
   };
 
-  if (!projects.length && !isLoading) {
-    return (
-      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
-        <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }} className="shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>Dashboard</h1>
-            <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>Get started by creating your first project</p>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 text-center">
-          <h2 className="text-2xl font-bold mb-4" style={{ color: '#CADCFC' }}>Welcome to PMO Governance Platform</h2>
-          <p className="mb-8" style={{ color: '#94A3B8' }}>Create your first project to start tracking milestones, risks, and budgets</p>
-        </div>
-      </div>
-    );
+  if (!selectedProjectId && !isLoading) {
+    return <PlatformWelcome projects={projects} />;
   }
 
   return (
