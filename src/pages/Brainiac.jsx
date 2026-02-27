@@ -233,6 +233,7 @@ export default function Brainiac() {
         open={addSynapseOpen}
         onClose={() => setAddSynapseOpen(false)}
         neurons={neurons}
+        synapses={synapses}
         defaultFromId={addSynapseFromId}
       />
     </div>
