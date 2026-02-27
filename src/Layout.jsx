@@ -218,8 +218,8 @@ export default function Layout({ children, currentPageName }) {
                   to={item.path}
                   className="flex flex-col items-center gap-0.5 sm:gap-1 px-2 sm:px-6 py-1 sm:py-2 rounded-lg transition-all"
                   style={{
-                    color: active ? '#00A896' : '#94A3B8',
-                    background: active ? 'rgba(0, 168, 150, 0.1)' : 'transparent'
+                    color: item.glow ? (active ? '#a78bfa' : '#7c3aed') : (active ? '#00A896' : '#94A3B8'),
+                    background: active ? (item.glow ? 'rgba(167,139,250,0.1)' : 'rgba(0, 168, 150, 0.1)') : 'transparent'
                   }}
                 >
                   <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
