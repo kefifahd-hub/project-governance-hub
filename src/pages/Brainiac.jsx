@@ -71,7 +71,7 @@ export default function Brainiac() {
   const isLoading = loadingNeurons || loadingSynapses;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(135deg, #080d1a 0%, #0f172a 50%, #0d1b2e 100%)' }}>
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 56px)', background: 'linear-gradient(135deg, #080d1a 0%, #0f172a 50%, #0d1b2e 100%)' }}>
       {/* Top Bar */}
       <div className="flex-none px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(202,220,252,0.08)' }}>
         <div className="flex items-center gap-3">
