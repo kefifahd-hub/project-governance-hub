@@ -130,6 +130,18 @@ export default function ActionTracker() {
     localStorage.setItem('pmo_current_user', e.target.value);
   };
 
+  // Auto-redirect to last known project
+  useEffect(() => {
+    if (!projectId) {
+      const lastId = sessionStorage.getItem('pmo_last_project_id');
+      if (lastId) {
+        window.location.href = createPageUrl(`ActionTracker?id=${lastId}`);
+      }
+    } else {
+      sessionStorage.setItem('pmo_last_project_id', projectId);
+    }
+  }, [projectId]);
+
   if (!projectId) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#1E2761 0%,#0F172A 100%)' }}>
