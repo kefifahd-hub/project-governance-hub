@@ -114,6 +114,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Home', icon: Home, path: projectId ? createPageUrl(`Home?id=${projectId}`) : createPageUrl('Home') },
     { name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('Home') },
     { name: 'Brainiac', icon: BrainCircuit, path: createPageUrl('Brainiac'), glow: true },
+    { name: 'PMO Agent', icon: Bot, path: createPageUrl('PMOAgent'), glow2: true },
     { name: 'Settings', icon: Settings, path: createPageUrl('Settings') }
   ];
 
