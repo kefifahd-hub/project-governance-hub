@@ -156,7 +156,7 @@ export default function Brainiac() {
 
         {/* Right panel */}
         {(selectedNeuron || selectedSynapse) && (
-          <div className="w-80 xl:w-96 flex-none flex flex-col" style={{ borderLeft: '1px solid rgba(202,220,252,0.08)' }}>
+          <div className="flex-none flex flex-col" style={{ width: '420px', minWidth: '380px', maxWidth: '440px', borderLeft: '1px solid rgba(202,220,252,0.08)', height: '100%' }}>
             <div className="flex items-center justify-between px-4 py-3 flex-none" style={{ borderBottom: '1px solid rgba(202,220,252,0.06)' }}>
               <span className="text-xs font-semibold tracking-widest" style={{ color: '#64748b' }}>
                 {selectedSynapse ? 'SYNAPSE CONFIGURATOR' : 'NEURON INSPECTOR'}
@@ -165,7 +165,7 @@ export default function Brainiac() {
                 <X className="w-4 h-4" style={{ color: '#64748b' }} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(202,220,252,0.1) transparent' }}>
               {selectedSynapse ? (
                 <SynapseConfigurator
                   synapse={selectedSynapse}
