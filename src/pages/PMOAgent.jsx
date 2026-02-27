@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import AgentChatMessages from '../components/agent/AgentChatMessages';
-import AgentInputBar from '../components/agent/AgentInputBar';
-import AgentSidebar from '../components/agent/AgentSidebar';
-import { buildSystemPrompt } from '../components/agent/agentUtils';
+import AgentChatMessages from '@/components/agent/AgentChatMessages';
+import AgentInputBar from '@/components/agent/AgentInputBar';
+import AgentSidebar from '@/components/agent/AgentSidebar';
+import { buildSystemPrompt } from '@/components/agent/agentUtils';
 import { MessageSquare, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
