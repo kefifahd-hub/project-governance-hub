@@ -58,6 +58,7 @@ import FinanceModel from './pages/FinanceModel';
 import Home from './pages/Home';
 import NPVCalculator from './pages/NPVCalculator';
 import NewProject from './pages/NewProject';
+import PMOAgent from './pages/PMOAgent';
 import ProjectDashboard from './pages/ProjectDashboard';
 import QAQCDashboard from './pages/QAQCDashboard';
 import Reports from './pages/Reports';
@@ -68,7 +69,6 @@ import Settings from './pages/Settings';
 import SiteSelection from './pages/SiteSelection';
 import UserAccess from './pages/UserAccess';
 import WeeklyReports from './pages/WeeklyReports';
-import PMOAgent from './pages/PMOAgent';
 import __Layout from './Layout.jsx';
 
 
@@ -84,6 +84,7 @@ export const PAGES = {
     "Home": Home,
     "NPVCalculator": NPVCalculator,
     "NewProject": NewProject,
+    "PMOAgent": PMOAgent,
     "ProjectDashboard": ProjectDashboard,
     "QAQCDashboard": QAQCDashboard,
     "Reports": Reports,
@@ -94,7 +95,6 @@ export const PAGES = {
     "SiteSelection": SiteSelection,
     "UserAccess": UserAccess,
     "WeeklyReports": WeeklyReports,
-    "PMOAgent": PMOAgent,
 }
 
 export const pagesConfig = {
