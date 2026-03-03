@@ -29,6 +29,7 @@ const RAG_COLORS = { green: "#22c55e", amber: "#f59e0b", red: "#ef4444" };
 export default function PlatformWelcome({ projects = [] }) {
   const navigate = useNavigate();
   const [loaded, setLoaded] = useState(false);
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
   const [hoveredProject, setHoveredProject] = useState(null);
   const [time, setTime] = useState(new Date());
 
