@@ -117,7 +117,7 @@ export default function PlatformWelcome({ projects = [] }) {
                 fontSize: 42, fontWeight: 300, color: "#f1f5f9",
                 margin: 0, lineHeight: 1.2, letterSpacing: "-1px",
               }}>
-                {greeting()}, <span style={{ fontWeight: 600 }}>RJ</span>
+                {greeting()}, <span style={{ fontWeight: 600 }}>{user?.full_name?.split(' ')[0] || 'there'}</span>
               </h1>
               <p style={{ fontSize: 17, color: "#64748b", margin: "10px 0 0 0", fontWeight: 400 }}>
                 {time.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
