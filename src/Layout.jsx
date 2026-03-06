@@ -20,17 +20,12 @@ export default function Layout({ children, currentPageName }) {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
 
-  // Persist last project and redirect Home on refresh if no id
+  // Persist last project id
   React.useEffect(() => {
     if (projectId) {
       sessionStorage.setItem('pmo_last_project_id', projectId);
-    } else if (currentPageName === 'Home') {
-      const lastId = sessionStorage.getItem('pmo_last_project_id');
-      if (lastId) {
-        window.location.replace(createPageUrl(`Home?id=${lastId}`));
-      }
     }
-  }, [projectId, currentPageName]);
+  }, [projectId]);
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
