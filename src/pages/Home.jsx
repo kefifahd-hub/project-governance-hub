@@ -452,13 +452,33 @@ export default function Home() {
                   style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                 />
               </div>
-              <div className="flex gap-3 pt-2">
-                <Button type="submit" style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
-                  Save Changes
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setShowEditDialog(false)} style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}>
-                  Cancel
-                </Button>
+              <div className="flex flex-wrap justify-between gap-3 pt-2">
+                <div className="flex gap-3">
+                  <Button type="submit" style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
+                    Save Changes
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setShowEditDialog(false)} style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}>
+                    Cancel
+                  </Button>
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => { if (window.confirm('Archive this project? It will be set to On Hold.')) archiveProjectMutation.mutate(); }}
+                    style={{ borderColor: 'rgba(245, 158, 11, 0.4)', color: '#F59E0B' }}
+                  >
+                    Archive
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => { if (window.confirm('Permanently delete this project? This cannot be undone.')) deleteProjectMutation.mutate(); }}
+                    style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#EF4444' }}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </div>
             </form>
           )}
