@@ -122,6 +122,24 @@ export default function Home() {
     }
   });
 
+  const deleteProjectMutation = useMutation({
+    mutationFn: () => base44.entities.Project.delete(selectedProjectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setShowEditDialog(false);
+      navigate(createPageUrl('Home'));
+    }
+  });
+
+  const archiveProjectMutation = useMutation({
+    mutationFn: () => base44.entities.Project.update(selectedProjectId, { status: 'On Hold' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project', selectedProjectId] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setShowEditDialog(false);
+    }
+  });
+
   const handleEditClick = () => {
     setEditFormData({
       projectName: currentProject.projectName,
