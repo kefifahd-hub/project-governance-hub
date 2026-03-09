@@ -845,6 +845,12 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
       if (!rule) return null;
       const update = (u) => handleRuleUpdate(activeNode.ruleIndex, u);
       if (activeNode.type === 'filter') return <FilterPanel rule={rule} onUpdate={update} />;
+      if (activeNode.type === 'aggregate') return <AggregatePanel rule={rule} onUpdate={update} />;
+      if (activeNode.type === 'merge') return <MergePanel rule={rule} onUpdate={update} />;
+      if (activeNode.type === 'split') return <SplitPanel rule={rule} onUpdate={update} />;
+      if (activeNode.type === 'ai_transform') return <AITransformPanel rule={rule} onUpdate={update} />;
+      if (activeNode.type === 'calculate') return <CalculatePanel rule={rule} onUpdate={update} />;
+      if (activeNode.type === 'lookup') return <LookupPanel rule={rule} onUpdate={update} />;
       return <TransformPanel rule={rule} onUpdate={update} />;
     }
     return null;
