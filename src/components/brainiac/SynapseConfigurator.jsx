@@ -726,12 +726,18 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
 
   const pipeline = buildPipeline();
 
+  const RULE_TYPE_MAP = {
+    filter: 'Filter', transform: 'Transform', aggregate: 'Aggregate',
+    merge: 'Merge', split: 'Split', ai_transform: 'AI Transform',
+    calculate: 'Calculate', lookup: 'Lookup',
+  };
+
   const handleAddNode = (afterIndex, type) => {
     const newRule = {
       _localId: `new_${Date.now()}`,
       synapse_id: synapse.id,
       step_order: afterIndex,
-      rule_type: type === 'filter' ? 'Filter' : 'Formula',
+      rule_type: RULE_TYPE_MAP[type] || 'Formula',
       rule_name: '',
       expression: '',
       output_fields: '',
