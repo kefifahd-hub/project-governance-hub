@@ -920,7 +920,7 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
           ))}
         </div>
         <div className="text-[10px] mt-2" style={{ color: '#334155' }}>
-          Click a node to configure · Press + to add a Filter or Transform step
+          Click a node to configure · Press + to add Filter, Transform, Aggregate, Merge, Split, AI Transform, Calculate or Lookup steps
         </div>
       </div>
 
