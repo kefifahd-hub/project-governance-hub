@@ -670,12 +670,16 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
         <div className="flex items-center gap-0 overflow-x-auto pb-2">
           {pipeline.map((node, idx) => (
             <React.Fragment key={node.id}>
-              <PipelineNode
+              <PipelineNodeWithPreview
                 node={node}
                 isActive={activeNodeIdx === idx}
                 onClick={() => setActiveNodeIdx(idx)}
                 onDelete={() => handleDeleteNode(idx)}
                 canDelete={node.type === 'filter' || node.type === 'transform'}
+                form={form}
+                rules={rules}
+                sourceRecords={sourceRecords}
+                loadingPreview={loadingPreview}
               />
               {idx < pipeline.length - 1 && (
                 <div className="flex items-center gap-0 flex-shrink-0 mx-1">
