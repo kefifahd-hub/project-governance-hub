@@ -870,7 +870,7 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
     if (activeNode.type === 'map') return <MapPanel form={activeForm} set={set} />;
     if (activeNode.type === 'target') return <TargetPanel form={activeForm} set={set} />;
     if (activeNode.ruleIndex !== undefined) {
-      const rule = rules[activeNode.ruleIndex];
+      const rule = activeRules[activeNode.ruleIndex];
       if (!rule) return null;
       const update = (u) => handleRuleUpdate(activeNode.ruleIndex, u);
       if (activeNode.type === 'filter') return <FilterPanel rule={rule} onUpdate={update} />;
