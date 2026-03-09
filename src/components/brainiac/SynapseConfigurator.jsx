@@ -341,6 +341,123 @@ function TargetPanel({ form, set }) {
   );
 }
 
+// ─── Data Preview Panel ───────────────────────────────────────────────────
+function applyFilterPreview(records, rule) {
+  if (!rule.expression) return records;
+  // Best-effort: try to evaluate simple field=value conditions
+  try {
+    return records.filter(r => {
+      const expr = rule.expression
+        .replace(/AND/gi, '&&').replace(/OR/gi, '||')
+        .replace(/=/g, '==').replace(/!==|==/g, m => m)
+        .replace(/([a-zA-Z_][a-zA-Z0-9_]*)/g, (m) => {
+          if (['true','false','null','undefined','&&','||','==','!=','>=','<=','>','<'].includes(m)) return m;
+          const val = r[m];
+          if (val === undefined) return 'undefined';
+          return typeof val === 'string' ? `"${val}"` : val;
+        });
+      // eslint-disable-next-line no-new-func
+      return new Function(`return !!(${expr})`)();
+    });
+  } catch { return records; }
+}
+
+function applyMapPreview(records, targetFields) {
+  if (!targetFields) return records;
+  try {
+    const mapping = typeof targetFields === 'string' ? JSON.parse(targetFields) : targetFields;
+    if (!Object.keys(mapping).length) return records;
+    return records.map(r => {
+      const out = {};
+      Object.entries(mapping).forEach(([src, tgt]) => { if (r[src] !== undefined) out[tgt] = r[src]; });
+      return out;
+    });
+  } catch { return records; }
+}
+
+function DataPreviewTable({ records, title, color }) {
+  if (!records || !records.length) return (
+    <div className="text-[10px] py-2 text-center" style={{ color: '#475569' }}>No records</div>
+  );
+  const keys = [...new Set(records.flatMap(r => Object.keys(r)))].slice(0, 6);
+  return (
+    <div className="overflow-x-auto rounded-lg mt-2" style={{ border: '1px solid rgba(202,220,252,0.08)' }}>
+      {title && <div className="text-[9px] px-2 py-1 font-semibold tracking-widest" style={{ color, background: 'rgba(0,0,0,0.3)' }}>{title}</div>}
+      <table className="w-full text-[10px]" style={{ borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ background: 'rgba(0,0,0,0.4)' }}>
+            {keys.map(k => (
+              <th key={k} className="px-2 py-1 text-left truncate max-w-[80px]" style={{ color: '#64748b', borderBottom: '1px solid rgba(202,220,252,0.06)', fontWeight: 600 }}>{k}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {records.map((r, i) => (
+            <tr key={i} style={{ borderBottom: '1px solid rgba(202,220,252,0.04)', background: i % 2 === 0 ? 'rgba(30,39,97,0.2)' : 'transparent' }}>
+              {keys.map(k => (
+                <td key={k} className="px-2 py-1 truncate max-w-[80px]" style={{ color: '#94a3b8' }} title={String(r[k] ?? '')}>
+                  {r[k] !== undefined && r[k] !== null ? String(r[k]).slice(0, 20) + (String(r[k]).length > 20 ? '…' : '') : <span style={{ color: '#334155' }}>—</span>}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function NodePreviewPanel({ node, form, rules, sourceRecords, loadingPreview }) {
+  const [open, setOpen] = useState(false);
+
+  const getPreviewData = () => {
+    if (!sourceRecords || !sourceRecords.length) return [];
+    if (node.type === 'source') return sourceRecords;
+    if (node.type === 'target') {
+      let data = [...sourceRecords];
+      rules.forEach(r => {
+        if (r.rule_type === 'Filter') data = applyFilterPreview(data, r);
+      });
+      return applyMapPreview(data, form.target_fields);
+    }
+    if (node.type === 'map') {
+      let data = [...sourceRecords];
+      rules.forEach(r => {
+        if (r.rule_type === 'Filter') data = applyFilterPreview(data, r);
+      });
+      return data;
+    }
+    if (node.ruleIndex !== undefined) {
+      let data = [...sourceRecords];
+      for (let i = 0; i <= node.ruleIndex; i++) {
+        const r = rules[i];
+        if (r && r.rule_type === 'Filter') data = applyFilterPreview(data, r);
+      }
+      return data;
+    }
+    return sourceRecords;
+  };
+
+  const cfg = NODE_TYPES[node.type] || NODE_TYPES.transform;
+  const preview = getPreviewData();
+
+  return (
+    <div className="mt-1">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded transition-opacity hover:opacity-80"
+        style={{ color: cfg.color, background: `${cfg.color}15`, border: `1px solid ${cfg.color}30` }}
+      >
+        {loadingPreview ? <Loader2 className="w-3 h-3 animate-spin" /> : open ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+        {loadingPreview ? 'Loading…' : open ? 'Hide preview' : `Preview (${preview.length})`}
+      </button>
+      {open && !loadingPreview && (
+        <DataPreviewTable records={preview} color={cfg.color} />
+      )}
+    </div>
+  );
+}
+
 // ─── Main Component ────────────────────────────────────────────────────────
 export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved, onDeleted }) {
   const qc = useQueryClient();
