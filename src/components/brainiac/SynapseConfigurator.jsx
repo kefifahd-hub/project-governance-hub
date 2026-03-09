@@ -104,6 +104,16 @@ function PipelineNode({ node, isActive, onClick, onDelete, canDelete }) {
   );
 }
 
+// ─── Pipeline Node with Preview ───────────────────────────────────────────
+function PipelineNodeWithPreview({ node, isActive, onClick, onDelete, canDelete, form, rules, sourceRecords, loadingPreview }) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <PipelineNode node={node} isActive={isActive} onClick={onClick} onDelete={onDelete} canDelete={canDelete} />
+      <NodePreviewPanel node={node} form={form} rules={rules} sourceRecords={sourceRecords} loadingPreview={loadingPreview} />
+    </div>
+  );
+}
+
 // ─── Add Node Button ──────────────────────────────────────────────────────
 function AddNodeButton({ onAdd }) {
   const [open, setOpen] = useState(false);
