@@ -22,11 +22,22 @@ export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, sele
     const activeSynapses = synapses.filter(s => s.is_active && s.health_status === 'Active');
     pulseRef.current = activeSynapses.flatMap(s => {
       const count = Math.max(1, Math.floor((s.fire_count_24h || 0) / 10));
-      return Array.from({ length: Math.min(count, 3) }, (_, i) => ({
+      const forward = Array.from({ length: Math.min(count, 3) }, (_, i) => ({
         synapseId: s.id,
         progress: (i / Math.min(count, 3)),
         speed: 0.003 + Math.random() * 0.002,
+        reverse: false,
       }));
+      if (s.synapse_type === 'Bidirectional') {
+        const backward = Array.from({ length: Math.min(count, 2) }, (_, i) => ({
+          synapseId: s.id,
+          progress: (i / Math.min(count, 2)) + 0.5,
+          speed: 0.003 + Math.random() * 0.002,
+          reverse: true,
+        }));
+        return [...forward, ...backward];
+      }
+      return forward;
     });
   }, [synapses, neurons]);
 
