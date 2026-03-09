@@ -749,9 +749,11 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   };
 
   const buildPipeline = () => {
+    const src = activeDirection === 'reverse' ? reverseForm : form;
+    const rs = activeDirection === 'reverse' ? reverseRules : rules;
     const nodes = [
-      { id: 'source', type: 'source', label: form.source_entity || '' },
-      ...rules.map((r, i) => ({
+      { id: 'source', type: 'source', label: src.source_entity || '' },
+      ...rs.map((r, i) => ({
         id: r._localId || r.id || `rule_${i}`,
         type: ruleTypeToNodeType(r.rule_type),
         label: r.rule_name || '',
