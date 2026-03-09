@@ -402,10 +402,28 @@ export default function AddSynapseDialog({ open, onClose, neurons, synapses = []
                 style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.15)', color: '#94a3b8' }} />
             </Field>
 
+            {/* Direction toggle */}
+            <Field label="DIRECTION">
+              <div className="flex gap-2">
+                {[['One-Way', '→ One-Way', 'Data flows in one direction only'], ['Bidirectional', '⇄ Bidirectional', 'Separate pipeline configs for each direction']].map(([val, label, desc]) => (
+                  <button key={val} onClick={() => set('synapse_type', val)}
+                    className="flex-1 flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs transition-all"
+                    style={{
+                      background: form.synapse_type === val ? (val === 'Bidirectional' ? 'rgba(139,92,246,0.2)' : 'rgba(2,128,144,0.2)') : 'rgba(30,39,97,0.3)',
+                      border: `1px solid ${form.synapse_type === val ? (val === 'Bidirectional' ? 'rgba(139,92,246,0.5)' : 'rgba(2,128,144,0.5)') : 'rgba(202,220,252,0.1)'}`,
+                      color: form.synapse_type === val ? (val === 'Bidirectional' ? '#a78bfa' : '#00A896') : '#64748b',
+                    }}>
+                    <span className="font-semibold text-sm">{label}</span>
+                    <span className="text-[10px] text-center" style={{ color: '#475569' }}>{desc}</span>
+                  </button>
+                ))}
+              </div>
+            </Field>
+
             {/* Type / Priority / Critical */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Field label="TYPE">
-                <Select value={form.synapse_type} onValueChange={v => set('synapse_type', v)}>
+                <Select value={form.synapse_type === 'Bidirectional' ? 'Bidirectional' : form.synapse_type} onValueChange={v => set('synapse_type', v)}>
                   <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {['One-Way', 'Bidirectional', 'Event-Triggered', 'Scheduled'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
