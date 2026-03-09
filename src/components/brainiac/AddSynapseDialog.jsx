@@ -420,16 +420,8 @@ export default function AddSynapseDialog({ open, onClose, neurons, synapses = []
               </div>
             </Field>
 
-            {/* Type / Priority / Critical */}
+            {/* Priority / Critical */}
             <div className="grid grid-cols-2 gap-2">
-              <Field label="TYPE">
-                <Select value={form.synapse_type === 'Bidirectional' ? 'Bidirectional' : form.synapse_type} onValueChange={v => set('synapse_type', v)}>
-                  <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {['One-Way', 'Bidirectional', 'Event-Triggered', 'Scheduled'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </Field>
               <Field label="PRIORITY">
                 <Select value={form.priority} onValueChange={v => set('priority', v)}>
                   <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
