@@ -1021,7 +1021,11 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
         <Button onClick={handleTest} disabled={testing} size="sm" variant="outline" style={{ borderColor: '#10b98144', color: '#10b981' }}>
           <FlaskConical className="w-4 h-4 mr-1" />{testing ? 'Testing…' : 'Test'}
         </Button>
-        <Button onClick={() => { setForm({ ...synapse }); setRules(dbRules.map(r => ({ ...r, _localId: r.id }))); }}
+        <Button onClick={() => {
+          setForm({ ...synapse });
+          setRules(dbRules.map(r => ({ ...r, _localId: r.id })));
+          try { const rc = synapse.reverse_config ? JSON.parse(synapse.reverse_config) : DEFAULT_REVERSE; setReverseForm({ ...DEFAULT_REVERSE, ...rc }); setReverseRules((rc.rules || []).map((r, i) => ({ ...r, _localId: `rev_${i}` }))); } catch { setReverseForm(DEFAULT_REVERSE); setReverseRules([]); }
+        }}
           size="sm" variant="outline" style={{ borderColor: 'rgba(202,220,252,0.1)', color: '#64748b' }}>
           <RotateCcw className="w-4 h-4 mr-1" />Revert
         </Button>
