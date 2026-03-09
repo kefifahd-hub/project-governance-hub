@@ -953,8 +953,8 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
                 onClick={() => setActiveNodeIdx(idx)}
                 onDelete={() => handleDeleteNode(idx)}
                 canDelete={!['source','map','target'].includes(node.type)}
-                form={form}
-                rules={rules}
+                form={activeForm}
+                rules={activeRules}
                 sourceRecords={sourceRecords}
                 loadingPreview={loadingPreview}
               />
