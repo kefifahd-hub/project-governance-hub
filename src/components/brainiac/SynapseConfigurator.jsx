@@ -891,21 +891,32 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
       <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(30,39,97,0.4)', border: '1px solid rgba(202,220,252,0.1)' }}>
         <div className="flex items-center gap-2 text-sm mb-2" style={{ color: '#CADCFC' }}>
           <span>{fromNeuron?.icon} {fromNeuron?.display_name}</span>
-          <span style={{ color: '#64748b' }}>──→</span>
+          <span style={{ color: '#64748b' }}>{isBidir ? '⇄' : '──→'}</span>
           <span>{toNeuron?.icon} {toNeuron?.display_name}</span>
         </div>
         <Field label="SYNAPSE NAME">
-          <Input value={form.synapse_name || ''} onChange={e => set('synapse_name', e.target.value)}
+          <Input value={form.synapse_name || ''} onChange={e => setMeta('synapse_name', e.target.value)}
             className="h-8 text-sm font-bold" style={inputStyle} />
         </Field>
         <div className="flex items-center gap-2 flex-wrap mt-2">
           <Badge style={{ background: `${statusColor[form.health_status] || '#64748b'}22`, color: statusColor[form.health_status] || '#64748b' }}>{form.health_status}</Badge>
-          <Select value={form.priority} onValueChange={v => set('priority', v)}>
+          {/* Direction toggle */}
+          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(202,220,252,0.15)' }}>
+            {[['One-Way', '→'], ['Bidirectional', '⇄']].map(([val, icon]) => (
+              <button key={val} onClick={() => { setMeta('synapse_type', val); setActiveDirection('forward'); }}
+                className="px-2 py-1 text-[10px] font-semibold transition-colors"
+                style={{
+                  background: form.synapse_type === val ? (val === 'Bidirectional' ? 'rgba(139,92,246,0.3)' : 'rgba(2,128,144,0.3)') : 'rgba(30,39,97,0.3)',
+                  color: form.synapse_type === val ? (val === 'Bidirectional' ? '#a78bfa' : '#00A896') : '#64748b',
+                }}>{icon} {val}</button>
+            ))}
+          </div>
+          <Select value={form.priority} onValueChange={v => setMeta('priority', v)}>
             <SelectTrigger className="h-6 text-[10px] w-24" style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.15)', color: '#94a3b8' }}><SelectValue /></SelectTrigger>
             <SelectContent>{['High','Medium','Low'].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
           </Select>
           <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#94a3b8' }}>
-            <input type="checkbox" checked={form.is_critical || false} onChange={e => set('is_critical', e.target.checked)} className="w-3 h-3" />
+            <input type="checkbox" checked={form.is_critical || false} onChange={e => setMeta('is_critical', e.target.checked)} className="w-3 h-3" />
             Critical Path
           </label>
           <span className="text-[10px]" style={{ color: '#64748b' }}>v{form.version || 1} · {form.fire_count_24h || 0} fires today</span>
