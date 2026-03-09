@@ -146,9 +146,12 @@ export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, sele
         const tp = getPos(to, W, H);
         const midX = (fp.x + tp.x) / 2;
         const midY = (fp.y + tp.y) / 2 - 40;
-        const t = easeInOut(p.progress);
-        const x = (1 - t) * (1 - t) * fp.x + 2 * (1 - t) * t * midX + t * t * tp.x;
-        const y = (1 - t) * (1 - t) * fp.y + 2 * (1 - t) * t * midY + t * t * tp.y;
+        // Reverse pulses travel from to→from
+        const startP = p.reverse ? tp : fp;
+        const endP = p.reverse ? fp : tp;
+        const t = easeInOut(p.progress % 1);
+        const x = (1 - t) * (1 - t) * startP.x + 2 * (1 - t) * t * midX + t * t * endP.x;
+        const y = (1 - t) * (1 - t) * startP.y + 2 * (1 - t) * t * midY + t * t * endP.y;
         const col = from.color || '#6366f1';
         const grd = ctx.createRadialGradient(x, y, 0, x, y, 6);
         grd.addColorStop(0, col + 'ff');
