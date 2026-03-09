@@ -736,7 +736,7 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
       .finally(() => setLoadingPreview(false));
   };
 
-  // Build pipeline nodes: [source] + [rule nodes] + [map] + [target]
+  // Build pipeline nodes using direction-aware state
   const ruleTypeToNodeType = (ruleType) => {
     const map = {
       'Filter': 'filter', 'Transform': 'transform', 'Formula': 'transform',
