@@ -50,14 +50,20 @@ const RULE_PLACEHOLDERS = {
 };
 
 const NODE_TYPES = {
-  source:    { label: 'Source',    icon: Database,   color: '#028090', bg: 'rgba(2,128,144,0.15)',   border: 'rgba(2,128,144,0.4)' },
-  filter:    { label: 'Filter',    icon: Filter,     color: '#3b82f6', bg: 'rgba(59,130,246,0.15)',  border: 'rgba(59,130,246,0.4)' },
-  transform: { label: 'Transform', icon: Zap,        color: '#f59e0b', bg: 'rgba(245,158,11,0.15)',  border: 'rgba(245,158,11,0.4)' },
-  map:       { label: 'Map',       icon: ArrowRight, color: '#8b5cf6', bg: 'rgba(139,92,246,0.15)',  border: 'rgba(139,92,246,0.4)' },
-  target:    { label: 'Target',    icon: Target,     color: '#10b981', bg: 'rgba(16,185,129,0.15)',  border: 'rgba(16,185,129,0.4)' },
+  source:      { label: 'Source',       icon: Database,   color: '#028090', bg: 'rgba(2,128,144,0.15)',   border: 'rgba(2,128,144,0.4)' },
+  filter:      { label: 'Filter',       icon: Filter,     color: '#3b82f6', bg: 'rgba(59,130,246,0.15)',  border: 'rgba(59,130,246,0.4)' },
+  transform:   { label: 'Transform',    icon: Zap,        color: '#f59e0b', bg: 'rgba(245,158,11,0.15)',  border: 'rgba(245,158,11,0.4)' },
+  aggregate:   { label: 'Aggregate',    icon: BarChart2,  color: '#8b5cf6', bg: 'rgba(139,92,246,0.15)', border: 'rgba(139,92,246,0.4)' },
+  merge:       { label: 'Merge',        icon: GitMerge,   color: '#ec4899', bg: 'rgba(236,72,153,0.15)',  border: 'rgba(236,72,153,0.4)' },
+  split:       { label: 'Split',        icon: GitBranch,  color: '#f97316', bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.4)' },
+  ai_transform:{ label: 'AI Transform', icon: Sparkles,   color: '#a78bfa', bg: 'rgba(167,139,250,0.15)', border: 'rgba(167,139,250,0.4)' },
+  calculate:   { label: 'Calculate',    icon: Calculator, color: '#06b6d4', bg: 'rgba(6,182,212,0.15)',   border: 'rgba(6,182,212,0.4)' },
+  lookup:      { label: 'Lookup',       icon: Search,     color: '#84cc16', bg: 'rgba(132,204,22,0.15)',  border: 'rgba(132,204,22,0.4)' },
+  map:         { label: 'Map',          icon: ArrowRight, color: '#64748b', bg: 'rgba(100,116,139,0.15)', border: 'rgba(100,116,139,0.4)' },
+  target:      { label: 'Target',       icon: Target,     color: '#10b981', bg: 'rgba(16,185,129,0.15)',  border: 'rgba(16,185,129,0.4)' },
 };
 
-const RULE_NODE_TYPES = ['filter','transform'];
+const RULE_NODE_TYPES = ['filter','transform','aggregate','merge','split','ai_transform','calculate','lookup'];
 
 const Field = ({ label, children, hint }) => (
   <div>
