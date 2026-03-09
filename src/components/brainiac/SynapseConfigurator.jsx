@@ -654,11 +654,16 @@ function NodePreviewPanel({ node, form, rules, sourceRecords, loadingPreview }) 
   );
 }
 
+const DEFAULT_REVERSE = { source_entity: '', source_fields: '[]', source_filter: '', source_sort: '', source_limit: null, target_entity: '', target_fields: '{}', target_action: 'Update', trigger_type: 'On Event', trigger_event: '', trigger_condition: '' };
+
 // ─── Main Component ────────────────────────────────────────────────────────
 export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved, onDeleted }) {
   const qc = useQueryClient();
   const [form, setForm] = useState(null);
   const [rules, setRules] = useState([]);
+  const [reverseForm, setReverseForm] = useState(DEFAULT_REVERSE);
+  const [reverseRules, setReverseRules] = useState([]);
+  const [activeDirection, setActiveDirection] = useState('forward'); // 'forward' | 'reverse'
   const [saving, setSaving] = useState(false);
   const [testResult, setTestResult] = useState(null);
   const [testing, setTesting] = useState(false);
@@ -671,7 +676,14 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   const fromNeuron = neuronMap[synapse.from_neuron_id];
   const toNeuron = neuronMap[synapse.to_neuron_id];
 
-  const { data: dbRules = [], refetch: refetchRules } = useQuery({
+  const isBidir = form?.synapse_type === 'Bidirectional';
+
+  // Active-direction-aware state
+  const activeForm = activeDirection === 'reverse' ? reverseForm : form;
+  const activeRules = activeDirection === 'reverse' ? reverseRules : rules;
+  const setActiveRules = activeDirection === 'reverse' ? setReverseRules : setRules;
+
+  const { data: dbRules = [] } = useQuery({
     queryKey: ['processingRules', synapse.id],
     queryFn: () => base44.entities.ProcessingRule.filter({ synapse_id: synapse.id }, 'step_order'),
   });
@@ -679,7 +691,13 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   useEffect(() => {
     setForm({ ...synapse });
     setActiveNodeIdx(0);
-    // Fetch preview records when synapse changes
+    setActiveDirection('forward');
+    // Parse reverse_config
+    try {
+      const rc = synapse.reverse_config ? JSON.parse(synapse.reverse_config) : DEFAULT_REVERSE;
+      setReverseForm({ ...DEFAULT_REVERSE, ...rc });
+      setReverseRules((rc.rules || []).map((r, i) => ({ ...r, _localId: `rev_${i}` })));
+    } catch { setReverseForm(DEFAULT_REVERSE); setReverseRules([]); }
     if (synapse.source_entity) {
       setLoadingPreview(true);
       setSourceRecords([]);
@@ -697,15 +715,25 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   if (!form) return null;
 
   const set = (k, v) => {
-    setForm(f => ({ ...f, [k]: v }));
-    if (k === 'source_entity' && v && base44.entities[v]) {
-      setLoadingPreview(true);
-      setSourceRecords([]);
-      base44.entities[v].list('-created_date', 3)
-        .then(data => setSourceRecords(data || []))
-        .catch(() => setSourceRecords([]))
-        .finally(() => setLoadingPreview(false));
+    if (activeDirection === 'reverse') {
+      setReverseForm(f => ({ ...f, [k]: v }));
+      if (k === 'source_entity' && v && base44.entities[v]) loadPreviewFor(v);
+    } else {
+      setForm(f => ({ ...f, [k]: v }));
+      if (k === 'synapse_type') { setActiveDirection('forward'); }
+      if (k === 'source_entity' && v && base44.entities[v]) loadPreviewFor(v);
     }
+  };
+
+  const setMeta = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const loadPreviewFor = (entity) => {
+    setLoadingPreview(true);
+    setSourceRecords([]);
+    base44.entities[entity]?.list('-created_date', 3)
+      .then(data => setSourceRecords(data || []))
+      .catch(() => setSourceRecords([]))
+      .finally(() => setLoadingPreview(false));
   };
 
   // Build pipeline nodes: [source] + [rule nodes] + [map] + [target]
