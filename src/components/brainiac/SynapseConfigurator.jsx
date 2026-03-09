@@ -995,8 +995,8 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
             <span className="text-sm font-semibold" style={{ color: NODE_TYPES[activeNode.type]?.color || '#CADCFC' }}>
               {NODE_TYPES[activeNode.type]?.label} Settings
             </span>
-            {(activeNode.type === 'filter' || activeNode.type === 'transform') && activeNode.ruleIndex !== undefined && (
-              <span className="text-[10px] ml-auto" style={{ color: '#475569' }}>Step {activeNode.ruleIndex + 1} of {rules.length}</span>
+            {activeNode.ruleIndex !== undefined && (
+              <span className="text-[10px] ml-auto" style={{ color: '#475569' }}>Step {activeNode.ruleIndex + 1} of {activeRules.length}{isBidir ? ` · ${activeDirection === 'reverse' ? 'B→A' : 'A→B'}` : ''}</span>
             )}
           </div>
           {renderPanel()}
