@@ -357,6 +357,186 @@ function TargetPanel({ form, set }) {
   );
 }
 
+function AggregatePanel({ rule, onUpdate }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#8b5cf6' }}>📊 Aggregate Step</div>
+      <Field label="STEP NAME">
+        <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
+          placeholder="e.g. Count by priority" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="AGGREGATE FUNCTIONS" hint="One per line: FUNCTION(field) AS alias">
+        <Textarea value={rule.expression || ''} onChange={e => onUpdate({ ...rule, expression: e.target.value })}
+          rows={4} placeholder={"COUNT(id) AS total_count\nSUM(capex_impact) AS total_impact\nAVG(schedule_delay) AS avg_delay"}
+          className="text-xs" style={codeStyle} />
+      </Field>
+      <Field label="GROUP BY" hint="Comma-separated fields">
+        <Input value={rule.group_by || ''} onChange={e => onUpdate({ ...rule, group_by: e.target.value })}
+          placeholder="e.g. priority, status" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="HAVING" hint="Filter on aggregate results">
+        <Input value={rule.having || ''} onChange={e => onUpdate({ ...rule, having: e.target.value })}
+          placeholder="e.g. total_count > 5" className="h-8 text-xs" style={codeStyle} />
+      </Field>
+    </div>
+  );
+}
+
+function MergePanel({ rule, onUpdate }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#ec4899' }}>🔀 Merge Step</div>
+      <Field label="STEP NAME">
+        <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
+          placeholder="e.g. Merge risk + budget" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="SECONDARY ENTITY" hint="Entity to merge/join with the pipeline data">
+        <Input value={rule.secondary_entity || ''} onChange={e => onUpdate({ ...rule, secondary_entity: e.target.value })}
+          placeholder="e.g. BudgetTracking" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list-merge" />
+        <datalist id="entity-list-merge">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
+      </Field>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="JOIN TYPE">
+          <Select value={rule.join_type || 'LEFT'} onValueChange={v => onUpdate({ ...rule, join_type: v })}>
+            <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+            <SelectContent>{['LEFT','INNER','RIGHT','FULL'].map(t => <SelectItem key={t} value={t}>{t} JOIN</SelectItem>)}</SelectContent>
+          </Select>
+        </Field>
+        <Field label="JOIN ON">
+          <Input value={rule.join_on || ''} onChange={e => onUpdate({ ...rule, join_on: e.target.value })}
+            placeholder="e.g. projectId = projectId" className="h-8 text-xs font-mono" style={inputStyle} />
+        </Field>
+      </div>
+      <Field label="PICK FIELDS FROM SECONDARY" hint="Comma-separated fields to bring in">
+        <Input value={rule.secondary_fields || ''} onChange={e => onUpdate({ ...rule, secondary_fields: e.target.value })}
+          placeholder="e.g. budget_spent, variance_pct" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+    </div>
+  );
+}
+
+function SplitPanel({ rule, onUpdate }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#f97316' }}>🌿 Split Step</div>
+      <Field label="STEP NAME">
+        <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
+          placeholder="e.g. Branch by RAG status" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="SPLIT CONDITIONS" hint="One branch per line: LABEL: condition">
+        <Textarea value={rule.expression || ''} onChange={e => onUpdate({ ...rule, expression: e.target.value })}
+          rows={5} placeholder={"Critical: risk_level == 'Critical'\nHigh: risk_level == 'High'\nDefault: true"}
+          className="text-xs" style={codeStyle} />
+      </Field>
+      <Field label="ROUTE TO TARGETS" hint="One target entity per branch label (label: EntityName)">
+        <Textarea value={rule.route_targets || ''} onChange={e => onUpdate({ ...rule, route_targets: e.target.value })}
+          rows={3} placeholder={"Critical: WeeklyReport\nHigh: ActionItem\nDefault: AuditLog"}
+          className="text-xs" style={codeStyle} />
+      </Field>
+    </div>
+  );
+}
+
+function AITransformPanel({ rule, onUpdate }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#a78bfa' }}>✨ AI Transform Step</div>
+      <Field label="STEP NAME">
+        <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
+          placeholder="e.g. Generate risk summary" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="AI PROMPT" hint="Use {{field_name}} to inject record values">
+        <Textarea value={rule.expression || ''} onChange={e => onUpdate({ ...rule, expression: e.target.value })}
+          rows={5} placeholder={"Summarize the following project risk in 2 sentences for an executive audience:\nTitle: {{title}}\nDescription: {{description}}\nRisk Level: {{riskLevel}}\nMitigation: {{mitigationPlan}}"}
+          className="text-xs" style={codeStyle} />
+      </Field>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="MODEL">
+          <Select value={rule.ai_model || 'gpt-4o-mini'} onValueChange={v => onUpdate({ ...rule, ai_model: v })}>
+            <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {['gpt-4o-mini','gpt-4o','claude-3-haiku','claude-3-sonnet'].map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label="OUTPUT FIELD">
+          <Input value={rule.output_fields || ''} onChange={e => onUpdate({ ...rule, output_fields: e.target.value })}
+            placeholder="e.g. ai_summary" className="h-8 text-xs font-mono" style={inputStyle} />
+        </Field>
+      </div>
+      <Field label="JSON SCHEMA OUTPUT" hint="Leave empty for plain text. Specify to extract structured data.">
+        <Textarea value={rule.output_schema || ''} onChange={e => onUpdate({ ...rule, output_schema: e.target.value })}
+          rows={3} placeholder={'{"rag_status": "string", "action_required": "boolean", "summary": "string"}'}
+          className="text-xs" style={codeStyle} />
+      </Field>
+    </div>
+  );
+}
+
+function CalculatePanel({ rule, onUpdate }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#06b6d4' }}>🧮 Calculate Step</div>
+      <Field label="STEP NAME">
+        <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
+          placeholder="e.g. Budget variance KPIs" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="FORMULAS" hint="One formula per line: output_field = expression">
+        <Textarea value={rule.expression || ''} onChange={e => onUpdate({ ...rule, expression: e.target.value })}
+          rows={6} placeholder={"budget_variance = total_capex - capex_spent\nbudget_pct = ROUND((capex_spent / total_capex) * 100, 1)\nschedule_slip_days = DATEDIFF(actual_date, planned_date)\ncost_rag = IF(budget_pct < 90, 'Green', IF(budget_pct < 100, 'Amber', 'Red'))"}
+          className="text-xs" style={codeStyle} />
+      </Field>
+      <Field label="OUTPUT FIELDS" hint="Comma-separated — fields this step produces">
+        <Input value={rule.output_fields || ''} onChange={e => onUpdate({ ...rule, output_fields: e.target.value })}
+          placeholder="e.g. budget_variance, budget_pct, cost_rag" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="PRECISION">
+        <Select value={rule.precision || '2'} onValueChange={v => onUpdate({ ...rule, precision: v })}>
+          <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+          <SelectContent>{['0','1','2','3','4'].map(p => <SelectItem key={p} value={p}>{p} decimal places</SelectItem>)}</SelectContent>
+        </Select>
+      </Field>
+    </div>
+  );
+}
+
+function LookupPanel({ rule, onUpdate }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#84cc16' }}>🔍 Lookup Step</div>
+      <Field label="STEP NAME">
+        <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
+          placeholder="e.g. Enrich with project data" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="LOOKUP ENTITY">
+        <Input value={rule.lookup_entity || ''} onChange={e => onUpdate({ ...rule, lookup_entity: e.target.value })}
+          placeholder="e.g. Project, QualityGate" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list-lookup" />
+        <datalist id="entity-list-lookup">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
+      </Field>
+      <Field label="MATCH CONDITION" hint="field_in_pipeline = field_in_lookup_entity">
+        <Input value={rule.match_on || ''} onChange={e => onUpdate({ ...rule, match_on: e.target.value })}
+          placeholder="e.g. projectId = id" className="h-8 text-xs font-mono" style={inputStyle} />
+      </Field>
+      <Field label="RETURN FIELDS" hint="Comma-separated fields to add to records">
+        <Input value={rule.return_fields || ''} onChange={e => onUpdate({ ...rule, return_fields: e.target.value })}
+          placeholder="e.g. projectName, currentPhase, healthScore" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="NOT FOUND">
+          <Select value={rule.not_found || 'skip'} onValueChange={v => onUpdate({ ...rule, not_found: v })}>
+            <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+            <SelectContent>{[['skip','Skip record'],['null','Set null'],['error','Raise error']].map(([v,l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+          </Select>
+        </Field>
+        <Field label="CACHE TTL (min)">
+          <Input type="number" value={rule.cache_ttl || 5} onChange={e => onUpdate({ ...rule, cache_ttl: parseInt(e.target.value) || 5 })}
+            className="h-8 text-xs" style={inputStyle} />
+        </Field>
+      </div>
+    </div>
+  );
+}
+
 // ─── Data Preview Panel ───────────────────────────────────────────────────
 function applyFilterPreview(records, rule) {
   if (!rule.expression) return records;
