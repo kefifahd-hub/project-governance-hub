@@ -709,12 +709,23 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   };
 
   // Build pipeline nodes: [source] + [rule nodes] + [map] + [target]
+  const ruleTypeToNodeType = (ruleType) => {
+    const map = {
+      'Filter': 'filter', 'Transform': 'transform', 'Formula': 'transform',
+      'Aggregate': 'aggregate', 'Merge': 'merge', 'Split': 'split',
+      'AI Transform': 'ai_transform', 'Calculate': 'calculate', 'Lookup': 'lookup',
+      'Conditional': 'transform', 'Validate': 'filter', 'Enrich': 'lookup',
+      'Alert': 'transform', 'Format': 'transform',
+    };
+    return map[ruleType] || 'transform';
+  };
+
   const buildPipeline = () => {
     const nodes = [
       { id: 'source', type: 'source', label: form.source_entity || '' },
       ...rules.map((r, i) => ({
         id: r._localId || r.id || `rule_${i}`,
-        type: r.rule_type === 'Filter' ? 'filter' : 'transform',
+        type: ruleTypeToNodeType(r.rule_type),
         label: r.rule_name || '',
         ruleIndex: i,
       })),
