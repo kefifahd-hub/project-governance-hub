@@ -779,30 +779,24 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
       synapse_id: synapse.id,
       step_order: afterIndex,
       rule_type: RULE_TYPE_MAP[type] || 'Formula',
-      rule_name: '',
-      expression: '',
-      output_fields: '',
-      description: '',
-      is_active: true,
+      rule_name: '', expression: '', output_fields: '', description: '', is_active: true,
     };
-    setRules(rs => {
-      // afterIndex here is the index in the rules array to insert after
+    setActiveRules(rs => {
       const next = [...rs.slice(0, afterIndex), newRule, ...rs.slice(afterIndex)];
       return next.map((r, i) => ({ ...r, step_order: i + 1 }));
     });
-    // Activate the new node: its pipeline index = 1 + afterIndex
     setActiveNodeIdx(1 + afterIndex);
   };
 
   const handleDeleteNode = (pipelineIdx) => {
     const node = pipeline[pipelineIdx];
     if (node.ruleIndex === undefined) return;
-    setRules(rs => rs.filter((_, i) => i !== node.ruleIndex).map((r, i) => ({ ...r, step_order: i + 1 })));
+    setActiveRules(rs => rs.filter((_, i) => i !== node.ruleIndex).map((r, i) => ({ ...r, step_order: i + 1 })));
     setActiveNodeIdx(Math.max(0, pipelineIdx - 1));
   };
 
   const handleRuleUpdate = (ruleIndex, updated) => {
-    setRules(rs => rs.map((r, i) => i === ruleIndex ? updated : r));
+    setActiveRules(rs => rs.map((r, i) => i === ruleIndex ? updated : r));
   };
 
   const handleSave = async () => {
