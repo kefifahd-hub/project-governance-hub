@@ -483,6 +483,15 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   useEffect(() => {
     setForm({ ...synapse });
     setActiveNodeIdx(0);
+    // Fetch preview records when synapse changes
+    if (synapse.source_entity) {
+      setLoadingPreview(true);
+      setSourceRecords([]);
+      base44.entities[synapse.source_entity]?.list('-created_date', 3)
+        .then(data => setSourceRecords(data || []))
+        .catch(() => setSourceRecords([]))
+        .finally(() => setLoadingPreview(false));
+    }
   }, [synapse]);
 
   useEffect(() => {
