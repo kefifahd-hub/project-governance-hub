@@ -802,10 +802,15 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   const handleSave = async () => {
     setSaving(true);
     const prevConfig = JSON.stringify(synapse);
+    const reverseConfigPayload = form.synapse_type === 'Bidirectional' ? JSON.stringify({
+      ...reverseForm,
+      rules: reverseRules.map(r => ({ rule_type: r.rule_type, rule_name: r.rule_name, expression: r.expression })),
+    }) : null;
     const updated = {
       ...form,
       version: (form.version || 1) + 1,
       processing_rules: JSON.stringify(rules.map(r => ({ rule_type: r.rule_type, rule_name: r.rule_name, expression: r.expression }))),
+      reverse_config: reverseConfigPayload,
     };
     await base44.entities.Synapse.update(synapse.id, updated);
     const existing = dbRules;
