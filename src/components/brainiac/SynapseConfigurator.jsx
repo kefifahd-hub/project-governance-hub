@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Save, Trash2, Pause, Play, FlaskConical, Plus, X, ChevronRight, Settings2, Database, Filter, Zap, ArrowRight, Target, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Save, Trash2, Pause, Play, FlaskConical, Plus, X, ChevronRight, Settings2, Database, Filter, Zap, ArrowRight, Target, RotateCcw, ChevronDown, ChevronUp, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
