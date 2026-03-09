@@ -89,7 +89,7 @@ export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, sele
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Arrow at end
+        // Arrow at end (to)
         const t2 = 0.9;
         const ax = (1 - t2) * (1 - t2) * fp.x + 2 * (1 - t2) * t2 * midX + t2 * t2 * tp.x;
         const ay = (1 - t2) * (1 - t2) * fp.y + 2 * (1 - t2) * t2 * midY + t2 * t2 * tp.y;
@@ -100,6 +100,21 @@ export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, sele
         ctx.lineTo(tp.x - 4 * Math.cos(angle), tp.y - 4 * Math.sin(angle));
         ctx.lineTo(tp.x - 10 * Math.cos(angle + 0.3), tp.y - 10 * Math.sin(angle + 0.3));
         ctx.fill();
+
+        // Reverse arrow at source end for bidirectional
+        if (s.synapse_type === 'Bidirectional') {
+          const t0 = 0.1;
+          const bx0 = (1 - t0) * (1 - t0) * fp.x + 2 * (1 - t0) * t0 * midX + t0 * t0 * tp.x;
+          const by0 = (1 - t0) * (1 - t0) * fp.y + 2 * (1 - t0) * t0 * midY + t0 * t0 * tp.y;
+          const revAngle = Math.atan2(fp.y - by0, fp.x - bx0);
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.moveTo(fp.x - 10 * Math.cos(revAngle - 0.3), fp.y - 10 * Math.sin(revAngle - 0.3));
+          ctx.lineTo(fp.x - 4 * Math.cos(revAngle), fp.y - 4 * Math.sin(revAngle));
+          ctx.lineTo(fp.x - 10 * Math.cos(revAngle + 0.3), fp.y - 10 * Math.sin(revAngle + 0.3));
+          ctx.fill();
+        }
+
         ctx.restore();
       });
 
