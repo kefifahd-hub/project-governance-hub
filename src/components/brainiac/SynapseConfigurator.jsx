@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Save, RotateCcw, Trash2, Pause, Play, History, FlaskConical, ChevronDown, ChevronUp, X, Plus, GripVertical } from 'lucide-react';
+import { Save, Trash2, Pause, Play, FlaskConical, Plus, X, ChevronRight, Settings2, Database, Filter, Zap, ArrowRight, Target, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -26,7 +26,6 @@ const ALL_ENTITIES = [
 
 const TRIGGER_TYPES = ['Real-time','On Event','Scheduled','On Demand','On Record Change'];
 const SYNAPSE_TYPES = ['One-Way','Bidirectional','Event-Triggered','Scheduled'];
-const SORT_DIRECTIONS = ['ASC','DESC'];
 const TARGET_ACTIONS = ['Update','Append','Create','Merge','Alert Only'];
 const RULE_TYPES = ['Formula','Filter','Aggregate','Transform','Conditional','Validate','Enrich','Lookup','Alert','Format'];
 const COMMON_EVENTS = ['on_cr_approval','on_report_generation','on_schedule_import','on_risk_creation','on_gate_review','on_action_created','on_milestone_passed','on_budget_update'];
@@ -50,20 +49,15 @@ const RULE_PLACEHOLDERS = {
   Format: "TEMPLATE 'Budget: ${{total_capex}} | Spent: ${{capex_spent}} ({{budget_pct}}%)'",
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────
-const Section = ({ title, children, defaultOpen = true }) => {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'rgba(202,220,252,0.1)' }}>
-      <button className="w-full flex items-center justify-between px-4 py-3 text-left"
-        style={{ background: 'rgba(30,39,97,0.4)' }} onClick={() => setOpen(o => !o)}>
-        <span className="text-sm font-semibold" style={{ color: '#CADCFC' }}>{title}</span>
-        {open ? <ChevronUp className="w-4 h-4" style={{ color: '#64748b' }} /> : <ChevronDown className="w-4 h-4" style={{ color: '#64748b' }} />}
-      </button>
-      {open && <div className="p-4 flex flex-col gap-3" style={{ background: 'rgba(15,23,42,0.5)' }}>{children}</div>}
-    </div>
-  );
+const NODE_TYPES = {
+  source:    { label: 'Source',    icon: Database,   color: '#028090', bg: 'rgba(2,128,144,0.15)',   border: 'rgba(2,128,144,0.4)' },
+  filter:    { label: 'Filter',    icon: Filter,     color: '#3b82f6', bg: 'rgba(59,130,246,0.15)',  border: 'rgba(59,130,246,0.4)' },
+  transform: { label: 'Transform', icon: Zap,        color: '#f59e0b', bg: 'rgba(245,158,11,0.15)',  border: 'rgba(245,158,11,0.4)' },
+  map:       { label: 'Map',       icon: ArrowRight, color: '#8b5cf6', bg: 'rgba(139,92,246,0.15)',  border: 'rgba(139,92,246,0.4)' },
+  target:    { label: 'Target',    icon: Target,     color: '#10b981', bg: 'rgba(16,185,129,0.15)',  border: 'rgba(16,185,129,0.4)' },
 };
+
+const RULE_NODE_TYPES = ['filter','transform'];
 
 const Field = ({ label, children, hint }) => (
   <div>
@@ -73,74 +67,199 @@ const Field = ({ label, children, hint }) => (
   </div>
 );
 
-// ─── Rule Card ───────────────────────────────────────────────────────────
-function RuleCard({ rule, index, total, onUpdate, onDelete, onMove }) {
-  const [open, setOpen] = useState(false);
-  const color = RULE_COLORS[rule.rule_type] || '#94a3b8';
-
+// ─── Pipeline Node Card ───────────────────────────────────────────────────
+function PipelineNode({ node, isActive, onClick, onDelete, canDelete }) {
+  const cfg = NODE_TYPES[node.type] || NODE_TYPES.transform;
+  const Icon = cfg.icon;
   return (
-    <div className="rounded-lg border overflow-hidden" style={{ borderColor: `${color}33` }}>
-      <div className="flex items-center gap-2 px-3 py-2" style={{ background: `${color}11` }}>
-        <span className="text-[10px] font-bold w-5 text-center" style={{ color: '#64748b' }}>{rule.step_order}</span>
-        <Badge className="text-[10px] px-1.5 py-0 h-5" style={{ background: `${color}22`, color, border: `1px solid ${color}44` }}>{rule.rule_type}</Badge>
-        <span className="flex-1 text-xs truncate font-medium" style={{ color: '#CADCFC' }}>{rule.rule_name || 'Untitled rule'}</span>
-        <div className="flex items-center gap-1">
-          <button onClick={() => onMove(index, -1)} disabled={index === 0} className="p-0.5 opacity-50 hover:opacity-100 disabled:opacity-20">
-            <ChevronUp className="w-3 h-3" style={{ color: '#94a3b8' }} />
-          </button>
-          <button onClick={() => onMove(index, 1)} disabled={index === total - 1} className="p-0.5 opacity-50 hover:opacity-100 disabled:opacity-20">
-            <ChevronDown className="w-3 h-3" style={{ color: '#94a3b8' }} />
-          </button>
-          <button onClick={() => onUpdate({ ...rule, is_active: !rule.is_active })}
-            className="text-[10px] px-1.5 py-0.5 rounded"
-            style={{ background: rule.is_active ? 'rgba(16,185,129,0.15)' : 'rgba(100,116,139,0.15)', color: rule.is_active ? '#10b981' : '#64748b' }}>
-            {rule.is_active ? 'ON' : 'OFF'}
-          </button>
-          <button onClick={() => setOpen(o => !o)} className="p-0.5">
-            {open ? <ChevronUp className="w-3.5 h-3.5" style={{ color: '#64748b' }} /> : <ChevronDown className="w-3.5 h-3.5" style={{ color: '#64748b' }} />}
-          </button>
-          <button onClick={() => onDelete(index)} className="p-0.5">
-            <X className="w-3.5 h-3.5 text-red-400" />
-          </button>
+    <div className="relative flex flex-col items-center" style={{ minWidth: 100 }}>
+      <button
+        onClick={onClick}
+        className="flex flex-col items-center gap-1.5 px-4 py-3 rounded-xl transition-all"
+        style={{
+          background: isActive ? cfg.bg : 'rgba(15,23,42,0.8)',
+          border: `2px solid ${isActive ? cfg.color : 'rgba(202,220,252,0.15)'}`,
+          boxShadow: isActive ? `0 0 16px ${cfg.color}44` : 'none',
+          minWidth: 90,
+        }}
+      >
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: cfg.bg }}>
+          <Icon className="w-4 h-4" style={{ color: cfg.color }} />
         </div>
-      </div>
+        <span className="text-[11px] font-semibold" style={{ color: isActive ? cfg.color : '#CADCFC' }}>{cfg.label}</span>
+        {node.label && (
+          <span className="text-[9px] truncate max-w-[80px] text-center" style={{ color: '#64748b' }}>{node.label}</span>
+        )}
+      </button>
+      {canDelete && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center z-10"
+          style={{ background: 'rgba(239,68,68,0.8)', border: '1px solid rgba(239,68,68,0.5)' }}
+        >
+          <X className="w-3 h-3 text-white" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Add Node Button ──────────────────────────────────────────────────────
+function AddNodeButton({ onAdd }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative flex items-center">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-110"
+        style={{ background: 'rgba(167,139,250,0.2)', border: '1px dashed rgba(167,139,250,0.5)', color: '#a78bfa' }}
+      >
+        <Plus className="w-3.5 h-3.5" />
+      </button>
       {open && (
-        <div className="p-3 flex flex-col gap-2" style={{ background: 'rgba(5,10,25,0.6)' }}>
-          <div className="grid grid-cols-2 gap-2">
-            <Field label="RULE TYPE">
-              <Select value={rule.rule_type} onValueChange={v => onUpdate({ ...rule, rule_type: v })}>
-                <SelectTrigger className="h-7 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
-                <SelectContent>{RULE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-              </Select>
-            </Field>
-            <Field label="RULE NAME">
-              <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
-                placeholder="e.g. Calculate budget variance" className="h-7 text-xs" style={inputStyle} />
-            </Field>
-          </div>
-          <Field label="EXPRESSION">
-            <Textarea value={rule.expression || ''} onChange={e => onUpdate({ ...rule, expression: e.target.value })}
-              rows={4} placeholder={RULE_PLACEHOLDERS[rule.rule_type] || 'Enter rule logic...'}
-              className="text-xs" style={codeStyle} />
-          </Field>
-          <Field label="OUTPUT FIELDS" hint="Comma-separated field names this rule produces">
-            <Input value={rule.output_fields || ''} onChange={e => onUpdate({ ...rule, output_fields: e.target.value })}
-              placeholder="e.g. budget_variance, cost_rag, formatted_summary" className="h-7 text-xs" style={inputStyle} />
-          </Field>
-          <Field label="DESCRIPTION">
-            <Textarea value={rule.description || ''} onChange={e => onUpdate({ ...rule, description: e.target.value })}
-              rows={2} placeholder="Plain English: what does this rule do?"
-              style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.1)', color: '#94a3b8' }} />
-          </Field>
+        <div className="absolute left-8 top-1/2 -translate-y-1/2 z-20 rounded-xl overflow-hidden shadow-2xl"
+          style={{ background: 'rgba(15,23,42,0.98)', border: '1px solid rgba(202,220,252,0.2)', minWidth: 140 }}>
+          {RULE_NODE_TYPES.map(t => {
+            const cfg = NODE_TYPES[t];
+            const Icon = cfg.icon;
+            return (
+              <button key={t} onClick={() => { onAdd(t); setOpen(false); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:opacity-80 transition-opacity"
+                style={{ color: cfg.color }}>
+                <Icon className="w-3.5 h-3.5" /> {cfg.label}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-// ─── Field Mapping Textarea ───────────────────────────────────────────────
-function FieldMappingTextarea({ value, onChange }) {
-  // Convert JSON object to "key → value" per line
+// ─── Node Detail Panels ───────────────────────────────────────────────────
+function SourcePanel({ form, set }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#028090' }}>📥 Source Configuration</div>
+      <Field label="SOURCE ENTITY">
+        <Input value={form.source_entity || ''} onChange={e => set('source_entity', e.target.value)}
+          placeholder="e.g. ChangeRequest, FinanceModel" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list-src" />
+        <datalist id="entity-list-src">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
+      </Field>
+      <Field label="PULL FIELDS" hint="Comma-separated field names">
+        <Textarea value={(() => { try { const f = JSON.parse(form.source_fields || '[]'); return Array.isArray(f) ? f.join(', ') : form.source_fields; } catch { return form.source_fields || ''; } })()}
+          onChange={e => {
+            const arr = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+            set('source_fields', JSON.stringify(arr));
+          }}
+          rows={3} placeholder="npv, irr, total_capex, capex_spent, contingency_remaining"
+          className="text-xs" style={codeStyle} />
+      </Field>
+      <div className="grid grid-cols-3 gap-2">
+        <Field label="SORT BY">
+          <Input value={(form.source_sort || '').split(' ')[0] || ''} onChange={e => set('source_sort', `${e.target.value} ${(form.source_sort || '').split(' ')[1] || 'DESC'}`.trim())}
+            placeholder="field name" className="h-8 text-xs" style={inputStyle} />
+        </Field>
+        <Field label="DIR">
+          <Select value={(form.source_sort || '').split(' ')[1] || 'DESC'} onValueChange={v => set('source_sort', `${(form.source_sort || '').split(' ')[0] || ''} ${v}`.trim())}>
+            <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+            <SelectContent>{['ASC','DESC'].map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
+          </Select>
+        </Field>
+        <Field label="LIMIT" hint="0=all">
+          <Input type="number" value={form.source_limit || ''} onChange={e => set('source_limit', parseInt(e.target.value) || null)}
+            placeholder="e.g. 1" className="h-8 text-xs" style={inputStyle} />
+        </Field>
+      </div>
+      <div className="border-t pt-3" style={{ borderColor: 'rgba(202,220,252,0.1)' }}>
+        <div className="text-xs font-semibold mb-2" style={{ color: '#64748b' }}>⚡ TRIGGER</div>
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="TRIGGER TYPE">
+            <Select value={form.trigger_type || 'On Event'} onValueChange={v => set('trigger_type', v)}>
+              <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+              <SelectContent>{TRIGGER_TYPES.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+          <Field label="SYNAPSE TYPE">
+            <Select value={form.synapse_type || 'One-Way'} onValueChange={v => set('synapse_type', v)}>
+              <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+              <SelectContent>{SYNAPSE_TYPES.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+        </div>
+        {(form.trigger_type === 'On Event' || !form.trigger_type) && (
+          <Field label="EVENT NAME">
+            <Input value={form.trigger_event || ''} onChange={e => set('trigger_event', e.target.value)}
+              placeholder="e.g. on_cr_approval" className="h-8 text-xs font-mono mt-2" style={inputStyle} list="events-list" />
+            <datalist id="events-list">{COMMON_EVENTS.map(e => <option key={e} value={e} />)}</datalist>
+          </Field>
+        )}
+        {form.trigger_type === 'Scheduled' && (
+          <Field label="SCHEDULE">
+            <Input value={form.trigger_schedule || ''} onChange={e => set('trigger_schedule', e.target.value)}
+              placeholder="e.g. Weekly Monday 07:00" className="h-8 text-xs font-mono mt-2" style={inputStyle} />
+          </Field>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FilterPanel({ rule, onUpdate }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#3b82f6' }}>🔵 Filter Step</div>
+      <Field label="STEP NAME">
+        <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
+          placeholder="e.g. Filter approved only" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="FILTER CONDITION" hint="SQL-like condition expression">
+        <Textarea value={rule.expression || ''} onChange={e => onUpdate({ ...rule, expression: e.target.value })}
+          rows={5} placeholder={RULE_PLACEHOLDERS.Filter} className="text-xs" style={codeStyle} />
+      </Field>
+      <Field label="DESCRIPTION">
+        <Textarea value={rule.description || ''} onChange={e => onUpdate({ ...rule, description: e.target.value })}
+          rows={2} placeholder="Plain English: what does this filter do?"
+          style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.1)', color: '#94a3b8', fontSize: 12 }} />
+      </Field>
+    </div>
+  );
+}
+
+function TransformPanel({ rule, onUpdate }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#f59e0b' }}>⚡ Transform Step</div>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="STEP NAME">
+          <Input value={rule.rule_name || ''} onChange={e => onUpdate({ ...rule, rule_name: e.target.value })}
+            placeholder="e.g. Calculate variance" className="h-8 text-xs" style={inputStyle} />
+        </Field>
+        <Field label="RULE TYPE">
+          <Select value={rule.rule_type || 'Formula'} onValueChange={v => onUpdate({ ...rule, rule_type: v })}>
+            <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+            <SelectContent>{RULE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+          </Select>
+        </Field>
+      </div>
+      <Field label="EXPRESSION">
+        <Textarea value={rule.expression || ''} onChange={e => onUpdate({ ...rule, expression: e.target.value })}
+          rows={5} placeholder={RULE_PLACEHOLDERS[rule.rule_type] || 'Enter expression...'} className="text-xs" style={codeStyle} />
+      </Field>
+      <Field label="OUTPUT FIELDS" hint="Comma-separated field names this step produces">
+        <Input value={rule.output_fields || ''} onChange={e => onUpdate({ ...rule, output_fields: e.target.value })}
+          placeholder="e.g. budget_variance, cost_rag" className="h-8 text-xs" style={inputStyle} />
+      </Field>
+      <Field label="DESCRIPTION">
+        <Textarea value={rule.description || ''} onChange={e => onUpdate({ ...rule, description: e.target.value })}
+          rows={2} placeholder="Plain English: what does this step do?"
+          style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.1)', color: '#94a3b8', fontSize: 12 }} />
+      </Field>
+    </div>
+  );
+}
+
+function MapPanel({ form, set }) {
   const toText = (v) => {
     if (!v) return '';
     try {
@@ -148,33 +267,77 @@ function FieldMappingTextarea({ value, onChange }) {
       return Object.entries(obj).map(([k, val]) => `${k} → ${val}`).join('\n');
     } catch { return typeof v === 'string' ? v : ''; }
   };
-
   const toJson = (text) => {
     const obj = {};
     text.split('\n').forEach(line => {
       const parts = line.split('→');
       if (parts.length === 2) {
-        const k = parts[0].trim();
-        const v = parts[1].trim();
+        const k = parts[0].trim(); const v = parts[1].trim();
         if (k) obj[k] = v;
       }
     });
     return JSON.stringify(obj);
   };
-
-  const [text, setText] = useState(() => toText(value));
-
-  useEffect(() => { setText(toText(value)); }, [value]);
+  const [text, setText] = useState(() => toText(form.target_fields));
+  useEffect(() => { setText(toText(form.target_fields)); }, [form.target_fields]);
 
   return (
-    <Textarea
-      value={text}
-      onChange={e => { setText(e.target.value); onChange(toJson(e.target.value)); }}
-      rows={6}
-      placeholder={"npv → financial_npv\nirr → financial_irr\nbudget_pct → budget_percentage\ncost_rag → cost_rag_status"}
-      className="text-xs"
-      style={codeStyle}
-    />
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#8b5cf6' }}>🗺️ Field Mapping</div>
+      <Field label="FIELD MAPPING" hint="One mapping per line: source_field → target_field">
+        <Textarea value={text}
+          onChange={e => { setText(e.target.value); set('target_fields', toJson(e.target.value)); }}
+          rows={7} placeholder={"npv → financial_npv\nirr → financial_irr\nbudget_pct → budget_percentage\ncost_rag → cost_rag_status"}
+          className="text-xs" style={codeStyle} />
+      </Field>
+      <button className="flex items-center gap-1.5 text-xs" style={{ color: '#8b5cf6' }}
+        onClick={() => {
+          try {
+            const fields = JSON.parse(form.source_fields || '[]');
+            const obj = {}; fields.forEach(f => { obj[f] = f; });
+            set('target_fields', JSON.stringify(obj));
+          } catch {}
+        }}>
+        <Plus className="w-3 h-3" /> Auto-map by field name
+      </button>
+      <Field label="OUTPUT FORMAT">
+        <Select value={form.output_format || 'Raw'} onValueChange={v => set('output_format', v)}>
+          <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+          <SelectContent>{['Raw','Aggregated','Formatted','Calculated'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+        </Select>
+      </Field>
+    </div>
+  );
+}
+
+function TargetPanel({ form, set }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs font-semibold mb-1" style={{ color: '#10b981' }}>🎯 Target Configuration</div>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="TARGET ENTITY">
+          <Input value={form.target_entity || ''} onChange={e => set('target_entity', e.target.value)}
+            placeholder="e.g. WeeklyReport" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list-tgt" />
+          <datalist id="entity-list-tgt">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
+        </Field>
+        <Field label="ACTION">
+          <Select value={form.target_action || 'Update'} onValueChange={v => set('target_action', v)}>
+            <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
+            <SelectContent>{TARGET_ACTIONS.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+          </Select>
+        </Field>
+      </div>
+      <Field label="CONDITION" hint="Condition that must be true for synapse to fire. Leave empty to always fire.">
+        <Textarea value={form.trigger_condition || ''} onChange={e => set('trigger_condition', e.target.value)}
+          rows={3} placeholder={"cr.status == 'Approved' AND cr.capex_impact > 0"}
+          className="text-xs" style={codeStyle} />
+      </Field>
+      <Field label="ADMIN NOTES">
+        <Textarea value={form.notes || ''} onChange={e => set('notes', e.target.value)} rows={2}
+          placeholder="Notes for other admins about this synapse"
+          style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.1)', color: '#94a3b8', fontSize: 12 }} />
+      </Field>
+    </div>
   );
 }
 
@@ -182,19 +345,17 @@ function FieldMappingTextarea({ value, onChange }) {
 export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved, onDeleted }) {
   const qc = useQueryClient();
   const [form, setForm] = useState(null);
-  const [rules, setRules] = useState([]);       // local editing state for ProcessingRule records
+  const [rules, setRules] = useState([]);
   const [saving, setSaving] = useState(false);
   const [testResult, setTestResult] = useState(null);
   const [testing, setTesting] = useState(false);
-  const [versionHistory, setVersionHistory] = useState([]);
-  const [showHistory, setShowHistory] = useState(false);
+  const [activeNodeIdx, setActiveNodeIdx] = useState(0);
 
   const neuronMap = {};
   neurons.forEach(n => { neuronMap[n.id] = n; });
   const fromNeuron = neuronMap[synapse.from_neuron_id];
   const toNeuron = neuronMap[synapse.to_neuron_id];
 
-  // Load ProcessingRule records from DB
   const { data: dbRules = [], refetch: refetchRules } = useQuery({
     queryKey: ['processingRules', synapse.id],
     queryFn: () => base44.entities.ProcessingRule.filter({ synapse_id: synapse.id }, 'step_order'),
@@ -202,11 +363,10 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
 
   useEffect(() => {
     setForm({ ...synapse });
-    base44.entities.SynapseVersion.filter({ synapse_id: synapse.id }, '-version_number', 10).then(setVersionHistory).catch(() => {});
+    setActiveNodeIdx(0);
   }, [synapse]);
 
   useEffect(() => {
-    // Sync local rules from DB records
     setRules(dbRules.map(r => ({ ...r, _localId: r.id })));
   }, [dbRules]);
 
@@ -214,84 +374,85 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const handleRuleUpdate = (idx, updated) => {
-    setRules(rs => rs.map((r, i) => i === idx ? updated : r));
+  // Build pipeline nodes: [source] + [rule nodes] + [map] + [target]
+  const buildPipeline = () => {
+    const nodes = [
+      { id: 'source', type: 'source', label: form.source_entity || '' },
+      ...rules.map((r, i) => ({
+        id: r._localId || r.id || `rule_${i}`,
+        type: r.rule_type === 'Filter' ? 'filter' : 'transform',
+        label: r.rule_name || '',
+        ruleIndex: i,
+      })),
+      { id: 'map', type: 'map', label: '' },
+      { id: 'target', type: 'target', label: form.target_entity || '' },
+    ];
+    return nodes;
   };
 
-  const handleRuleDelete = (idx) => {
-    setRules(rs => rs.filter((_, i) => i !== idx).map((r, i) => ({ ...r, step_order: i + 1 })));
-  };
+  const pipeline = buildPipeline();
 
-  const handleRuleMove = (idx, dir) => {
-    const next = [...rules];
-    const target = idx + dir;
-    if (target < 0 || target >= next.length) return;
-    [next[idx], next[target]] = [next[target], next[idx]];
-    next.forEach((r, i) => { r.step_order = i + 1; });
-    setRules([...next]);
-  };
-
-  const handleAddRule = () => {
-    setRules(rs => [...rs, {
+  const handleAddNode = (afterIndex, type) => {
+    const newRule = {
       _localId: `new_${Date.now()}`,
       synapse_id: synapse.id,
-      step_order: rs.length + 1,
-      rule_type: 'Formula',
+      step_order: afterIndex,
+      rule_type: type === 'filter' ? 'Filter' : 'Formula',
       rule_name: '',
       expression: '',
       output_fields: '',
       description: '',
       is_active: true,
-    }]);
+    };
+    setRules(rs => {
+      // afterIndex here is the index in the rules array to insert after
+      const next = [...rs.slice(0, afterIndex), newRule, ...rs.slice(afterIndex)];
+      return next.map((r, i) => ({ ...r, step_order: i + 1 }));
+    });
+    // Activate the new node: its pipeline index = 1 + afterIndex
+    setActiveNodeIdx(1 + afterIndex);
+  };
+
+  const handleDeleteNode = (pipelineIdx) => {
+    const node = pipeline[pipelineIdx];
+    if (node.ruleIndex === undefined) return;
+    setRules(rs => rs.filter((_, i) => i !== node.ruleIndex).map((r, i) => ({ ...r, step_order: i + 1 })));
+    setActiveNodeIdx(Math.max(0, pipelineIdx - 1));
+  };
+
+  const handleRuleUpdate = (ruleIndex, updated) => {
+    setRules(rs => rs.map((r, i) => i === ruleIndex ? updated : r));
   };
 
   const handleSave = async () => {
     setSaving(true);
     const prevConfig = JSON.stringify(synapse);
-
-    // Save synapse fields
     const updated = {
       ...form,
       version: (form.version || 1) + 1,
       processing_rules: JSON.stringify(rules.map(r => ({ rule_type: r.rule_type, rule_name: r.rule_name, expression: r.expression }))),
     };
     await base44.entities.Synapse.update(synapse.id, updated);
-
-    // Sync ProcessingRule records
     const existing = dbRules;
     const existingIds = new Set(existing.map(r => r.id));
     const savedIds = new Set(rules.filter(r => r.id).map(r => r.id));
-
-    // Delete removed rules
     await Promise.all(existing.filter(r => !savedIds.has(r.id)).map(r => base44.entities.ProcessingRule.delete(r.id)));
-
-    // Update or create
     await Promise.all(rules.map(r => {
       const payload = {
-        synapse_id: synapse.id,
-        step_order: r.step_order,
-        rule_type: r.rule_type,
-        rule_name: r.rule_name || 'Untitled',
-        expression: r.expression || '',
-        output_fields: r.output_fields || '',
-        description: r.description || '',
+        synapse_id: synapse.id, step_order: r.step_order, rule_type: r.rule_type,
+        rule_name: r.rule_name || 'Untitled', expression: r.expression || '',
+        output_fields: r.output_fields || '', description: r.description || '',
         is_active: r.is_active !== false,
         rule_config: JSON.stringify({ expression: r.expression, output_fields: r.output_fields }),
       };
-      if (r.id && existingIds.has(r.id)) {
-        return base44.entities.ProcessingRule.update(r.id, payload);
-      } else {
-        return base44.entities.ProcessingRule.create(payload);
-      }
+      if (r.id && existingIds.has(r.id)) return base44.entities.ProcessingRule.update(r.id, payload);
+      else return base44.entities.ProcessingRule.create(payload);
     }));
-
-    // Version log
     await base44.entities.SynapseVersion.create({
       synapse_id: synapse.id, version_number: (form.version || 1) + 1,
       changed_at: new Date().toISOString(), change_description: 'Manual configuration update',
       previous_config: prevConfig, new_config: JSON.stringify(updated),
     });
-
     qc.invalidateQueries({ queryKey: ['synapses'] });
     qc.invalidateQueries({ queryKey: ['processingRules', synapse.id] });
     setSaving(false);
@@ -320,16 +481,28 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   };
 
   const statusColor = { Active: '#10b981', Paused: '#f59e0b', Error: '#ef4444', Broken: '#ef4444' };
+  const activeNode = pipeline[activeNodeIdx];
 
-  // Parse sort field + dir
-  const sortParts = (form.source_sort || '').split(' ');
-  const sortField = sortParts[0] || '';
-  const sortDir = sortParts[1] || 'DESC';
+  // Render the detail panel for the active node
+  const renderPanel = () => {
+    if (!activeNode) return null;
+    if (activeNode.type === 'source') return <SourcePanel form={form} set={set} />;
+    if (activeNode.type === 'map') return <MapPanel form={form} set={set} />;
+    if (activeNode.type === 'target') return <TargetPanel form={form} set={set} />;
+    if (activeNode.ruleIndex !== undefined) {
+      const rule = rules[activeNode.ruleIndex];
+      if (!rule) return null;
+      const update = (u) => handleRuleUpdate(activeNode.ruleIndex, u);
+      if (activeNode.type === 'filter') return <FilterPanel rule={rule} onUpdate={update} />;
+      return <TransformPanel rule={rule} onUpdate={update} />;
+    }
+    return null;
+  };
 
   return (
-    <div className="flex flex-col gap-3 pb-6">
+    <div className="flex flex-col gap-0 pb-6">
       {/* Header */}
-      <div className="rounded-xl p-4" style={{ background: 'rgba(30,39,97,0.4)', border: '1px solid rgba(202,220,252,0.1)' }}>
+      <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(30,39,97,0.4)', border: '1px solid rgba(202,220,252,0.1)' }}>
         <div className="flex items-center gap-2 text-sm mb-2" style={{ color: '#CADCFC' }}>
           <span>{fromNeuron?.icon} {fromNeuron?.display_name}</span>
           <span style={{ color: '#64748b' }}>──→</span>
@@ -353,258 +526,81 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
         </div>
       </div>
 
-      {/* 1. TRIGGER */}
-      <Section title="1. Trigger — When does data flow?">
-        <div className="grid grid-cols-2 gap-2">
-          <Field label="TRIGGER TYPE">
-            <Select value={form.trigger_type || 'On Event'} onValueChange={v => set('trigger_type', v)}>
-              <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
-              <SelectContent>{TRIGGER_TYPES.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
-            </Select>
-          </Field>
-          <Field label="SYNAPSE TYPE">
-            <Select value={form.synapse_type || 'One-Way'} onValueChange={v => set('synapse_type', v)}>
-              <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
-              <SelectContent>{SYNAPSE_TYPES.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
-            </Select>
-          </Field>
-        </div>
-
-        {(!form.trigger_type || form.trigger_type === 'On Event') && (
-          <Field label="EVENT NAME" hint="Fires when the named event is emitted by the source module">
-            <Input value={form.trigger_event || ''} onChange={e => set('trigger_event', e.target.value)}
-              placeholder="e.g. on_cr_approval, on_report_generation" className="h-8 text-xs font-mono" style={inputStyle} list="events-list" />
-            <datalist id="events-list">{COMMON_EVENTS.map(e => <option key={e} value={e} />)}</datalist>
-          </Field>
-        )}
-
-        {form.trigger_type === 'Scheduled' && (
-          <div className="grid grid-cols-3 gap-2">
-            <Field label="FREQUENCY">
-              <Select value={form.trigger_schedule?.split(' ')[0] || 'Weekly'} onValueChange={v => set('trigger_schedule', `${v} ${form.trigger_schedule?.split(' ').slice(1).join(' ') || 'Monday 07:00'}`)}>
-                <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
-                <SelectContent>{['Hourly','Daily','Weekly','Monthly'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
-              </Select>
-            </Field>
-            <Field label="DAY (if weekly)">
-              <Select value="" onValueChange={() => {}}>
-                <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue placeholder="Day" /></SelectTrigger>
-                <SelectContent>{['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
-              </Select>
-            </Field>
-            <Field label="TIME">
-              <Input value={form.trigger_schedule || ''} onChange={e => set('trigger_schedule', e.target.value)}
-                placeholder="07:00" className="h-8 text-xs" style={inputStyle} />
-            </Field>
-          </div>
-        )}
-
-        {form.trigger_type === 'On Record Change' && (
-          <>
-            <Field label="WATCH ENTITY" hint="Synapse fires when a record in this entity changes">
-              <Input value={form.trigger_event || ''} onChange={e => set('trigger_event', e.target.value)}
-                placeholder="e.g. ChangeRequest, FinanceModel" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list" />
-              <datalist id="entity-list">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
-            </Field>
-            <Field label="WATCH FIELDS" hint="Only fire when one of these fields changes (comma-separated)">
-              <Textarea value={form.trigger_condition || ''} onChange={e => set('trigger_condition', e.target.value)}
-                rows={2} placeholder="e.g. status, capex_impact, rag_status" className="text-xs" style={codeStyle} />
-            </Field>
-          </>
-        )}
-
-        <Field label="CONDITION (OPTIONAL)" hint="Expression that must be true for synapse to fire. Leave empty to always fire.">
-          <Textarea value={form.trigger_condition || ''} onChange={e => set('trigger_condition', e.target.value)}
-            rows={3} placeholder={"cr.status == 'Approved' AND cr.capex_impact > 0"}
-            className="text-xs" style={codeStyle} />
-        </Field>
-
-        <div className="flex items-center gap-3">
-          <span className="text-xs" style={{ color: '#94a3b8' }}>Trigger Active:</span>
-          <button onClick={() => set('is_active', !form.is_active)}
-            className="text-xs px-3 py-1 rounded-full font-medium"
-            style={{ background: form.is_active ? 'rgba(16,185,129,0.15)' : 'rgba(100,116,139,0.15)', color: form.is_active ? '#10b981' : '#64748b', border: `1px solid ${form.is_active ? '#10b98144' : 'rgba(100,116,139,0.3)'}` }}>
-            {form.is_active ? '● ON' : '○ OFF'}
-          </button>
-        </div>
-      </Section>
-
-      {/* 2. DATA SOURCE */}
-      <Section title="2. Data Source — What data flows?">
-        <Field label="SOURCE ENTITY" required>
-          <Input value={form.source_entity || ''} onChange={e => set('source_entity', e.target.value)}
-            placeholder="e.g. ChangeRequest, FinanceModel, ActionItem, WeeklyReport" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list2" />
-          <datalist id="entity-list2">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
-        </Field>
-
-        <Field label="SOURCE FIELDS" hint="Comma-separated field names to pull from source entity">
-          <Textarea value={(() => { try { const f = JSON.parse(form.source_fields || '[]'); return Array.isArray(f) ? f.join(', ') : form.source_fields; } catch { return form.source_fields || ''; } })()}
-            onChange={e => {
-              const raw = e.target.value;
-              const arr = raw.split(',').map(s => s.trim()).filter(Boolean);
-              set('source_fields', JSON.stringify(arr));
-            }}
-            rows={3} placeholder="npv, irr, payback_period, total_capex, capex_spent, contingency_total, contingency_remaining, revenue_annual"
-            className="text-xs" style={codeStyle} />
-        </Field>
-
-        <Field label="FILTER (OPTIONAL)" hint="SQL-like condition: status = 'Approved' AND capex_impact > 0">
-          <Textarea value={form.source_filter || ''} onChange={e => set('source_filter', e.target.value)}
-            rows={3} placeholder={"status != 'Cancelled' AND priority IN ('Critical','High')"}
-            className="text-xs" style={codeStyle} />
-        </Field>
-
-        <div className="grid grid-cols-[1fr,80px,80px] gap-2">
-          <Field label="SORT BY">
-            <Input value={sortField} onChange={e => set('source_sort', `${e.target.value} ${sortDir}`.trim())}
-              placeholder="e.g. approved_date, due_date" className="h-8 text-xs" style={inputStyle} />
-          </Field>
-          <Field label="DIRECTION">
-            <Select value={sortDir} onValueChange={v => set('source_sort', `${sortField} ${v}`.trim())}>
-              <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
-              <SelectContent>{SORT_DIRECTIONS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
-            </Select>
-          </Field>
-          <Field label="LIMIT" hint="0 = all">
-            <Input type="number" value={form.source_limit || ''} onChange={e => set('source_limit', parseInt(e.target.value) || null)}
-              placeholder="e.g. 1" className="h-8 text-xs" style={inputStyle} />
-          </Field>
-        </div>
-      </Section>
-
-      {/* 3. PROCESSING RULES */}
-      <Section title="3. Processing Rules — How is data transformed?">
-        {rules.length === 0 && (
-          <div className="text-xs text-center py-4" style={{ color: '#475569' }}>
-            No rules yet — data passes through unchanged
-          </div>
-        )}
-        <div className="flex flex-col gap-2">
-          {rules.map((rule, i) => (
-            <RuleCard
-              key={rule._localId || rule.id || i}
-              rule={rule}
-              index={i}
-              total={rules.length}
-              onUpdate={(updated) => handleRuleUpdate(i, updated)}
-              onDelete={() => handleRuleDelete(i)}
-              onMove={(idx, dir) => handleRuleMove(idx, dir)}
-            />
+      {/* PIPELINE FLOW */}
+      <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(15,23,42,0.7)', border: '1px solid rgba(202,220,252,0.08)' }}>
+        <div className="text-[10px] font-semibold mb-3 tracking-widest" style={{ color: '#64748b' }}>PIPELINE FLOW</div>
+        <div className="flex items-center gap-0 overflow-x-auto pb-2">
+          {pipeline.map((node, idx) => (
+            <React.Fragment key={node.id}>
+              <PipelineNode
+                node={node}
+                isActive={activeNodeIdx === idx}
+                onClick={() => setActiveNodeIdx(idx)}
+                onDelete={() => handleDeleteNode(idx)}
+                canDelete={node.type === 'filter' || node.type === 'transform'}
+              />
+              {idx < pipeline.length - 1 && (
+                <div className="flex items-center gap-0 flex-shrink-0 mx-1">
+                  <div className="h-px w-4" style={{ background: 'rgba(202,220,252,0.2)' }} />
+                  {/* Only allow adding between source/rules and before map */}
+                  {idx < pipeline.length - 2 && (
+                    <AddNodeButton onAdd={(type) => {
+                      // insert after current rule nodes; ruleIndex offset
+                      const rulesBeforeMap = pipeline.filter((n, i) => i > 0 && i < pipeline.length - 2);
+                      const insertAt = idx; // rules array insert position
+                      handleAddNode(insertAt, type);
+                    }} />
+                  )}
+                  <div className="h-px w-4" style={{ background: 'rgba(202,220,252,0.2)' }} />
+                  <ChevronRight className="w-3 h-3 flex-shrink-0" style={{ color: 'rgba(202,220,252,0.2)' }} />
+                </div>
+              )}
+            </React.Fragment>
           ))}
         </div>
-        <button onClick={handleAddRule}
-          className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg w-full"
-          style={{ border: '1px dashed rgba(167,139,250,0.3)', color: '#a78bfa' }}>
-          <Plus className="w-3.5 h-3.5" /> Add Rule
-        </button>
-        <div className="text-[10px]" style={{ color: '#475569' }}>
-          💡 Rules execute in order. Each rule can reference fields produced by previous rules.
+        <div className="text-[10px] mt-2" style={{ color: '#334155' }}>
+          Click a node to configure · Press + to add a Filter or Transform step
         </div>
-      </Section>
+      </div>
 
-      {/* 4. TARGET MAPPING */}
-      <Section title="4. Target Mapping — Where does data go?">
-        <div className="grid grid-cols-2 gap-2">
-          <Field label="TARGET ENTITY" required>
-            <Input value={form.target_entity || ''} onChange={e => set('target_entity', e.target.value)}
-              placeholder="e.g. WeeklyReportSection, DashboardMetric" className="h-8 text-xs font-mono" style={inputStyle} list="entity-list3" />
-            <datalist id="entity-list3">{ALL_ENTITIES.map(e => <option key={e} value={e} />)}</datalist>
-          </Field>
-          <Field label="TARGET ACTION">
-            <Select value={form.target_action || 'Update'} onValueChange={v => set('target_action', v)}>
-              <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
-              <SelectContent>{TARGET_ACTIONS.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
-            </Select>
-          </Field>
-        </div>
-
-        <Field label="TARGET SECTION (OPTIONAL)" hint="If target entity has named sections, specify which one">
-          <Input value={form.notes?.startsWith('target_section:') ? form.notes.replace('target_section:', '').split('\n')[0] : ''}
-            onChange={e => set('target_section_temp', e.target.value)}
-            placeholder="e.g. Cost & Financial, Schedule, Risk" className="h-8 text-xs" style={inputStyle} />
-        </Field>
-
-        <Field label="FIELD MAPPING" hint="One mapping per line: source_field → target_field">
-          <FieldMappingTextarea value={form.target_fields || '{}'} onChange={v => set('target_fields', v)} />
-        </Field>
-
-        <Field label="AUTO-MAP BY NAME">
-          <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: '#94a3b8' }}>
-            <input type="checkbox" checked={false} onChange={() => {
-              // Auto-populate mapping from source fields
-              try {
-                const fields = JSON.parse(form.source_fields || '[]');
-                const obj = {};
-                fields.forEach(f => { obj[f] = f; });
-                set('target_fields', JSON.stringify(obj));
-              } catch {}
-            }} className="w-3 h-3 accent-teal-500" />
-            Click to auto-map source fields to matching target field names
-          </label>
-        </Field>
-
-        <Field label="OUTPUT FORMAT">
-          <Select value={form.output_format || 'Raw'} onValueChange={v => set('output_format', v)}>
-            <SelectTrigger className="h-8 text-xs" style={inputStyle}><SelectValue /></SelectTrigger>
-            <SelectContent>{['Raw','Aggregated','Formatted','Calculated'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
-          </Select>
-        </Field>
-      </Section>
-
-      {/* 5. TEST */}
-      <Section title="5. Test & Preview" defaultOpen={false}>
-        <button onClick={handleTest} disabled={testing}
-          className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-medium"
-          style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10b98144', color: '#10b981' }}>
-          <FlaskConical className="w-4 h-4" />
-          {testing ? 'Running test…' : '▶ Test with Live Data'}
-        </button>
-        {testResult && (
-          <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(5,10,25,0.8)', border: '1px solid rgba(16,185,129,0.3)' }}>
-            <div className="font-bold mb-1 text-emerald-400">✅ Test passed · {testResult.rules_passed} rules applied</div>
-            <div style={{ color: '#94a3b8' }}>
-              Pulled {testResult.records} records from <span style={{ color: '#CADCFC' }}>{form.source_entity || '(no entity)'}</span>
-            </div>
+      {/* ACTIVE NODE DETAIL PANEL */}
+      {activeNode && (
+        <div className="rounded-xl p-4 mb-3 transition-all" style={{
+          background: 'rgba(15,23,42,0.8)',
+          border: `1px solid ${NODE_TYPES[activeNode.type]?.border || 'rgba(202,220,252,0.1)'}`,
+        }}>
+          <div className="flex items-center gap-2 mb-3">
+            {React.createElement(NODE_TYPES[activeNode.type]?.icon || Settings2, {
+              className: 'w-4 h-4', style: { color: NODE_TYPES[activeNode.type]?.color || '#94a3b8' }
+            })}
+            <span className="text-sm font-semibold" style={{ color: NODE_TYPES[activeNode.type]?.color || '#CADCFC' }}>
+              {NODE_TYPES[activeNode.type]?.label} Settings
+            </span>
+            {(activeNode.type === 'filter' || activeNode.type === 'transform') && activeNode.ruleIndex !== undefined && (
+              <span className="text-[10px] ml-auto" style={{ color: '#475569' }}>Step {activeNode.ruleIndex + 1} of {rules.length}</span>
+            )}
           </div>
-        )}
-      </Section>
-
-      {/* Version History */}
-      {versionHistory.length > 0 && (
-        <div>
-          <button onClick={() => setShowHistory(h => !h)} className="flex items-center gap-2 text-xs" style={{ color: '#64748b' }}>
-            <History className="w-3 h-3" /> Version History ({versionHistory.length})
-            {showHistory ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-          </button>
-          {showHistory && (
-            <div className="mt-2 flex flex-col gap-1">
-              {versionHistory.map(v => (
-                <div key={v.id} className="text-xs p-2 rounded flex items-center justify-between" style={{ background: 'rgba(30,39,97,0.3)', color: '#94a3b8' }}>
-                  <span><span className="font-bold text-white">v{v.version_number}</span> · {v.change_description}</span>
-                  <span style={{ color: '#475569' }}>{new Date(v.changed_at).toLocaleDateString()}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          {renderPanel()}
         </div>
       )}
 
-      {/* Admin Notes */}
-      <Field label="ADMIN NOTES">
-        <Textarea value={form.notes || ''} onChange={e => set('notes', e.target.value)} rows={2}
-          placeholder="Notes for other admins about this synapse"
-          style={{ background: 'rgba(30,39,97,0.3)', borderColor: 'rgba(202,220,252,0.1)', color: '#94a3b8' }} />
-      </Field>
+      {/* Test Result */}
+      {testResult && (
+        <div className="rounded-lg p-3 text-xs mb-3" style={{ background: 'rgba(5,10,25,0.8)', border: '1px solid rgba(16,185,129,0.3)' }}>
+          <div className="font-bold mb-1 text-emerald-400">✅ Test passed · {testResult.rules_passed} rules applied</div>
+          <div style={{ color: '#94a3b8' }}>Pulled {testResult.records} records from <span style={{ color: '#CADCFC' }}>{form.source_entity || '(no entity)'}</span></div>
+        </div>
+      )}
 
       {/* Action Bar */}
-      <div className="sticky bottom-0 -mx-0 mt-2 rounded-xl p-3 flex flex-wrap gap-2"
+      <div className="sticky bottom-0 rounded-xl p-3 flex flex-wrap gap-2 mt-2"
         style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(202,220,252,0.1)', backdropFilter: 'blur(12px)' }}>
         <Button onClick={handleSave} disabled={saving} size="sm"
           style={{ background: 'linear-gradient(135deg,#028090,#00A896)', color: '#F8FAFC' }}>
           <Save className="w-4 h-4 mr-1" />{saving ? 'Saving…' : `Save (v${(form.version || 1) + 1})`}
         </Button>
         <Button onClick={handleTest} disabled={testing} size="sm" variant="outline" style={{ borderColor: '#10b98144', color: '#10b981' }}>
-          <FlaskConical className="w-4 h-4 mr-1" />Test
+          <FlaskConical className="w-4 h-4 mr-1" />{testing ? 'Testing…' : 'Test'}
         </Button>
         <Button onClick={() => { setForm({ ...synapse }); setRules(dbRules.map(r => ({ ...r, _localId: r.id }))); }}
           size="sm" variant="outline" style={{ borderColor: 'rgba(202,220,252,0.1)', color: '#64748b' }}>
