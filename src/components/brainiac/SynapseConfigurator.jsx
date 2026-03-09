@@ -866,9 +866,9 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   // Render the detail panel for the active node
   const renderPanel = () => {
     if (!activeNode) return null;
-    if (activeNode.type === 'source') return <SourcePanel form={form} set={set} />;
-    if (activeNode.type === 'map') return <MapPanel form={form} set={set} />;
-    if (activeNode.type === 'target') return <TargetPanel form={form} set={set} />;
+    if (activeNode.type === 'source') return <SourcePanel form={activeForm} set={set} />;
+    if (activeNode.type === 'map') return <MapPanel form={activeForm} set={set} />;
+    if (activeNode.type === 'target') return <TargetPanel form={activeForm} set={set} />;
     if (activeNode.ruleIndex !== undefined) {
       const rule = rules[activeNode.ruleIndex];
       if (!rule) return null;
