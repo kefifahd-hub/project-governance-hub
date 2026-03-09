@@ -760,7 +760,7 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
         ruleIndex: i,
       })),
       { id: 'map', type: 'map', label: '' },
-      { id: 'target', type: 'target', label: form.target_entity || '' },
+      { id: 'target', type: 'target', label: src.target_entity || '' },
     ];
     return nodes;
   };
