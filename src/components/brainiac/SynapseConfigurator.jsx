@@ -510,7 +510,17 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
 
   if (!form) return null;
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k, v) => {
+    setForm(f => ({ ...f, [k]: v }));
+    if (k === 'source_entity' && v && base44.entities[v]) {
+      setLoadingPreview(true);
+      setSourceRecords([]);
+      base44.entities[v].list('-created_date', 3)
+        .then(data => setSourceRecords(data || []))
+        .catch(() => setSourceRecords([]))
+        .finally(() => setLoadingPreview(false));
+    }
+  };
 
   // Build pipeline nodes: [source] + [rule nodes] + [map] + [target]
   const buildPipeline = () => {
