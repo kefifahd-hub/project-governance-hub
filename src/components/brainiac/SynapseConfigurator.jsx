@@ -467,6 +467,8 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
   const [testResult, setTestResult] = useState(null);
   const [testing, setTesting] = useState(false);
   const [activeNodeIdx, setActiveNodeIdx] = useState(0);
+  const [sourceRecords, setSourceRecords] = useState([]);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   const neuronMap = {};
   neurons.forEach(n => { neuronMap[n.id] = n; });
