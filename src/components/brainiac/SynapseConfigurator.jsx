@@ -925,7 +925,25 @@ export default function SynapseConfigurator({ synapse, neurons, onClose, onSaved
 
       {/* PIPELINE FLOW */}
       <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(15,23,42,0.7)', border: '1px solid rgba(202,220,252,0.08)' }}>
-        <div className="text-[10px] font-semibold mb-3 tracking-widest" style={{ color: '#64748b' }}>PIPELINE FLOW</div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-[10px] font-semibold tracking-widest" style={{ color: '#64748b' }}>PIPELINE FLOW</div>
+          {isBidir && (
+            <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(202,220,252,0.15)' }}>
+              <button onClick={() => { setActiveDirection('forward'); setActiveNodeIdx(0); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold transition-colors"
+                style={{ background: activeDirection === 'forward' ? 'rgba(2,128,144,0.25)' : 'rgba(30,39,97,0.3)', color: activeDirection === 'forward' ? '#00A896' : '#64748b' }}>
+                {fromNeuron?.icon} → {toNeuron?.icon}
+                <span className="text-[9px] ml-1" style={{ color: activeDirection === 'forward' ? '#00A896' : '#334155' }}>A→B</span>
+              </button>
+              <button onClick={() => { setActiveDirection('reverse'); setActiveNodeIdx(0); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold transition-colors"
+                style={{ background: activeDirection === 'reverse' ? 'rgba(139,92,246,0.25)' : 'rgba(30,39,97,0.3)', color: activeDirection === 'reverse' ? '#a78bfa' : '#64748b', borderLeft: '1px solid rgba(202,220,252,0.1)' }}>
+                {toNeuron?.icon} → {fromNeuron?.icon}
+                <span className="text-[9px] ml-1" style={{ color: activeDirection === 'reverse' ? '#a78bfa' : '#334155' }}>B→A</span>
+              </button>
+            </div>
+          )}
+        </div>
         <div className="flex items-center gap-0 overflow-x-auto pb-2">
           {pipeline.map((node, idx) => (
             <React.Fragment key={node.id}>
