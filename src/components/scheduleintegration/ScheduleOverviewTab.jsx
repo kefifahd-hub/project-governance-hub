@@ -137,7 +137,50 @@ export default function ScheduleOverviewTab({ projectId }) {
 
       {/* All tasks table */}
       <div>
-        <h3 className="text-sm font-semibold mb-2" style={{ color: '#CADCFC' }}>All Activities ({allTasks.length})</h3>
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <span className="text-xs font-semibold" style={{ color: '#64748b' }}>Filter:</span>
+          {STATUS_OPTIONS.map(s => (
+            <button
+              key={s}
+              onClick={() => toggleStatus(s)}
+              className="px-2.5 py-1 rounded-full text-xs font-medium border transition-all"
+              style={{
+                background: statusFilters.includes(s) ? 'rgba(2,128,144,0.25)' : 'rgba(30,39,97,0.4)',
+                borderColor: statusFilters.includes(s) ? '#00A896' : 'rgba(202,220,252,0.15)',
+                color: statusFilters.includes(s) ? '#00A896' : '#94A3B8',
+              }}
+            >{s}</button>
+          ))}
+          <button
+            onClick={() => setDelayedOnly(p => !p)}
+            className="px-2.5 py-1 rounded-full text-xs font-medium border transition-all"
+            style={{
+              background: delayedOnly ? 'rgba(239,68,68,0.2)' : 'rgba(30,39,97,0.4)',
+              borderColor: delayedOnly ? '#ef4444' : 'rgba(202,220,252,0.15)',
+              color: delayedOnly ? '#ef4444' : '#94A3B8',
+            }}
+          >⚠ Delayed</button>
+          <button
+            onClick={() => setCriticalOnly(p => !p)}
+            className="px-2.5 py-1 rounded-full text-xs font-medium border transition-all"
+            style={{
+              background: criticalOnly ? 'rgba(239,68,68,0.15)' : 'rgba(30,39,97,0.4)',
+              borderColor: criticalOnly ? '#f97316' : 'rgba(202,220,252,0.15)',
+              color: criticalOnly ? '#f97316' : '#94A3B8',
+            }}
+          >⚡ Critical Path</button>
+          {(statusFilters.length > 0 || criticalOnly || delayedOnly) && (
+            <button
+              onClick={() => { setStatusFilters([]); setCriticalOnly(false); setDelayedOnly(false); }}
+              className="px-2 py-1 rounded text-xs"
+              style={{ color: '#64748b' }}
+            >✕ Clear</button>
+          )}
+        </div>
+        <h3 className="text-sm font-semibold mb-2" style={{ color: '#CADCFC' }}>
+          All Activities ({filteredTasks.length}{filteredTasks.length !== allTasks.length ? ` of ${allTasks.length}` : ''})
+        </h3>
         <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(202,220,252,0.1)' }}>
           <div className="overflow-x-auto max-h-80 overflow-y-auto">
             <table className="w-full text-xs">
