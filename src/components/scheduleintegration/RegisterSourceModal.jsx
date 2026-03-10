@@ -28,7 +28,7 @@ export default function RegisterSourceModal({ projectId, onClose }) {
     },
   });
 
-  const FILE_FORMATS = form.sourceType === 'Primavera P6' ? ['XER', 'XML (P6)', 'CSV'] : ['MPP', 'XML (MSP)', 'XLSX', 'CSV'];
+  const FILE_FORMATS = form.sourceType === 'Primavera P6' ? ['XER', 'XML (P6)', 'XLSX', 'CSV'] : ['MPP', 'XML (MSP)', 'XLSX', 'CSV'];
 
   function set(key, val) { setForm(f => ({ ...f, [key]: val })); }
 
