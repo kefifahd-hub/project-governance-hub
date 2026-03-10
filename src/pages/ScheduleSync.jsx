@@ -35,6 +35,7 @@ export default function ScheduleSync() {
   const [showRegister, setShowRegister] = useState(false);
   const [xlsxPreview, setXlsxPreview] = useState(null); // { fileName, tasks, existingMap, summary }
   const [xlsxConfirming, setXlsxConfirming] = useState(false);
+  const [importProgress, setImportProgress] = useState('');
 
   const { data: sources = [], isLoading: sourcesLoading } = useQuery({
     queryKey: ['scheduleSources', projectId],
