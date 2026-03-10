@@ -192,7 +192,7 @@ export default function ScheduleOverviewTab({ projectId }) {
                 </tr>
               </thead>
               <tbody>
-                {allTasks.map((t, i) => {
+                {filteredTasks.map((t, i) => {
                   const src = sourceMap[t.sourceId];
                   const badge = src ? SOURCE_BADGE[src.sourceType] : null;
                   return (
