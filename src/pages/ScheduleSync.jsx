@@ -182,6 +182,78 @@ export default function ScheduleSync() {
     }
   }
 
+  async function handleXlsxFile(file) {
+    try {
+      const { tasks, summary } = await parseP6Xlsx(file);
+      // Build a map of existing ScheduleActivity records keyed by activityId
+      const existing = await base44.entities.ScheduleActivity.filter({ projectId });
+      const existingMap = Object.fromEntries(existing.map(a => [a.activityId, a]));
+      setXlsxPreview({ fileName: file.name, tasks, existingMap, summary });
+    } catch (err) {
+      alert(`XLSX parse error: ${err.message}`);
+    }
+  }
+
+  async function handleXlsxConfirm() {
+    if (!xlsxPreview) return;
+    setXlsxConfirming(true);
+    try {
+      const { tasks, existingMap } = xlsxPreview;
+      const batchSize = 50;
+
+      const toCreate = tasks.filter(t => !existingMap[t.externalId]);
+      const toUpdate = tasks.filter(t =>  existingMap[t.externalId]);
+
+      // Create new records
+      for (let i = 0; i < toCreate.length; i += batchSize) {
+        const batch = toCreate.slice(i, i + batchSize).map(t => ({
+          projectId,
+          activityId: t.externalId,
+          activityName: t.taskName,
+          wbsCode: t.externalWbs || '',
+          plannedStartDate: t.plannedStart || null,
+          plannedFinishDate: t.plannedFinish || null,
+          actualStartDate: t.actualStart || null,
+          actualFinishDate: t.actualFinish || null,
+          percentComplete: t.percentComplete,
+          status: t.percentComplete >= 100 ? 'Completed' : t.percentComplete > 0 ? 'In Progress' : 'Not Started',
+          isCriticalPath: t.isCritical || false,
+          totalFloat: t.totalFloat || 0,
+          duration: t.durationDays || 0,
+          remainingDuration: t.remainingDuration || 0,
+        }));
+        await base44.entities.ScheduleActivity.bulkCreate(batch);
+      }
+
+      // Update existing records
+      for (const t of toUpdate) {
+        const existing = existingMap[t.externalId];
+        await base44.entities.ScheduleActivity.update(existing.id, {
+          activityName: t.taskName,
+          wbsCode: t.externalWbs || '',
+          plannedStartDate: t.plannedStart || null,
+          plannedFinishDate: t.plannedFinish || null,
+          actualStartDate: t.actualStart || null,
+          actualFinishDate: t.actualFinish || null,
+          percentComplete: t.percentComplete,
+          status: t.percentComplete >= 100 ? 'Completed' : t.percentComplete > 0 ? 'In Progress' : 'Not Started',
+          isCriticalPath: t.isCritical || false,
+          totalFloat: t.totalFloat || 0,
+          duration: t.durationDays || 0,
+          remainingDuration: t.remainingDuration || 0,
+        });
+      }
+
+      qc.invalidateQueries({ queryKey: ['scheduleActivities', projectId] });
+      setXlsxPreview(null);
+      setActiveTab('overview');
+    } catch (err) {
+      alert(`Import failed: ${err.message}`);
+    } finally {
+      setXlsxConfirming(false);
+    }
+  }
+
   if (!projectId) {
     return <div className="p-8 text-center" style={{ color: '#64748b' }}>Please select a project first.</div>;
   }
