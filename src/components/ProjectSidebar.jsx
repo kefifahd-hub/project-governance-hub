@@ -19,6 +19,8 @@ const PHASE_TOOLS = {
   'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports'],
 };
 
+const SCHEDULE_PAGES = ['ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard'];
+
 const ALL_TOOLS = [
   { page: 'ActionTracker',      label: 'Action Tracker',       icon: ListTodo },
   { page: 'SiteSelection',      label: 'Site Selection',       icon: MapPin },
@@ -28,9 +30,13 @@ const ALL_TOOLS = [
   { page: 'FEEDTracker',        label: 'FEED Tracker',         icon: ClipboardCheck },
   { page: 'RiskRegister',       label: 'Risk Register',        icon: AlertTriangle },
   { page: 'BudgetDashboard',    label: 'Budget Tracking',      icon: PiggyBank },
-  { page: 'ScheduleMonitoring', label: 'Schedule Monitoring',  icon: BarChart3 },
-  { page: 'ScheduleSync',       label: 'Schedule Sync',        icon: RefreshCcw },
-  { page: 'ScheduleDashboard',  label: 'Schedule Dashboard',   icon: BarChart2 },
+  { page: 'Schedule',           label: 'Schedule',             icon: Calendar, group: true,
+    children: [
+      { page: 'ScheduleMonitoring', label: 'Monitoring',   icon: BarChart3 },
+      { page: 'ScheduleSync',       label: 'Sync',         icon: RefreshCcw },
+      { page: 'ScheduleDashboard',  label: 'Dashboard',    icon: BarChart2 },
+    ]
+  },
   { page: 'WeeklyReports',      label: 'Weekly Reports',       icon: FileBarChart },
   { page: 'QAQCDashboard',      label: 'QA/QC',                icon: CheckSquare },
   { page: 'ChangeManagement',   label: 'Change Management',    icon: GitPullRequest },
