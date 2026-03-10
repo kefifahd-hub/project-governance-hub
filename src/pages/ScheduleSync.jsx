@@ -12,7 +12,8 @@ import ScheduleOverviewTab from '@/components/scheduleintegration/ScheduleOvervi
 import DeltaTab from '@/components/scheduleintegration/DeltaTab';
 import WBSMappingTab from '@/components/scheduleintegration/WBSMappingTab';
 import RegisterSourceModal from '@/components/scheduleintegration/RegisterSourceModal';
-import { parseScheduleFile, generateDeltas } from '@/components/scheduleintegration/scheduleParser';
+import { parseScheduleFile, generateDeltas, parseP6Xlsx } from '@/components/scheduleintegration/scheduleParser';
+import P6XlsxImportModal from '@/components/scheduleintegration/P6XlsxImportModal';
 
 const TABS = [
   { id: 'import', label: '📥 Import / Sync' },
