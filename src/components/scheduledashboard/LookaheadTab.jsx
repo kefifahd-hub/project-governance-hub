@@ -74,7 +74,7 @@ export default function LookaheadTab({ activities }) {
                 <span className="text-[10px]" style={{ color: '#475569' }}>{a.activityId || ''}</span>
               </div>
               <div className="flex-1 relative h-5 rounded" style={{ background: 'rgba(202,220,252,0.05)' }}>
-                <div className="absolute top-0 h-full rounded overflow-hidden" style={{ left, width, background: isCrit ? 'rgba(239,68,68,0.25)', border: `1px solid ${isCrit ? '#ef4444' : '#028090'}` }}>
+                <div className="absolute top-0 h-full rounded overflow-hidden" style={{ left, width, background: isCrit ? 'rgba(239,68,68,0.25)' : 'rgba(2,128,144,0.15)', border: `1px solid ${isCrit ? '#ef4444' : '#028090'}` }}>
                   <div className="h-full rounded" style={{ width: `${pct}%`, background: isCrit ? 'rgba(239,68,68,0.6)' : 'rgba(0,168,150,0.6)' }} />
                 </div>
                 <span className="absolute right-1 top-0 text-[9px] leading-5" style={{ color: '#64748b' }}>{pct}%</span>
