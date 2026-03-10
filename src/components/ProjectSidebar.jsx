@@ -101,9 +101,61 @@ export default function ProjectSidebar() {
           {/* Divider */}
           <div className="my-2 text-xs px-3 uppercase tracking-wider" style={{ color: '#475569' }}>Tools</div>
 
-          {/* All tools — active ones clickable, inactive ones greyed out */}
+          {/* All tools */}
           {ALL_TOOLS.map(tool => {
             const Icon = tool.icon;
+
+            // Schedule group
+            if (tool.group) {
+              const anyChildEnabled = tool.children.some(c =>
+                (PHASE_TOOLS[matchedPhase] || []).includes(c.page)
+              );
+              const open = scheduleOpen || isScheduleActive;
+              const Chevron = open ? ChevronDown : ChevronRight;
+              return (
+                <div key={tool.page}>
+                  <button
+                    onClick={() => anyChildEnabled && setScheduleOpen(o => !o)}
+                    disabled={!anyChildEnabled}
+                    className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all"
+                    style={{
+                      color: isScheduleActive ? '#00A896' : anyChildEnabled ? '#94A3B8' : '#334155',
+                      background: isScheduleActive ? 'rgba(0,168,150,0.1)' : 'transparent',
+                      cursor: anyChildEnabled ? 'pointer' : 'default',
+                      opacity: anyChildEnabled ? 1 : 0.45,
+                    }}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="flex-1">{tool.label}</span>
+                    {anyChildEnabled && <Chevron className="w-3 h-3 shrink-0" />}
+                  </button>
+                  {(open && anyChildEnabled) && tool.children.map(child => {
+                    const ChildIcon = child.icon;
+                    const childEnabled = (PHASE_TOOLS[matchedPhase] || []).includes(child.page);
+                    const childActive = childEnabled && isActivePage(child.page);
+                    return (
+                      <button
+                        key={child.page}
+                        onClick={() => childEnabled && navigate(createPageUrl(`${child.page}?id=${projectId}`))}
+                        disabled={!childEnabled}
+                        className="w-full text-left pl-8 pr-3 py-1.5 rounded-lg text-sm flex items-center gap-2.5 transition-all"
+                        style={{
+                          color: childActive ? '#00A896' : childEnabled ? '#94A3B8' : '#334155',
+                          background: childActive ? 'rgba(0,168,150,0.08)' : 'transparent',
+                          cursor: childEnabled ? 'pointer' : 'default',
+                          opacity: childEnabled ? 1 : 0.45,
+                        }}
+                      >
+                        <ChildIcon className="w-3.5 h-3.5 shrink-0" />
+                        {child.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            }
+
+            // Regular tool
             const enabled = phaseTools.some(t => t.page === tool.page);
             const active = enabled && isActivePage(tool.page);
             return (
