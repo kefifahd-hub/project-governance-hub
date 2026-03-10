@@ -44,8 +44,10 @@ export async function parseP6Xlsx(file) {
   const parseDate = (val) => {
     if (!val) return null;
     if (val instanceof Date) return val.toISOString().split('T')[0];
-    // P6 exports dates like "15-Jan-25" or "2025-01-15" or "01/15/2025"
-    const d = new Date(val);
+    // P6 appends " A" (actual) or " *" suffixes — strip them before parsing
+    const clean = String(val).replace(/\s+[A*]\s*$/, '').trim();
+    if (!clean) return null;
+    const d = new Date(clean);
     return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
   };
 
