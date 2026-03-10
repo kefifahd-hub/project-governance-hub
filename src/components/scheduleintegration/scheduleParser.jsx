@@ -58,8 +58,8 @@ export async function parseP6Xlsx(file) {
 
   const tasks = rows.map((row, idx) => {
     const rawId = String(get(row, 'ID*', 'ID', 'Activity ID')).trim();
-    // Skip WBS summary rows
-    if (!rawId || rawId.startsWith('WBS -')) return null;
+    // Skip WBS summary rows (P6 uses "WBS - <code>" in the ID column)
+    if (!rawId || rawId.startsWith('WBS')) return null;
 
     const name = String(get(row, 'Name*', 'Name', 'Activity Name')).trim();
     if (!name) return null;
