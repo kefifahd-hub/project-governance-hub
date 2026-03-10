@@ -6,7 +6,7 @@ const cardStyle = { background: 'rgba(30,39,97,0.4)', border: '1px solid rgba(20
 const s = { color: '#64748b' };
 const v = { color: '#CADCFC' };
 
-export default function P6XlsxImportModal({ preview, onConfirm, onCancel, confirming }) {
+export default function P6XlsxImportModal({ preview, onConfirm, onCancel, confirming, importProgress }) {
   const { fileName, tasks, existingMap, summary } = preview;
   const [showAll, setShowAll] = useState(false);
 
