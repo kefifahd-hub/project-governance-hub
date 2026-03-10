@@ -30,12 +30,8 @@ export async function parseP6Xlsx(file) {
 
   if (!rawRows.length) throw new Error('XLSX file is empty or has no data rows');
 
-  // Trim all leading/trailing spaces from keys
-  const rows = rawRows.map(row => {
-    const clean = {};
-    for (const [k, v] of Object.entries(row)) clean[k.trim()] = v;
-    return clean;
-  });
+  // Normalize: trim ALL keys (SheetJS preserves leading spaces from P6 headers)
+  const rows = rawRows.map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [k.trim(), v])));
 
   // Column map based on real P6 export headers (after trimming)
   const get = (row, ...keys) => {
