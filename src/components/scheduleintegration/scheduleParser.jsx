@@ -25,6 +25,17 @@ export async function parseP6Xlsx(file) {
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
 
   const ws = wb.Sheets[wb.SheetNames[0]];
+
+  // Fix: P6 xlsx exports often have incorrect sheet dimensions in metadata
+  let maxR = 0, maxC = 0;
+  for (const key in ws) {
+    if (key.startsWith('!')) continue;
+    const cell = XLSX.utils.decode_cell(key);
+    if (cell.r > maxR) maxR = cell.r;
+    if (cell.c > maxC) maxC = cell.c;
+  }
+  ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: maxR, c: maxC } });
+
   // raw: true so we can trim headers ourselves
   const rawRows = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false });
 
