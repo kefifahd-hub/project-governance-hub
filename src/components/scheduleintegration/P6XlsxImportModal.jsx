@@ -102,9 +102,17 @@ export default function P6XlsxImportModal({ preview, onConfirm, onCancel, confir
             )}
           </div>
 
+          {/* Progress */}
+          {importProgress && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm" style={{ background: 'rgba(2,128,144,0.12)', border: '1px solid rgba(0,168,150,0.3)', color: '#00A896' }}>
+              <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+              {importProgress}
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex gap-3 justify-end">
-            <Button variant="outline" onClick={onCancel} style={{ borderColor: 'rgba(202,220,252,0.2)', color: '#94A3B8' }}>Cancel</Button>
+            <Button variant="outline" onClick={onCancel} disabled={confirming} style={{ borderColor: 'rgba(202,220,252,0.2)', color: '#94A3B8' }}>Cancel</Button>
             <Button onClick={onConfirm} disabled={confirming} style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
               {confirming ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
               Import {newRows.length} new + {updateRows.length} updated
