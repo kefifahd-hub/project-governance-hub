@@ -35,11 +35,30 @@ export default function ScheduleOverviewTab({ projectId }) {
     enabled: !!projectId && versions.length > 0,
   });
 
+  const [statusFilters, setStatusFilters] = useState([]);
+  const [criticalOnly, setCriticalOnly] = useState(false);
+  const [delayedOnly, setDelayedOnly] = useState(false);
+
   const sourceMap = Object.fromEntries(sources.map(s => [s.id, s]));
 
+  const today = new Date();
   const criticalTasks = allTasks.filter(t => t.isCritical).length;
   const milestones = allTasks.filter(t => t.taskType === 'Milestone');
   const lowFloat = allTasks.filter(t => !t.isCritical && t.totalFloat !== undefined && t.totalFloat < 10 && t.status !== 'Complete');
+
+  const STATUS_OPTIONS = ['Not Started', 'In Progress', 'Completed', 'On Hold'];
+
+  const toggleStatus = (s) => setStatusFilters(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
+
+  const filteredTasks = allTasks.filter(t => {
+    if (statusFilters.length > 0 && !statusFilters.includes(t.status)) return false;
+    if (criticalOnly && !t.isCritical) return false;
+    if (delayedOnly) {
+      const finish = t.plannedFinish ? new Date(t.plannedFinish) : null;
+      if (!finish || finish >= today || t.status === 'Complete' || t.status === 'Completed') return false;
+    }
+    return true;
+  });
 
   if (isLoading) return <div className="flex justify-center pt-16"><Loader2 className="w-6 h-6 animate-spin" style={{ color: '#64748b' }} /></div>;
 
