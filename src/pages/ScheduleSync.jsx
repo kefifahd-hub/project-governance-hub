@@ -198,67 +198,78 @@ export default function ScheduleSync() {
   async function handleXlsxConfirm() {
     if (!xlsxPreview) return;
     setXlsxConfirming(true);
-    try {
-      const { tasks, existingMap } = xlsxPreview;
-      const batchSize = 50;
+    setImportProgress('');
 
-      const toCreate = tasks.filter(t => !existingMap[t.externalId]);
-      const toUpdate = tasks.filter(t =>  existingMap[t.externalId]);
+    const { tasks, existingMap } = xlsxPreview;
+    const BATCH_SIZE = 25;
+    const toCreate = tasks.filter(t => !existingMap[t.externalId]);
+    const toUpdate = tasks.filter(t =>  existingMap[t.externalId]);
 
-      // Create new records
-      for (let i = 0; i < toCreate.length; i += batchSize) {
-        const batch = toCreate.slice(i, i + batchSize).map(t => ({
-          projectId,
-          activityId: t.externalId,
-          activityName: t.taskName,
-          wbsCode: t.externalWbs || '',
-          plannedStartDate: t.plannedStart || null,
-          plannedFinishDate: t.plannedFinish || null,
-          actualStartDate: t.actualStart || null,
-          actualFinishDate: t.actualFinish || null,
-          percentComplete: t.percentComplete,
-          status: t.status || 'Not Started',
-          isCriticalPath: t.isCritical || false,
-          totalFloat: t.totalFloat || 0,
-          duration: t.durationDays || 0,
-          remainingDuration: t.remainingDuration || 0,
-          contractors: t.contractors || '',
-          predecessors: t.predecessors || '',
-          successors: t.successors || '',
-        }));
+    const totalBatches = Math.ceil(toCreate.length / BATCH_SIZE) + Math.ceil(toUpdate.length / BATCH_SIZE);
+    let batchNum = 0;
+    let succeeded = 0;
+    let failed = 0;
+
+    const toActivityPayload = (t) => ({
+      projectId,
+      activityId: t.externalId,
+      activityName: t.taskName,
+      wbsCode: t.externalWbs || '',
+      plannedStartDate: t.plannedStart || null,
+      plannedFinishDate: t.plannedFinish || null,
+      actualStartDate: t.actualStart || null,
+      actualFinishDate: t.actualFinish || null,
+      percentComplete: t.percentComplete,
+      status: t.status || 'Not Started',
+      isCriticalPath: t.isCritical || false,
+      totalFloat: t.totalFloat || 0,
+      duration: t.durationDays || 0,
+      remainingDuration: t.remainingDuration || 0,
+      contractors: t.contractors || '',
+      predecessors: t.predecessors || '',
+      successors: t.successors || '',
+    });
+
+    // Create new records in batches
+    for (let i = 0; i < toCreate.length; i += BATCH_SIZE) {
+      batchNum++;
+      setImportProgress(`Importing batch ${batchNum} of ${totalBatches}… (creating new records)`);
+      const batch = toCreate.slice(i, i + BATCH_SIZE).map(toActivityPayload);
+      try {
         await base44.entities.ScheduleActivity.bulkCreate(batch);
+        succeeded += batch.length;
+      } catch (err) {
+        console.error(`Batch ${batchNum} create failed:`, err.message);
+        failed += batch.length;
       }
-
-      // Update existing records
-      for (const t of toUpdate) {
-        const existing = existingMap[t.externalId];
-        await base44.entities.ScheduleActivity.update(existing.id, {
-          activityName: t.taskName,
-          wbsCode: t.externalWbs || '',
-          plannedStartDate: t.plannedStart || null,
-          plannedFinishDate: t.plannedFinish || null,
-          actualStartDate: t.actualStart || null,
-          actualFinishDate: t.actualFinish || null,
-          percentComplete: t.percentComplete,
-          status: t.status || 'Not Started',
-          isCriticalPath: t.isCritical || false,
-          totalFloat: t.totalFloat || 0,
-          duration: t.durationDays || 0,
-          remainingDuration: t.remainingDuration || 0,
-          contractors: t.contractors || '',
-          predecessors: t.predecessors || '',
-          successors: t.successors || '',
-        });
-      }
-
-      qc.invalidateQueries({ queryKey: ['scheduleActivities', projectId] });
-      setXlsxPreview(null);
-      setActiveTab('overview');
-    } catch (err) {
-      alert(`Import failed: ${err.message}`);
-    } finally {
-      setXlsxConfirming(false);
+      await new Promise(r => setTimeout(r, 500));
     }
+
+    // Update existing records in batches
+    for (let i = 0; i < toUpdate.length; i += BATCH_SIZE) {
+      batchNum++;
+      setImportProgress(`Importing batch ${batchNum} of ${totalBatches}… (updating existing records)`);
+      const batch = toUpdate.slice(i, i + BATCH_SIZE);
+      for (const t of batch) {
+        try {
+          const ex = existingMap[t.externalId];
+          await base44.entities.ScheduleActivity.update(ex.id, toActivityPayload(t));
+          succeeded++;
+        } catch (err) {
+          console.error(`Update failed for ${t.externalId}:`, err.message);
+          failed++;
+        }
+      }
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    const total = tasks.length;
+    setImportProgress('');
+    setXlsxConfirming(false);
+    qc.invalidateQueries({ queryKey: ['scheduleActivities', projectId] });
+    setXlsxPreview(null);
+    setActiveTab('overview');
+    alert(`Import complete: ${succeeded} of ${total} activities imported successfully${failed > 0 ? `, ${failed} failed (check console for details)` : ''}.`);
   }
 
   if (!projectId) {
