@@ -63,6 +63,7 @@ export default function ProjectSidebar() {
   const currentPath = location.pathname;
   const isActivePage = (page) => currentPath.includes(page);
   const isHomePage = currentPath.endsWith('/Home') || currentPath === '/';
+  const isScheduleActive = SCHEDULE_PAGES.some(p => currentPath.includes(p));
 
   // Normalize phase matching (trim + case-insensitive fallback)
   const phase = project?.currentPhase?.trim();
