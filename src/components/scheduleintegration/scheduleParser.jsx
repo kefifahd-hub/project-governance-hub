@@ -24,74 +24,76 @@ export async function parseP6Xlsx(file) {
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
 
-  // Use first sheet
   const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+  // raw: true so we can trim headers ourselves
+  const rawRows = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false });
 
-  if (!rows.length) throw new Error('XLSX file is empty or has no data rows');
+  if (!rawRows.length) throw new Error('XLSX file is empty or has no data rows');
 
-  // Flexible column finder (case-insensitive, partial match)
-  const headers = Object.keys(rows[0]);
-  const find = (...candidates) => {
-    for (const c of candidates) {
-      const h = headers.find(h => h.toLowerCase().replace(/[\s_-]/g, '').includes(c.toLowerCase().replace(/[\s_-]/g, '')));
-      if (h) return h;
+  // Trim all leading/trailing spaces from keys
+  const rows = rawRows.map(row => {
+    const clean = {};
+    for (const [k, v] of Object.entries(row)) clean[k.trim()] = v;
+    return clean;
+  });
+
+  // Column map based on real P6 export headers (after trimming)
+  const get = (row, ...keys) => {
+    for (const k of keys) {
+      if (row[k] !== undefined && row[k] !== '') return row[k];
     }
-    return null;
+    return '';
   };
-
-  const colId     = find('activity id', 'activityid', 'task id', 'taskid', 'id');
-  const colName   = find('activity name', 'activityname', 'task name', 'taskname', 'name', 'description');
-  const colStart  = find('start', 'planned start', 'early start', 'baselinestart');
-  const colFinish = find('finish', 'planned finish', 'early finish', 'baselinefinish');
-  const colPct    = find('% complete', 'percentcomplete', 'percent complete', 'physical % complete', 'complete');
-  const colWbs    = find('wbs', 'wbs code', 'wbscode', 'wbs id');
-  const colFloat  = find('total float', 'totalfloat', 'float');
-  const colDur    = find('original duration', 'planned duration', 'duration');
-  const colRemDur = find('remaining duration', 'remduration');
-  const colActStart  = find('actual start', 'actualstart');
-  const colActFinish = find('actual finish', 'actualfinish');
-  const colType   = find('type', 'activity type', 'task type');
 
   const parseDate = (val) => {
     if (!val) return null;
     if (val instanceof Date) return val.toISOString().split('T')[0];
+    // P6 exports dates like "15-Jan-25" or "2025-01-15" or "01/15/2025"
     const d = new Date(val);
-    return isNaN(d) ? null : d.toISOString().split('T')[0];
+    return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
+  };
+
+  const parseNum = (val) => {
+    if (val === '' || val === null || val === undefined) return 0;
+    return parseFloat(String(val).replace(/[^0-9.-]/g, '')) || 0;
   };
 
   const tasks = rows.map((row, idx) => {
-    const name = colName ? String(row[colName] || '').trim() : '';
+    const rawId = String(get(row, 'ID*', 'ID', 'Activity ID')).trim();
+    // Skip WBS summary rows
+    if (!rawId || rawId.startsWith('WBS -')) return null;
+
+    const name = String(get(row, 'Name*', 'Name', 'Activity Name')).trim();
     if (!name) return null;
 
-    const pct = parseFloat(String(colPct ? row[colPct] : 0).replace('%', '')) || 0;
-    const totalFloat = parseFloat(colFloat ? row[colFloat] : 0) || 0;
-    const typeVal = colType ? String(row[colType] || '').toLowerCase() : '';
-    const isMilestone = typeVal.includes('mile') || typeVal.includes('finish') || typeVal.includes('start');
+    const pctRaw = get(row, 'Activity Percent Complete', '% Complete', 'Percent Complete');
+    const pct = Math.min(100, Math.max(0, parseNum(pctRaw)));
+    const totalFloat = parseNum(get(row, 'Total Float'));
     const isCritical = totalFloat <= 0;
 
     return {
-      externalId: colId ? String(row[colId] || `ROW${idx + 2}`).trim() : `ROW${idx + 2}`,
-      externalWbs: colWbs ? String(row[colWbs] || '').trim() : '',
+      externalId: rawId || `ROW${idx + 2}`,
+      externalWbs: '',
       taskName: name,
-      taskType: isMilestone ? 'Milestone' : 'Task',
-      wbsLevel: 1,
-      plannedStart: parseDate(colStart ? row[colStart] : null),
-      plannedFinish: parseDate(colFinish ? row[colFinish] : null),
-      actualStart: parseDate(colActStart ? row[colActStart] : null),
-      actualFinish: parseDate(colActFinish ? row[colActFinish] : null),
-      durationDays: parseFloat(colDur ? row[colDur] : 0) || 0,
-      remainingDuration: parseFloat(colRemDur ? row[colRemDur] : 0) || 0,
-      percentComplete: Math.min(100, Math.max(0, pct)),
+      taskType: 'Task',
+      plannedStart: parseDate(get(row, 'Start')),
+      plannedFinish: parseDate(get(row, 'Finish')),
+      actualStart: null,
+      actualFinish: null,
+      durationDays: parseNum(get(row, 'Planned Duration')),
+      remainingDuration: parseNum(get(row, 'Remaining Duration')),
+      percentComplete: pct,
       totalFloat,
       isCritical,
-      status: pct >= 100 ? 'Complete' : pct > 0 ? 'In Progress' : 'Not Started',
+      contractors: String(get(row, 'Contractors')).trim(),
+      predecessors: String(get(row, 'Predecessors')).trim(),
+      successors: String(get(row, 'Successors')).trim(),
+      status: pct >= 100 ? 'Completed' : pct > 0 ? 'In Progress' : 'Not Started',
     };
   }).filter(Boolean);
 
-  if (!tasks.length) throw new Error('No valid activity rows found. Check that column headers match P6 export format.');
+  if (!tasks.length) throw new Error('No valid activity rows found. Ensure the file has "ID*" and "Name*" columns (P6 export format).');
 
-  const milestoneCount = tasks.filter(t => t.taskType === 'Milestone').length;
   const starts = tasks.map(t => t.plannedStart).filter(Boolean).sort();
   const finishes = tasks.map(t => t.plannedFinish).filter(Boolean).sort();
 
@@ -99,7 +101,7 @@ export async function parseP6Xlsx(file) {
     tasks,
     summary: {
       taskCount: tasks.length,
-      milestoneCount,
+      milestoneCount: 0,
       wbsLevels: 1,
       projectStart: starts[0] || '',
       projectFinish: finishes[finishes.length - 1] || '',
