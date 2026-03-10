@@ -387,6 +387,7 @@ export default function ScheduleSync() {
           onConfirm={handleXlsxConfirm}
           onCancel={() => setXlsxPreview(null)}
           confirming={xlsxConfirming}
+          importProgress={importProgress}
         />
       )}
     </div>
