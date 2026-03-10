@@ -216,11 +216,14 @@ export default function ScheduleSync() {
           actualStartDate: t.actualStart || null,
           actualFinishDate: t.actualFinish || null,
           percentComplete: t.percentComplete,
-          status: t.percentComplete >= 100 ? 'Completed' : t.percentComplete > 0 ? 'In Progress' : 'Not Started',
+          status: t.status || 'Not Started',
           isCriticalPath: t.isCritical || false,
           totalFloat: t.totalFloat || 0,
           duration: t.durationDays || 0,
           remainingDuration: t.remainingDuration || 0,
+          contractors: t.contractors || '',
+          predecessors: t.predecessors || '',
+          successors: t.successors || '',
         }));
         await base44.entities.ScheduleActivity.bulkCreate(batch);
       }
