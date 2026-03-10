@@ -15,6 +15,103 @@ export async function parseScheduleFile(file) {
 }
 
 /**
+ * Parse a Primavera P6 XLSX export.
+ * Looks for common P6 column headers (case-insensitive, flexible).
+ * Returns { tasks, summary } in the same shape as other parsers.
+ */
+export async function parseP6Xlsx(file) {
+  const XLSX = await import('xlsx');
+  const buffer = await file.arrayBuffer();
+  const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+
+  // Use first sheet
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+  if (!rows.length) throw new Error('XLSX file is empty or has no data rows');
+
+  // Flexible column finder (case-insensitive, partial match)
+  const headers = Object.keys(rows[0]);
+  const find = (...candidates) => {
+    for (const c of candidates) {
+      const h = headers.find(h => h.toLowerCase().replace(/[\s_-]/g, '').includes(c.toLowerCase().replace(/[\s_-]/g, '')));
+      if (h) return h;
+    }
+    return null;
+  };
+
+  const colId     = find('activity id', 'activityid', 'task id', 'taskid', 'id');
+  const colName   = find('activity name', 'activityname', 'task name', 'taskname', 'name', 'description');
+  const colStart  = find('start', 'planned start', 'early start', 'baselinestart');
+  const colFinish = find('finish', 'planned finish', 'early finish', 'baselinefinish');
+  const colPct    = find('% complete', 'percentcomplete', 'percent complete', 'physical % complete', 'complete');
+  const colWbs    = find('wbs', 'wbs code', 'wbscode', 'wbs id');
+  const colFloat  = find('total float', 'totalfloat', 'float');
+  const colDur    = find('original duration', 'planned duration', 'duration');
+  const colRemDur = find('remaining duration', 'remduration');
+  const colActStart  = find('actual start', 'actualstart');
+  const colActFinish = find('actual finish', 'actualfinish');
+  const colType   = find('type', 'activity type', 'task type');
+
+  const parseDate = (val) => {
+    if (!val) return null;
+    if (val instanceof Date) return val.toISOString().split('T')[0];
+    const d = new Date(val);
+    return isNaN(d) ? null : d.toISOString().split('T')[0];
+  };
+
+  const tasks = rows.map((row, idx) => {
+    const name = colName ? String(row[colName] || '').trim() : '';
+    if (!name) return null;
+
+    const pct = parseFloat(String(colPct ? row[colPct] : 0).replace('%', '')) || 0;
+    const totalFloat = parseFloat(colFloat ? row[colFloat] : 0) || 0;
+    const typeVal = colType ? String(row[colType] || '').toLowerCase() : '';
+    const isMilestone = typeVal.includes('mile') || typeVal.includes('finish') || typeVal.includes('start');
+    const isCritical = totalFloat <= 0;
+
+    return {
+      externalId: colId ? String(row[colId] || `ROW${idx + 2}`).trim() : `ROW${idx + 2}`,
+      externalWbs: colWbs ? String(row[colWbs] || '').trim() : '',
+      taskName: name,
+      taskType: isMilestone ? 'Milestone' : 'Task',
+      wbsLevel: 1,
+      plannedStart: parseDate(colStart ? row[colStart] : null),
+      plannedFinish: parseDate(colFinish ? row[colFinish] : null),
+      actualStart: parseDate(colActStart ? row[colActStart] : null),
+      actualFinish: parseDate(colActFinish ? row[colActFinish] : null),
+      durationDays: parseFloat(colDur ? row[colDur] : 0) || 0,
+      remainingDuration: parseFloat(colRemDur ? row[colRemDur] : 0) || 0,
+      percentComplete: Math.min(100, Math.max(0, pct)),
+      totalFloat,
+      isCritical,
+      status: pct >= 100 ? 'Complete' : pct > 0 ? 'In Progress' : 'Not Started',
+    };
+  }).filter(Boolean);
+
+  if (!tasks.length) throw new Error('No valid activity rows found. Check that column headers match P6 export format.');
+
+  const milestoneCount = tasks.filter(t => t.taskType === 'Milestone').length;
+  const starts = tasks.map(t => t.plannedStart).filter(Boolean).sort();
+  const finishes = tasks.map(t => t.plannedFinish).filter(Boolean).sort();
+
+  return {
+    tasks,
+    summary: {
+      taskCount: tasks.length,
+      milestoneCount,
+      wbsLevels: 1,
+      projectStart: starts[0] || '',
+      projectFinish: finishes[finishes.length - 1] || '',
+      dataDate: '',
+      criticalPathLength: tasks.filter(t => t.isCritical).length,
+      totalFloatMin: 0,
+      importLog: `Parsed ${tasks.length} activities from P6 XLSX: ${file.name}`,
+    },
+  };
+}
+
+/**
  * Parse Primavera P6 XER file
  * XER format: tab-separated tables starting with %T tablename, then %F fields, then %R rows, then %E
  */
