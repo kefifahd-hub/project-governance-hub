@@ -52,6 +52,7 @@ export default function ProjectSidebar() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
+  const [scheduleOpen, setScheduleOpen] = useState(false);
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
