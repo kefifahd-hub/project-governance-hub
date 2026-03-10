@@ -293,9 +293,18 @@ export default function ScheduleSync() {
             <div className="space-y-5">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold" style={{ color: '#CADCFC' }}>Schedule Sources</h2>
-                <Button size="sm" onClick={() => setShowRegister(true)} style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
-                  <Plus className="w-4 h-4 mr-1" /> Register Source
-                </Button>
+                <div className="flex items-center gap-2">
+                  <label className="cursor-pointer">
+                    <input type="file" accept=".xlsx" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) { handleXlsxFile(f); e.target.value = ''; } }} />
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md cursor-pointer transition-opacity hover:opacity-80"
+                      style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#a78bfa' }}>
+                      <Upload className="w-4 h-4" /> Upload XLSX
+                    </span>
+                  </label>
+                  <Button size="sm" onClick={() => setShowRegister(true)} style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
+                    <Plus className="w-4 h-4 mr-1" /> Register Source
+                  </Button>
+                </div>
               </div>
 
               {sourcesLoading ? (
