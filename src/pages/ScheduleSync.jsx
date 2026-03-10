@@ -363,6 +363,14 @@ export default function ScheduleSync() {
         />
       )}
       {showRegister && <RegisterSourceModal projectId={projectId} onClose={() => setShowRegister(false)} />}
+      {xlsxPreview && (
+        <P6XlsxImportModal
+          preview={xlsxPreview}
+          onConfirm={handleXlsxConfirm}
+          onCancel={() => setXlsxPreview(null)}
+          confirming={xlsxConfirming}
+        />
+      )}
     </div>
   );
 }
