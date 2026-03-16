@@ -181,6 +181,15 @@ export default function FinanceModel() {
           <TabsContent value="capex">
             <CapexTab capexItems={capexItems} modelId={modelId} onRefresh={onRefresh} />
           </TabsContent>
+          <TabsContent value="revenue">
+            <RevenueTab modelId={modelId} cells={cells} revenueData={revenueData} onRefresh={onRefresh} />
+          </TabsContent>
+          <TabsContent value="bom">
+            <BOMTab modelId={modelId} cells={cells} bomData={bomData} onRefresh={onRefresh} />
+          </TabsContent>
+          <TabsContent value="headcount">
+            <HeadcountTab modelId={modelId} headcountData={headcountData} onRefresh={onRefresh} />
+          </TabsContent>
           <TabsContent value="assumptions">
             <AssumptionsTab modelId={modelId} utilAssumptions={utilAssumptions} taxAssumptions={taxAssumptions} wcAssumptions={wcAssumptions} dcfAssumptions={dcfAssumptions} otherOpex={otherOpex} financingAssumptions={financingAssumptions} grants={grants} overheads={overheads} onRefresh={onRefresh} />
           </TabsContent>
