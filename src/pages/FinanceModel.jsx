@@ -111,6 +111,9 @@ export default function FinanceModel() {
   const inputTabs = [
     { id: 'setup', label: 'Model Setup', icon: Settings },
     { id: 'capex', label: 'CAPEX', icon: Layers },
+    { id: 'revenue', label: 'Revenue', icon: LineChart },
+    { id: 'bom', label: 'BOM', icon: TrendingDown },
+    { id: 'headcount', label: 'Headcount', icon: Users },
     { id: 'assumptions', label: 'Assumptions', icon: Calculator },
   ];
   const outputTabs = [
