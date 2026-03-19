@@ -9,6 +9,7 @@ import LookaheadTab from '../components/scheduledashboard/LookaheadTab';
 import SCurveTab from '../components/scheduledashboard/SCurveTab';
 import MonteCarloTab from '../components/scheduledashboard/MonteCarloTab';
 import ComparisonTab from '../components/scheduledashboard/ComparisonTab';
+import PivotTab from '../components/scheduledashboard/PivotTab';
 
 const TABS = [
   { id: 'delayed',     label: '⚠ Delayed' },
