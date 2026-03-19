@@ -57,7 +57,7 @@ export default function DelayedActivitiesTab({ activities }) {
     // apply text filters
     if (filters.activityId) rows = rows.filter(r => (r.activityId || '').toLowerCase().includes(filters.activityId.toLowerCase()));
     if (filters.activityName) rows = rows.filter(r => (r.activityName || '').toLowerCase().includes(filters.activityName.toLowerCase()));
-    if (filters.severity) rows = rows.filter(r => r.severityLabel.toLowerCase().includes(filters.severity.toLowerCase()));
+    if (filters.severity) rows = rows.filter(r => r.severityLabel === filters.severity);
     if (filters.contractors) rows = rows.filter(r => (r.contractors || '').toLowerCase().includes(filters.contractors.toLowerCase()));
     // sort
     rows.sort((a, b) => {
