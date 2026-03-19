@@ -8,12 +8,8 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
-const STORAGE_KEY = 'pmo_auth';
-
 export default function Layout({ children, currentPageName }) {
-  const [code, setCode] = useState('');
-  const [error, setError] = useState(false);
-  const [authed, setAuthed] = useState(true);
+  const authed = true;
 
   // All hooks must be called unconditionally before any early return
   const location = useLocation();
@@ -42,48 +38,7 @@ export default function Layout({ children, currentPageName }) {
     enabled: authed && !!projectId,
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (code === SECURITY_CODE) {
-      sessionStorage.setItem(STORAGE_KEY, 'true');
-      setAuthed(true);
-      setError(false);
-    } else {
-      setError(true);
-    }
-  };
 
-  if (!authed) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
-        <div className="w-full max-w-sm p-8 rounded-2xl shadow-2xl" style={{ background: 'rgba(15, 23, 42, 0.98)', border: '1px solid rgba(202, 220, 252, 0.15)' }}>
-          <div className="text-center mb-8">
-            <div className="text-3xl font-bold mb-2" style={{ color: '#CADCFC' }}>PMO Platform</div>
-            <div className="text-sm" style={{ color: '#94A3B8' }}>Enter your access code to continue</div>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="password"
-              value={code}
-              onChange={(e) => { setCode(e.target.value); setError(false); }}
-              placeholder="Access code"
-              className="w-full px-4 py-3 rounded-lg text-sm outline-none"
-              style={{ background: 'rgba(30, 39, 97, 0.6)', border: `1px solid ${error ? '#EF4444' : 'rgba(202, 220, 252, 0.2)'}`, color: '#F8FAFC' }}
-              autoFocus
-            />
-            {error && <div className="text-sm text-red-400">Incorrect access code. Please try again.</div>}
-            <button
-              type="submit"
-              className="w-full py-3 rounded-lg font-semibold text-sm transition-opacity hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}
-            >
-              Enter
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
   
   const showSidebar = !['NewProject', 'Settings'].includes(currentPageName) && !!projectId;
   const tools = [
