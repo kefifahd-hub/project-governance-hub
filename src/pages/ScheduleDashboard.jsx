@@ -19,6 +19,7 @@ const TABS = [
   { id: 'scurve',      label: '📈 S-Curve' },
   { id: 'montecarlo',  label: '🎲 Monte Carlo' },
   { id: 'comparison',  label: '🔀 Delta / Comparison' },
+  { id: 'pivot',       label: '📊 Pivot View' },
 ];
 
 export default function ScheduleDashboard() {
