@@ -102,6 +102,7 @@ export default function ScheduleDashboard() {
             {activeTab === 'lookahead'  && <LookaheadTab activities={activities} />}
             {activeTab === 'scurve'     && <SCurveTab activities={activities} />}
             {activeTab === 'montecarlo' && <MonteCarloTab activities={activities} projectId={projectId} />}
+            {activeTab === 'comparison' && <ComparisonTab activities={activities} />}
           </>
         )}
       </div>
