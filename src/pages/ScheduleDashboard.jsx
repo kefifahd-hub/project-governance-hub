@@ -8,6 +8,7 @@ import CriticalPathTab from '../components/scheduledashboard/CriticalPathTab';
 import LookaheadTab from '../components/scheduledashboard/LookaheadTab';
 import SCurveTab from '../components/scheduledashboard/SCurveTab';
 import MonteCarloTab from '../components/scheduledashboard/MonteCarloTab';
+import ComparisonTab from '../components/scheduledashboard/ComparisonTab';
 
 const TABS = [
   { id: 'delayed',     label: '⚠ Delayed' },
@@ -16,6 +17,7 @@ const TABS = [
   { id: 'lookahead',   label: '📅 2-Week Lookahead' },
   { id: 'scurve',      label: '📈 S-Curve' },
   { id: 'montecarlo',  label: '🎲 Monte Carlo' },
+  { id: 'comparison',  label: '🔀 Delta / Comparison' },
 ];
 
 export default function ScheduleDashboard() {
