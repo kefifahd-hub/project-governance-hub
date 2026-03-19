@@ -503,6 +503,10 @@ export default function TimelineMapTab({ activities }) {
         </div>
       </div>
 
+      <div className="text-[10px] mt-1 flex gap-4" style={{ color: '#334155' }}>
+        <span>🖱 Drag to pan · Scroll to move vertically · Shift+Scroll horizontal · Ctrl+Scroll to zoom</span>
+      </div>
+
       <Tooltip tooltip={tooltip} containerRef={containerRef} />
 
       {/* Stats row */}
