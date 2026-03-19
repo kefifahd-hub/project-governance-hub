@@ -104,9 +104,17 @@ export default function DelayedActivitiesTab({ activities }) {
             <tr style={{ background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(202,220,252,0.06)' }}>
               {COLS.map(c => (
                 <td key={c.key} className="px-2 py-1.5">
-                  {c.filterable
+                  {c.filterable === 'select'
+                    ? <select
+                        value={filters[c.key] || ''}
+                        onChange={e => setFilter(c.key, e.target.value)}
+                        style={{ ...inp, cursor: 'pointer' }}>
+                        <option value="">All</option>
+                        {c.options.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    : c.filterable === 'text'
                     ? <input
-                        placeholder={`Filter…`}
+                        placeholder="Filter…"
                         value={filters[c.key] || ''}
                         onChange={e => setFilter(c.key, e.target.value)}
                         style={inp}
