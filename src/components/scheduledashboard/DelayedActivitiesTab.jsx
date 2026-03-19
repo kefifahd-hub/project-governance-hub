@@ -5,13 +5,13 @@ const card = { background: 'rgba(30,39,97,0.5)', border: '1px solid rgba(202,220
 const inp = { background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(202,220,252,0.12)', borderRadius: 4, color: '#CADCFC', fontSize: 10, padding: '3px 7px', outline: 'none', width: '100%' };
 
 const COLS = [
-  { key: 'activityId',       label: 'ID',            filterable: true,  sortable: true  },
-  { key: 'activityName',     label: 'Activity Name', filterable: true,  sortable: true  },
-  { key: 'plannedFinishDate',label: 'Planned Finish', filterable: false, sortable: true  },
-  { key: 'percentComplete',  label: '% Complete',    filterable: false, sortable: true  },
-  { key: 'delayDays',        label: 'Delay (days)',  filterable: false, sortable: true  },
-  { key: 'severity',         label: 'Severity',      filterable: true,  sortable: true  },
-  { key: 'contractors',      label: 'Contractors',   filterable: true,  sortable: true  },
+  { key: 'activityId',       label: 'ID',            filterable: 'text',   sortable: true  },
+  { key: 'activityName',     label: 'Activity Name', filterable: 'text',   sortable: true  },
+  { key: 'plannedFinishDate',label: 'Planned Finish', filterable: false,   sortable: true  },
+  { key: 'percentComplete',  label: '% Complete',    filterable: false,    sortable: true  },
+  { key: 'delayDays',        label: 'Delay (days)',  filterable: false,    sortable: true  },
+  { key: 'severity',         label: 'Severity',      filterable: 'select', sortable: true, options: ['Critical', 'High', 'Medium'] },
+  { key: 'contractors',      label: 'Contractors',   filterable: 'text',   sortable: true  },
 ];
 
 function SortIcon({ col, sortKey, sortDir }) {
