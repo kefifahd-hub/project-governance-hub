@@ -104,7 +104,7 @@ export default function ScheduleDashboard() {
             {activeTab === 'active'     && <ActiveActivitiesTab activities={activities} />}
             {activeTab === 'critical'   && <CriticalPathTab activities={activities} />}
             {activeTab === 'lookahead'  && <LookaheadTab activities={activities} />}
-            {activeTab === 'scurve'     && <SCurveTab activities={activities} />}
+            {activeTab === 'scurve'     && <SCurveTab activities={activities} projectId={projectId} />}
             {activeTab === 'montecarlo' && <MonteCarloTab activities={activities} projectId={projectId} />}
             {activeTab === 'comparison' && <ComparisonTab activities={activities} />}
             {activeTab === 'pivot'      && <PivotTab activities={activities} />}
