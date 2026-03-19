@@ -398,11 +398,11 @@ export default function TimelineMapTab({ activities }) {
       <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(202,220,252,0.1)', background: 'rgba(15,23,42,0.5)' }}>
         <div style={{ display: 'flex', maxHeight: 520, overflow: 'hidden' }}>
           {/* Label column */}
-          <div style={{ width: LABEL_W, flexShrink: 0, overflowY: 'hidden', borderRight: '1px solid rgba(202,220,252,0.08)' }}>
+          <div style={{ width: LABEL_W, flexShrink: 0, overflow: 'hidden', borderRight: '1px solid rgba(202,220,252,0.08)' }}>
             {/* Header spacer */}
             <div style={{ height: HEADER_H, background: 'rgba(30,39,97,0.6)', borderBottom: '1px solid rgba(202,220,252,0.1)' }} />
-            {/* Row labels */}
-            <div style={{ overflowY: 'auto', maxHeight: 520 - HEADER_H }} id="label-scroll">
+            {/* Row labels — scroll locked to verticalScroll */}
+            <div style={{ overflowY: 'hidden', maxHeight: 520 - HEADER_H, transform: `translateY(-${verticalScroll}px)` }} id="label-scroll">
               {rows.map((row, i) => {
                 if (row.type === 'group') {
                   return (
