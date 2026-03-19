@@ -276,19 +276,52 @@ export default function TimelineMapTab({ activities }) {
       setViewStartDay(0);
     }
   };
-  const resetZoom = () => { setZoomLevel('full'); setViewStartDay(0); };
+  const resetZoom = () => { setZoomLevel('full'); setViewStartDay(0); setVerticalScroll(0); };
 
-  // Scroll sync
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const pct = el.scrollLeft / Math.max(1, el.scrollWidth - el.clientWidth);
-      setViewStartDay(Math.max(0, Math.min(pct * (totalDays - viewDays), totalDays - viewDays)));
-    };
-    el.addEventListener('scroll', onScroll);
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [totalDays, viewDays]);
+  // Pan handlers
+  const onPointerDown = useCallback((e) => {
+    if (e.button !== 0) return;
+    isPanning.current = true;
+    panStart.current = { x: e.clientX, y: e.clientY, startDay: viewStartDay, startScroll: verticalScroll };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }, [viewStartDay, verticalScroll]);
+
+  const onPointerMove = useCallback((e) => {
+    if (!isPanning.current) return;
+    const dx = e.clientX - panStart.current.x;
+    const dy = e.clientY - panStart.current.y;
+    // horizontal pan
+    const daysPerPx = viewDays / canvasW;
+    const newStart = panStart.current.startDay - dx * daysPerPx;
+    setViewStartDay(Math.max(0, Math.min(newStart, totalDays - viewDays)));
+    // vertical pan
+    const maxScroll = Math.max(0, rows.length * (ROW_H + ROW_GAP) - (520 - HEADER_H));
+    setVerticalScroll(Math.max(0, Math.min(panStart.current.startScroll - dy, maxScroll)));
+  }, [viewDays, canvasW, totalDays, rows]);
+
+  const onPointerUp = useCallback((e) => {
+    isPanning.current = false;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+  }, []);
+
+  // Wheel zoom + vertical scroll
+  const onWheel = useCallback((e) => {
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey) {
+      // zoom
+      if (e.deltaY < 0) zoomIn();
+      else zoomOut();
+    } else if (e.shiftKey) {
+      // horizontal scroll
+      const daysPerPx = viewDays / canvasW;
+      const delta = e.deltaY * daysPerPx * 2;
+      setViewStartDay(prev => Math.max(0, Math.min(prev + delta, totalDays - viewDays)));
+    } else {
+      // vertical scroll
+      const maxScroll = Math.max(0, rows.length * (ROW_H + ROW_GAP) - (520 - HEADER_H));
+      setVerticalScroll(prev => Math.max(0, Math.min(prev + e.deltaY, maxScroll)));
+    }
+  }, [viewDays, canvasW, totalDays, rows, zoomIn, zoomOut]);
 
   const totalH = rows.length * (ROW_H + ROW_GAP) + HEADER_H;
 
