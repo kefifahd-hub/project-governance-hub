@@ -226,6 +226,7 @@ export default function PivotTab({ activities }) {
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState('plannedStartDate');
   const [sortDir, setSortDir] = useState('asc');
+  const [selectedGroups, setSelectedGroups] = useState(null); // null = all selected
 
   const handleSort = (key) => {
     if (sortKey === key) {
@@ -303,7 +304,7 @@ export default function PivotTab({ activities }) {
           </div>
 
           {/* Export */}
-          <button onClick={() => exportCSV(groups, dimension)}
+          <button onClick={() => exportCSV(selectedGroups ? groups.filter(g => selectedGroups.has(g.name)) : groups, dimension)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium"
             style={{ background: 'rgba(2,128,144,0.12)', color: '#00A896', border: '1px solid rgba(2,128,144,0.25)' }}>
             <Download className="w-3.5 h-3.5" /> Export CSV
@@ -312,6 +313,43 @@ export default function PivotTab({ activities }) {
 
         <div className="text-xs mt-2" style={{ color: '#475569' }}>
           {groups.length} groups · {activities.length} total activities
+        </div>
+
+        {/* Group selector for export */}
+        <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(202,220,252,0.08)' }}>
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="text-xs font-medium" style={{ color: '#64748b' }}>Export groups:</span>
+            <button
+              onClick={() => setSelectedGroups(null)}
+              className="text-[10px] px-2 py-0.5 rounded"
+              style={{ background: selectedGroups === null ? 'rgba(2,128,144,0.2)' : 'rgba(30,39,97,0.4)', color: selectedGroups === null ? '#00A896' : '#64748b', border: `1px solid ${selectedGroups === null ? 'rgba(2,128,144,0.35)' : 'rgba(202,220,252,0.1)'}` }}>
+              All
+            </button>
+            <button
+              onClick={() => setSelectedGroups(new Set())}
+              className="text-[10px] px-2 py-0.5 rounded"
+              style={{ background: 'rgba(30,39,97,0.4)', color: '#64748b', border: '1px solid rgba(202,220,252,0.1)' }}>
+              None
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {groups.map(g => {
+              const checked = selectedGroups === null || selectedGroups.has(g.name);
+              return (
+                <label key={g.name} className="flex items-center gap-1.5 cursor-pointer px-2 py-1 rounded text-[11px]"
+                  style={{ background: checked ? 'rgba(2,128,144,0.12)' : 'rgba(15,23,42,0.4)', border: `1px solid ${checked ? 'rgba(2,128,144,0.25)' : 'rgba(202,220,252,0.08)'}`, color: checked ? '#CADCFC' : '#475569' }}>
+                  <input type="checkbox" checked={checked} style={{ accentColor: '#00A896', width: 11, height: 11 }}
+                    onChange={() => {
+                      const next = new Set(selectedGroups ?? groups.map(g => g.name));
+                      if (next.has(g.name)) next.delete(g.name); else next.add(g.name);
+                      setSelectedGroups(next.size === groups.length ? null : next);
+                    }} />
+                  {g.name}
+                  <span style={{ color: '#475569', fontSize: 9 }}>({g.totalActivities})</span>
+                </label>
+              );
+            })}
+          </div>
         </div>
       </div>
 
