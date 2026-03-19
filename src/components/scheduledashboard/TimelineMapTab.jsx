@@ -425,9 +425,18 @@ export default function TimelineMapTab({ activities }) {
           </div>
 
           {/* Canvas column */}
-          <div ref={scrollRef} style={{ flex: 1, overflowX: zoomLevel !== 'full' ? 'auto' : 'hidden', overflowY: 'auto' }}
-            onMouseLeave={() => setTooltip(null)}>
-            <svg width={canvasW} height={totalH} style={{ display: 'block' }}>
+          <div
+            ref={svgScrollRef}
+            style={{ flex: 1, overflow: 'hidden', cursor: isPanning.current ? 'grabbing' : 'grab', userSelect: 'none' }}
+            onMouseLeave={() => setTooltip(null)}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+            onWheel={onWheel}
+          >
+            <svg width={canvasW} height={Math.max(totalH, 520)} style={{ display: 'block' }}
+              viewBox={`0 ${verticalScroll} ${canvasW} ${520}`}>
               {/* Header background */}
               <rect x={0} y={0} width={canvasW} height={HEADER_H} fill="rgba(30,39,97,0.6)" />
 
