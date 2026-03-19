@@ -10,6 +10,7 @@ import SCurveTab from '../components/scheduledashboard/SCurveTab';
 import MonteCarloTab from '../components/scheduledashboard/MonteCarloTab';
 import ComparisonTab from '../components/scheduledashboard/ComparisonTab';
 import PivotTab from '../components/scheduledashboard/PivotTab';
+import TimelineMapTab from '../components/scheduledashboard/TimelineMapTab';
 
 const TABS = [
   { id: 'delayed',     label: '⚠ Delayed' },
@@ -20,6 +21,7 @@ const TABS = [
   { id: 'montecarlo',  label: '🎲 Monte Carlo' },
   { id: 'comparison',  label: '🔀 Delta / Comparison' },
   { id: 'pivot',       label: '📊 Pivot View' },
+  { id: 'timeline',    label: '🗓 Timeline Map' },
 ];
 
 export default function ScheduleDashboard() {
