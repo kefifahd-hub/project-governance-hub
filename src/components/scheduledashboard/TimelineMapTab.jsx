@@ -185,6 +185,12 @@ export default function TimelineMapTab({ activities }) {
   const containerRef = useRef(null);
   const [containerW, setContainerW] = useState(900);
 
+  // Pan state
+  const isPanning = useRef(false);
+  const panStart = useRef({ x: 0, y: 0, startDay: 0 });
+  const svgScrollRef = useRef(null);
+  const [verticalScroll, setVerticalScroll] = useState(0);
+
   useEffect(() => {
     const obs = new ResizeObserver(entries => {
       const w = entries[0]?.contentRect.width;
