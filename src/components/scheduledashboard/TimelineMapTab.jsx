@@ -76,13 +76,15 @@ function MiniMap({ allActs, ps, totalDays, canvasFullW, scrollLeft, canvasViewW,
   const ref = useRef(null);
   const dragging = useRef(false);
 
-  // scale: minimap px per canvas px
+  // Minimap always shows the FULL project timeline compressed into canvasViewW px.
+  // day d → minimap x = (d / totalDays) * canvasViewW
+  const dmx = (d) => (d / Math.max(1, totalDays)) * canvasViewW;
+
+  // Viewport rect: scrollLeft in canvas-px → minimap-px via same scale (canvasViewW / canvasFullW)
   const mmScale = canvasViewW / Math.max(1, canvasFullW);
   const vpX = scrollLeft * mmScale;
   const vpW = Math.max(8, canvasViewW * mmScale);
 
-  // day → minimap x (maps totalDays → canvasViewW)
-  const dmx = (d) => (d / Math.max(1, totalDays)) * canvasViewW;
   const todayX = dmx(diff(ps, TODAY));
   const rowH = Math.max(1, MINIMAP_H / Math.max(1, allActs.length));
 
@@ -90,7 +92,7 @@ function MiniMap({ allActs, ps, totalDays, canvasFullW, scrollLeft, canvasViewW,
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(clientX - rect.left, canvasViewW));
-    // clicked x in minimap → center of viewport in canvas
+    // minimap x → canvas scrollLeft (center the viewport on the clicked point)
     const newScroll = (x / canvasViewW) * canvasFullW - canvasViewW / 2;
     onSeek(Math.max(0, Math.min(newScroll, canvasFullW - canvasViewW)));
   }, [canvasViewW, canvasFullW, onSeek]);
