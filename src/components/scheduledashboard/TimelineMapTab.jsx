@@ -108,36 +108,43 @@ function Tooltip({ tooltip }) {
 }
 
 // ── MiniMap ───────────────────────────────────────────────────────────────────
-function MiniMap({ groups, projectStart, totalDays, scrollLeft, canvasFullW, visibleW, onSeek }) {
+function MiniMap({ groups, projectStart, totalDays, scrollLeft, canvasFullW, ganttVisibleW, mmW, onSeek }) {
   const svgRef = useRef(null);
-  const mmW = visibleW;
+  const isDragging = useRef(false);
 
+  // scale: minimap px per canvas px
   const scale = mmW / Math.max(1, canvasFullW);
-  const vpX = scrollLeft * scale;
-  const vpW = Math.max(6, visibleW * scale);
+  const vpX = Math.max(0, scrollLeft * scale);
+  const vpW = Math.max(8, ganttVisibleW * scale);
 
-  const dayToMmX = (d) => (d / totalDays) * mmW;
+  const dayToMmX = (d) => (d / Math.max(1, totalDays)) * mmW;
   const todayX = dayToMmX(daysDiff(projectStart, TODAY));
 
-  // flatten all activities for minimap bars
   const allActs = useMemo(() => groups.flatMap(g => g.activities), [groups]);
   const rowH = Math.max(1, MINIMAP_H / Math.max(1, allActs.length));
 
-  const handlePointer = useCallback((e) => {
+  const seekTo = useCallback((clientX) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    // center the viewport on click
-    const targetScroll = (clickX / mmW) * canvasFullW - visibleW / 2;
-    onSeek(Math.max(0, Math.min(targetScroll, canvasFullW - visibleW)));
-  }, [mmW, canvasFullW, visibleW, onSeek]);
+    const x = clientX - rect.left;
+    // center gantt viewport on clicked position
+    const targetScroll = (x / mmW) * canvasFullW - ganttVisibleW / 2;
+    onSeek(Math.max(0, Math.min(targetScroll, canvasFullW - ganttVisibleW)));
+  }, [mmW, canvasFullW, ganttVisibleW, onSeek]);
+
+  const onMouseDown = (e) => { isDragging.current = true; seekTo(e.clientX); };
+  const onMouseMove = (e) => { if (isDragging.current) seekTo(e.clientX); };
+  const onMouseUp   = () => { isDragging.current = false; };
 
   return (
     <svg
       ref={svgRef}
       width={mmW} height={MINIMAP_H}
-      onClick={handlePointer}
-      style={{ cursor: 'crosshair', background: 'rgba(15,23,42,0.7)', borderRadius: 6, display: 'block' }}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseUp}
+      style={{ cursor: 'crosshair', background: 'rgba(15,23,42,0.7)', borderRadius: 6, display: 'block', userSelect: 'none' }}
     >
       {allActs.map((a, i) => {
         const s = parseDate(a.plannedStartDate);
@@ -145,18 +152,14 @@ function MiniMap({ groups, projectStart, totalDays, scrollLeft, canvasFullW, vis
         if (!s || !f) return null;
         const sx = dayToMmX(daysDiff(projectStart, s));
         const fw = Math.max(1, dayToMmX(daysDiff(s, f)));
-        const y = i * rowH;
-        return <rect key={i} x={Math.max(0, sx)} y={y} width={fw} height={rowH} fill={barColor(a)} opacity={0.75} />;
+        return <rect key={i} x={Math.max(0, sx)} y={i * rowH} width={fw} height={rowH} fill={barColor(a)} opacity={0.8} />;
       })}
       {todayX >= 0 && todayX <= mmW && (
         <line x1={todayX} y1={0} x2={todayX} y2={MINIMAP_H} stroke="#fbbf24" strokeWidth={1.5} opacity={0.9} />
       )}
-      {/* viewport rect */}
-      <rect
-        x={Math.max(0, vpX)} y={0}
-        width={Math.min(vpW, mmW - Math.max(0, vpX))} height={MINIMAP_H}
-        fill="rgba(202,220,252,0.08)" stroke="rgba(202,220,252,0.5)" strokeWidth={1.5}
-      />
+      {/* viewport indicator */}
+      <rect x={vpX} y={0} width={Math.min(vpW, mmW - vpX)} height={MINIMAP_H}
+        fill="rgba(202,220,252,0.1)" stroke="rgba(202,220,252,0.6)" strokeWidth={1.5} />
     </svg>
   );
 }
@@ -329,7 +332,8 @@ export default function TimelineMapTab({ activities }) {
           totalDays={totalDays}
           scrollLeft={scrollLeft}
           canvasFullW={canvasFullW}
-          visibleW={containerW}
+          ganttVisibleW={canvasAreaW}
+          mmW={containerW}
           onSeek={handleSeek}
         />
       </div>
