@@ -6,23 +6,24 @@ const ROW_H = 18;
 const ROW_GAP = 4;
 const LABEL_W = 160;
 const HEADER_H = 48;
-const MINIMAP_H = 48;
-const MINIMAP_LABEL_W = 0;
+const MINIMAP_H = 60;
+const GANTT_VISIBLE_H = 480;
 const TODAY = new Date();
 TODAY.setHours(0, 0, 0, 0);
 
-const ZOOM_LEVELS = [
-  { id: 'full',    label: 'Full' },
-  { id: 'year',    label: 'Year' },
-  { id: 'quarter', label: 'Qtr'  },
-  { id: 'month',   label: 'Month'},
-];
+// px per day at each zoom level
+const ZOOM_PX = {
+  full:    null,   // computed to fit container
+  year:    3,
+  quarter: 10,
+  month:   30,
+};
 
 const GROUP_OPTIONS = [
-  { key: 'flat',       label: 'Flat List' },
-  { key: 'building',   label: 'Building'  },
-  { key: 'contractor', label: 'Contractor'},
-  { key: 'workType',   label: 'Work Type' },
+  { key: 'flat',       label: 'Flat List'  },
+  { key: 'building',   label: 'Building'   },
+  { key: 'contractor', label: 'Contractor' },
+  { key: 'workType',   label: 'Work Type'  },
 ];
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -31,30 +32,22 @@ function parseDate(s) {
   const d = new Date(s);
   return isNaN(d) ? null : d;
 }
-
 function fmtShort(d) {
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
 }
-
 function fmtMonthYear(d) {
   return d.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
 }
-
 function addDays(d, n) {
-  const r = new Date(d);
-  r.setDate(r.getDate() + n);
-  return r;
+  const r = new Date(d); r.setDate(r.getDate() + n); return r;
 }
-
 function daysDiff(a, b) {
   return Math.round((b - a) / 86400000);
 }
-
 function isDelayed(a) {
   const finish = parseDate(a.plannedFinishDate);
   return finish && finish < TODAY && (a.percentComplete || 0) < 100;
 }
-
 function barColor(a) {
   if ((a.percentComplete || 0) >= 100 || a.status === 'Completed') return '#10b981';
   if (isDelayed(a)) return '#f97316';
@@ -62,7 +55,6 @@ function barColor(a) {
   if (a.status === 'In Progress' || (a.percentComplete || 0) > 0) return '#3b82f6';
   return '#475569';
 }
-
 function getGroupKey(a, groupBy) {
   if (groupBy === 'flat') return 'All Activities';
   if (groupBy === 'building') return a.building || a.wbsCode?.split('.')[0] || 'Unassigned';
@@ -70,47 +62,33 @@ function getGroupKey(a, groupBy) {
   if (groupBy === 'workType') return a.workType || 'Unassigned';
   return 'All Activities';
 }
-
-function ticksForRange(startMs, totalDays, zoomLevel) {
+function ticksForPxPerDay(projectStart, totalDays, pxPerDay) {
   const ticks = [];
-  const start = new Date(startMs);
+  // choose tick interval based on zoom
+  let intervalMonths = 3;
+  if (pxPerDay >= 20) intervalMonths = 1;
+  else if (pxPerDay >= 5) intervalMonths = 1;
+  else if (pxPerDay >= 2) intervalMonths = 3;
+  else intervalMonths = 6;
 
-  if (zoomLevel === 'month') {
-    // weekly ticks
-    const cur = new Date(start);
-    cur.setDate(cur.getDate() - cur.getDay()); // align to Sunday
-    while (daysDiff(new Date(startMs), cur) < totalDays) {
-      if (cur >= new Date(startMs)) ticks.push(new Date(cur));
-      cur.setDate(cur.getDate() + 7);
-    }
-  } else if (zoomLevel === 'quarter') {
-    // monthly ticks
-    const cur = new Date(start.getFullYear(), start.getMonth(), 1);
-    while (daysDiff(new Date(startMs), cur) < totalDays) {
-      if (cur >= new Date(startMs)) ticks.push(new Date(cur));
-      cur.setMonth(cur.getMonth() + 1);
-    }
-  } else {
-    // quarterly ticks
-    const cur = new Date(start.getFullYear(), Math.floor(start.getMonth() / 3) * 3, 1);
-    while (daysDiff(new Date(startMs), cur) < totalDays) {
-      if (cur >= new Date(startMs)) ticks.push(new Date(cur));
-      cur.setMonth(cur.getMonth() + 3);
-    }
+  const cur = new Date(projectStart.getFullYear(), projectStart.getMonth(), 1);
+  const end = addDays(projectStart, totalDays);
+  while (cur <= end) {
+    ticks.push(new Date(cur));
+    cur.setMonth(cur.getMonth() + intervalMonths);
   }
   return ticks;
 }
 
 // ── Tooltip ───────────────────────────────────────────────────────────────────
-function Tooltip({ tooltip, containerRef }) {
+function Tooltip({ tooltip }) {
   if (!tooltip) return null;
   const { x, y, a } = tooltip;
   const finish = parseDate(a.plannedFinishDate);
   const delayed = isDelayed(a);
-
   return (
     <div style={{
-      position: 'fixed', left: x + 12, top: y - 10, zIndex: 9999, pointerEvents: 'none',
+      position: 'fixed', left: x + 14, top: y - 10, zIndex: 9999, pointerEvents: 'none',
       background: 'rgba(15,23,42,0.97)', border: '1px solid rgba(202,220,252,0.15)',
       borderRadius: 8, padding: '8px 12px', minWidth: 220, maxWidth: 300,
       boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
@@ -130,47 +108,55 @@ function Tooltip({ tooltip, containerRef }) {
 }
 
 // ── MiniMap ───────────────────────────────────────────────────────────────────
-function MiniMap({ rows, projectStart, totalDays, viewStartDay, viewDays, width, onViewportClick }) {
+function MiniMap({ groups, projectStart, totalDays, scrollLeft, canvasFullW, visibleW, onSeek }) {
   const svgRef = useRef(null);
-  const mmW = width;
+  const mmW = visibleW;
 
-  const dayToX = useCallback((d) => (d / totalDays) * mmW, [totalDays, mmW]);
+  const scale = mmW / Math.max(1, canvasFullW);
+  const vpX = scrollLeft * scale;
+  const vpW = Math.max(6, visibleW * scale);
 
-  const vpX = dayToX(viewStartDay);
-  const vpW = Math.max(4, dayToX(viewDays));
+  const dayToMmX = (d) => (d / totalDays) * mmW;
+  const todayX = dayToMmX(daysDiff(projectStart, TODAY));
 
-  const handleClick = (e) => {
+  // flatten all activities for minimap bars
+  const allActs = useMemo(() => groups.flatMap(g => g.activities), [groups]);
+  const rowH = Math.max(1, MINIMAP_H / Math.max(1, allActs.length));
+
+  const handlePointer = useCallback((e) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
-    const newStartDay = (clickX / mmW) * totalDays - viewDays / 2;
-    onViewportClick(Math.max(0, Math.min(newStartDay, totalDays - viewDays)));
-  };
+    // center the viewport on click
+    const targetScroll = (clickX / mmW) * canvasFullW - visibleW / 2;
+    onSeek(Math.max(0, Math.min(targetScroll, canvasFullW - visibleW)));
+  }, [mmW, canvasFullW, visibleW, onSeek]);
 
   return (
-    <svg ref={svgRef} width={mmW} height={MINIMAP_H} onClick={handleClick}
-      style={{ cursor: 'crosshair', background: 'rgba(15,23,42,0.6)', borderRadius: 6, display: 'block' }}>
-      {/* bars */}
-      {rows.map((row, ri) => {
-        const yBase = (ri / rows.length) * MINIMAP_H;
-        const rowH = Math.max(1, (MINIMAP_H / rows.length) - 0.5);
-        return row.activities.map((a, ai) => {
-          const s = parseDate(a.plannedStartDate);
-          const f = parseDate(a.plannedFinishDate);
-          if (!s || !f) return null;
-          const sx = dayToX(daysDiff(projectStart, s));
-          const fw = Math.max(1, dayToX(daysDiff(s, f)));
-          return <rect key={ai} x={Math.max(0, sx)} y={yBase} width={fw} height={rowH} fill={barColor(a)} opacity={0.7} />;
-        });
+    <svg
+      ref={svgRef}
+      width={mmW} height={MINIMAP_H}
+      onClick={handlePointer}
+      style={{ cursor: 'crosshair', background: 'rgba(15,23,42,0.7)', borderRadius: 6, display: 'block' }}
+    >
+      {allActs.map((a, i) => {
+        const s = parseDate(a.plannedStartDate);
+        const f = parseDate(a.plannedFinishDate);
+        if (!s || !f) return null;
+        const sx = dayToMmX(daysDiff(projectStart, s));
+        const fw = Math.max(1, dayToMmX(daysDiff(s, f)));
+        const y = i * rowH;
+        return <rect key={i} x={Math.max(0, sx)} y={y} width={fw} height={rowH} fill={barColor(a)} opacity={0.75} />;
       })}
-      {/* today */}
-      {(() => {
-        const tx = dayToX(daysDiff(projectStart, TODAY));
-        return tx >= 0 && tx <= mmW ? <line x1={tx} y1={0} x2={tx} y2={MINIMAP_H} stroke="#fbbf24" strokeWidth={1} opacity={0.8} /> : null;
-      })()}
-      {/* viewport */}
-      <rect x={Math.max(0, vpX)} y={0} width={Math.min(vpW, mmW - Math.max(0, vpX))} height={MINIMAP_H}
-        fill="rgba(202,220,252,0.08)" stroke="rgba(202,220,252,0.4)" strokeWidth={1} />
+      {todayX >= 0 && todayX <= mmW && (
+        <line x1={todayX} y1={0} x2={todayX} y2={MINIMAP_H} stroke="#fbbf24" strokeWidth={1.5} opacity={0.9} />
+      )}
+      {/* viewport rect */}
+      <rect
+        x={Math.max(0, vpX)} y={0}
+        width={Math.min(vpW, mmW - Math.max(0, vpX))} height={MINIMAP_H}
+        fill="rgba(202,220,252,0.08)" stroke="rgba(202,220,252,0.5)" strokeWidth={1.5}
+      />
     </svg>
   );
 }
@@ -178,18 +164,14 @@ function MiniMap({ rows, projectStart, totalDays, viewStartDay, viewDays, width,
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function TimelineMapTab({ activities }) {
   const [groupBy, setGroupBy] = useState('building');
-  const [zoomLevel, setZoomLevel] = useState('full');
-  const [viewStartDay, setViewStartDay] = useState(0);
+  const [zoomKey, setZoomKey] = useState('full');
   const [tooltip, setTooltip] = useState(null);
-  const scrollRef = useRef(null);
   const containerRef = useRef(null);
+  const ganttScrollRef = useRef(null);   // horizontal scroll container
+  const labelScrollRef = useRef(null);   // vertical scroll for labels
   const [containerW, setContainerW] = useState(900);
-
-  // Pan state
-  const isPanning = useRef(false);
-  const panStart = useRef({ x: 0, y: 0, startDay: 0 });
-  const svgScrollRef = useRef(null);
-  const [verticalScroll, setVerticalScroll] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [scrollTop, setScrollTop] = useState(0);
 
   useEffect(() => {
     const obs = new ResizeObserver(entries => {
@@ -200,13 +182,11 @@ export default function TimelineMapTab({ activities }) {
     return () => obs.disconnect();
   }, []);
 
-  // Parse & filter valid activities
   const validActivities = useMemo(() =>
     activities.filter(a => parseDate(a.plannedStartDate) && parseDate(a.plannedFinishDate)),
     [activities]
   );
 
-  // Project bounds
   const { projectStart, projectEnd, totalDays } = useMemo(() => {
     if (validActivities.length === 0) return { projectStart: TODAY, projectEnd: addDays(TODAY, 365), totalDays: 365 };
     const starts = validActivities.map(a => parseDate(a.plannedStartDate).getTime());
@@ -217,7 +197,6 @@ export default function TimelineMapTab({ activities }) {
     return { projectStart: ps, projectEnd: pe, totalDays: td };
   }, [validActivities]);
 
-  // Groups
   const groups = useMemo(() => {
     const map = {};
     for (const a of validActivities) {
@@ -228,7 +207,6 @@ export default function TimelineMapTab({ activities }) {
     return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0])).map(([name, acts]) => ({ name, activities: acts }));
   }, [validActivities, groupBy]);
 
-  // Rows = group headers + activity rows
   const rows = useMemo(() => {
     const r = [];
     for (const g of groups) {
@@ -238,92 +216,53 @@ export default function TimelineMapTab({ activities }) {
     return r;
   }, [groups]);
 
-  // Zoom → visible days
-  const viewDays = useMemo(() => {
-    if (zoomLevel === 'full') return totalDays;
-    if (zoomLevel === 'year') return 365;
-    if (zoomLevel === 'quarter') return 90;
-    if (zoomLevel === 'month') return 30;
-    return totalDays;
-  }, [zoomLevel, totalDays]);
+  const canvasAreaW = Math.max(containerW - LABEL_W, 200);
 
-  const canvasW = Math.max(containerW - LABEL_W, 200);
+  // px per day
+  const pxPerDay = useMemo(() => {
+    if (zoomKey === 'full') return canvasAreaW / Math.max(1, totalDays);
+    return ZOOM_PX[zoomKey] || 3;
+  }, [zoomKey, canvasAreaW, totalDays]);
 
-  const dayToX = useCallback((day) => ((day - viewStartDay) / viewDays) * canvasW, [viewStartDay, viewDays, canvasW]);
+  const canvasFullW = Math.max(canvasAreaW, pxPerDay * totalDays);
 
-  // Ticks
-  const ticks = useMemo(() => {
-    const startMs = addDays(projectStart, viewStartDay).getTime();
-    return ticksForRange(startMs, viewDays, zoomLevel);
-  }, [projectStart, viewStartDay, viewDays, zoomLevel]);
+  const dayToX = useCallback((day) => day * pxPerDay, [pxPerDay]);
+  const dateToX = useCallback((date) => dayToX(daysDiff(projectStart, date)), [dayToX, projectStart]);
 
-  // Today line
-  const todayX = dayToX(daysDiff(projectStart, TODAY));
-  const todayVisible = todayX >= 0 && todayX <= canvasW;
+  const ticks = useMemo(() => ticksForPxPerDay(projectStart, totalDays, pxPerDay), [projectStart, totalDays, pxPerDay]);
 
-  // Zoom handlers
-  const zoomIn = () => {
-    const idx = ZOOM_LEVELS.findIndex(z => z.id === zoomLevel);
-    if (idx < ZOOM_LEVELS.length - 1) {
-      setZoomLevel(ZOOM_LEVELS[idx + 1].id);
-      setViewStartDay(prev => Math.max(0, prev));
-    }
-  };
-  const zoomOut = () => {
-    const idx = ZOOM_LEVELS.findIndex(z => z.id === zoomLevel);
-    if (idx > 0) {
-      setZoomLevel(ZOOM_LEVELS[idx - 1].id);
-      setViewStartDay(0);
-    }
-  };
-  const resetZoom = () => { setZoomLevel('full'); setViewStartDay(0); setVerticalScroll(0); };
+  const todayX = dateToX(TODAY);
+  const totalH = rows.length * (ROW_H + ROW_GAP) + HEADER_H;
 
-  // Pan handlers
-  const onPointerDown = useCallback((e) => {
-    if (e.button !== 0) return;
-    isPanning.current = true;
-    panStart.current = { x: e.clientX, y: e.clientY, startDay: viewStartDay, startScroll: verticalScroll };
-    e.currentTarget.setPointerCapture(e.pointerId);
-  }, [viewStartDay, verticalScroll]);
-
-  const onPointerMove = useCallback((e) => {
-    if (!isPanning.current) return;
-    const dx = e.clientX - panStart.current.x;
-    const dy = e.clientY - panStart.current.y;
-    // horizontal pan
-    const daysPerPx = viewDays / canvasW;
-    const newStart = panStart.current.startDay - dx * daysPerPx;
-    setViewStartDay(Math.max(0, Math.min(newStart, totalDays - viewDays)));
-    // vertical pan
-    const maxScroll = Math.max(0, rows.length * (ROW_H + ROW_GAP) - (520 - HEADER_H));
-    setVerticalScroll(Math.max(0, Math.min(panStart.current.startScroll - dy, maxScroll)));
-  }, [viewDays, canvasW, totalDays, rows]);
-
-  const onPointerUp = useCallback((e) => {
-    isPanning.current = false;
-    e.currentTarget.releasePointerCapture(e.pointerId);
+  // sync horizontal scroll
+  const handleGanttScroll = useCallback(() => {
+    const el = ganttScrollRef.current;
+    if (!el) return;
+    setScrollLeft(el.scrollLeft);
+    setScrollTop(el.scrollTop);
+    // sync label vertical scroll
+    if (labelScrollRef.current) labelScrollRef.current.scrollTop = el.scrollTop;
   }, []);
 
-  // Wheel zoom + vertical scroll
-  const onWheel = useCallback((e) => {
-    e.preventDefault();
-    if (e.ctrlKey || e.metaKey) {
-      // zoom
-      if (e.deltaY < 0) zoomIn();
-      else zoomOut();
-    } else if (e.shiftKey) {
-      // horizontal scroll
-      const daysPerPx = viewDays / canvasW;
-      const delta = e.deltaY * daysPerPx * 2;
-      setViewStartDay(prev => Math.max(0, Math.min(prev + delta, totalDays - viewDays)));
-    } else {
-      // vertical scroll
-      const maxScroll = Math.max(0, rows.length * (ROW_H + ROW_GAP) - (520 - HEADER_H));
-      setVerticalScroll(prev => Math.max(0, Math.min(prev + e.deltaY, maxScroll)));
+  // seek from minimap
+  const handleSeek = useCallback((targetScroll) => {
+    if (ganttScrollRef.current) {
+      ganttScrollRef.current.scrollLeft = targetScroll;
+      setScrollLeft(targetScroll);
     }
-  }, [viewDays, canvasW, totalDays, rows, zoomIn, zoomOut]);
+  }, []);
 
-  const totalH = rows.length * (ROW_H + ROW_GAP) + HEADER_H;
+  const zoomIn = () => {
+    const keys = ['full', 'year', 'quarter', 'month'];
+    const idx = keys.indexOf(zoomKey);
+    if (idx < keys.length - 1) { setZoomKey(keys[idx + 1]); }
+  };
+  const zoomOut = () => {
+    const keys = ['full', 'year', 'quarter', 'month'];
+    const idx = keys.indexOf(zoomKey);
+    if (idx > 0) { setZoomKey(keys[idx - 1]); }
+  };
+  const resetZoom = () => { setZoomKey('full'); if (ganttScrollRef.current) ganttScrollRef.current.scrollLeft = 0; setScrollLeft(0); };
 
   if (validActivities.length === 0) {
     return (
@@ -337,7 +276,8 @@ export default function TimelineMapTab({ activities }) {
   return (
     <div ref={containerRef} style={{ fontFamily: 'monospace' }}>
       {/* ── Controls ── */}
-      <div className="flex items-center gap-3 flex-wrap mb-3 p-3 rounded-xl" style={{ background: 'rgba(30,39,97,0.4)', border: '1px solid rgba(202,220,252,0.1)' }}>
+      <div className="flex items-center gap-3 flex-wrap mb-3 p-3 rounded-xl"
+        style={{ background: 'rgba(30,39,97,0.4)', border: '1px solid rgba(202,220,252,0.1)' }}>
         {/* Group by */}
         <div className="flex gap-1">
           {GROUP_OPTIONS.map(o => (
@@ -351,11 +291,11 @@ export default function TimelineMapTab({ activities }) {
         <div style={{ width: 1, height: 20, background: 'rgba(202,220,252,0.1)' }} />
         {/* Zoom */}
         <div className="flex items-center gap-1">
-          {ZOOM_LEVELS.map(z => (
-            <button key={z.id} onClick={() => { setZoomLevel(z.id); setViewStartDay(0); }}
-              className="px-2 py-1 rounded text-[11px] font-medium"
-              style={{ background: zoomLevel === z.id ? 'rgba(59,130,246,0.2)' : 'rgba(30,39,97,0.4)', color: zoomLevel === z.id ? '#3b82f6' : '#64748b', border: `1px solid ${zoomLevel === z.id ? 'rgba(59,130,246,0.4)' : 'rgba(202,220,252,0.1)'}` }}>
-              {z.label}
+          {(['full','year','quarter','month']).map(k => (
+            <button key={k} onClick={() => setZoomKey(k)}
+              className="px-2 py-1 rounded text-[11px] font-medium capitalize"
+              style={{ background: zoomKey === k ? 'rgba(59,130,246,0.2)' : 'rgba(30,39,97,0.4)', color: zoomKey === k ? '#3b82f6' : '#64748b', border: `1px solid ${zoomKey === k ? 'rgba(59,130,246,0.4)' : 'rgba(202,220,252,0.1)'}` }}>
+              {k === 'full' ? 'Full' : k === 'year' ? 'Year' : k === 'quarter' ? 'Qtr' : 'Month'}
             </button>
           ))}
           <button onClick={zoomIn} className="p-1 rounded" style={{ color: '#64748b' }}><ZoomIn className="w-3.5 h-3.5" /></button>
@@ -384,95 +324,91 @@ export default function TimelineMapTab({ activities }) {
           <span style={{ marginLeft: 'auto' }}>{fmtShort(projectStart)} → {fmtShort(projectEnd)} ({totalDays}d)</span>
         </div>
         <MiniMap
-          rows={groups}
+          groups={groups}
           projectStart={projectStart}
           totalDays={totalDays}
-          viewStartDay={viewStartDay}
-          viewDays={viewDays}
-          width={containerW}
-          onViewportClick={setViewStartDay}
+          scrollLeft={scrollLeft}
+          canvasFullW={canvasFullW}
+          visibleW={containerW}
+          onSeek={handleSeek}
         />
       </div>
 
       {/* ── Gantt ── */}
       <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(202,220,252,0.1)', background: 'rgba(15,23,42,0.5)' }}>
-        <div style={{ display: 'flex', maxHeight: 520, overflow: 'hidden' }}>
-          {/* Label column */}
-          <div style={{ width: LABEL_W, flexShrink: 0, overflow: 'hidden', borderRight: '1px solid rgba(202,220,252,0.08)' }}>
+        <div style={{ display: 'flex', height: GANTT_VISIBLE_H }}>
+
+          {/* Label column — fixed, synced vertically */}
+          <div style={{ width: LABEL_W, flexShrink: 0, display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(202,220,252,0.08)', overflow: 'hidden' }}>
             {/* Header spacer */}
-            <div style={{ height: HEADER_H, background: 'rgba(30,39,97,0.6)', borderBottom: '1px solid rgba(202,220,252,0.1)' }} />
-            {/* Row labels — scroll locked to verticalScroll */}
-            <div style={{ overflowY: 'hidden', maxHeight: 520 - HEADER_H, transform: `translateY(-${verticalScroll}px)` }} id="label-scroll">
-              {rows.map((row, i) => {
-                if (row.type === 'group') {
+            <div style={{ height: HEADER_H, flexShrink: 0, background: 'rgba(30,39,97,0.6)', borderBottom: '1px solid rgba(202,220,252,0.1)' }} />
+            {/* Labels scroll (driven by gantt scroll) */}
+            <div ref={labelScrollRef} style={{ flex: 1, overflowY: 'hidden' }}>
+              <div style={{ height: rows.length * (ROW_H + ROW_GAP) }}>
+                {rows.map((row, i) => {
+                  if (row.type === 'group') {
+                    return (
+                      <div key={i} style={{ height: ROW_H + ROW_GAP, display: 'flex', alignItems: 'center', paddingLeft: 8, paddingRight: 4, background: 'rgba(30,39,97,0.5)', borderBottom: '1px solid rgba(202,220,252,0.06)' }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: '#00A896', fontFamily: 'sans-serif' }} className="truncate">{row.name}</span>
+                        <span style={{ fontSize: 9, color: '#334155', marginLeft: 4, flexShrink: 0 }}>({row.count})</span>
+                      </div>
+                    );
+                  }
+                  const { a } = row;
                   return (
-                    <div key={i} style={{ height: ROW_H + ROW_GAP, display: 'flex', alignItems: 'center', paddingLeft: 8, paddingRight: 4, background: 'rgba(30,39,97,0.5)', borderBottom: '1px solid rgba(202,220,252,0.06)' }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#00A896', fontFamily: 'sans-serif', truncate: true }} className="truncate">{row.name}</span>
-                      <span style={{ fontSize: 9, color: '#334155', marginLeft: 4 }}>({row.count})</span>
+                    <div key={i} style={{ height: ROW_H + ROW_GAP, display: 'flex', alignItems: 'center', paddingLeft: 16, paddingRight: 4, borderBottom: '1px solid rgba(202,220,252,0.03)' }}>
+                      <span style={{ fontSize: 9, color: '#64748b', fontFamily: 'sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={a.activityName}>
+                        {a.activityName || '—'}
+                      </span>
                     </div>
                   );
-                }
-                const { a } = row;
-                return (
-                  <div key={i} style={{ height: ROW_H + ROW_GAP, display: 'flex', alignItems: 'center', paddingLeft: 16, paddingRight: 4, borderBottom: '1px solid rgba(202,220,252,0.03)' }}>
-                    <span style={{ fontSize: 9, color: '#64748b', fontFamily: 'sans-serif' }} className="truncate" title={a.activityName}>
-                      {a.activityName || '—'}
-                    </span>
-                  </div>
-                );
-              })}
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Canvas column */}
+          {/* Canvas column — scrollable both H and V */}
           <div
-            ref={svgScrollRef}
-            style={{ flex: 1, overflow: 'hidden', cursor: isPanning.current ? 'grabbing' : 'grab', userSelect: 'none' }}
+            ref={ganttScrollRef}
+            onScroll={handleGanttScroll}
+            style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}
             onMouseLeave={() => setTooltip(null)}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerUp}
-            onWheel={onWheel}
           >
-            <svg width={canvasW} height={Math.max(totalH, 520)} style={{ display: 'block' }}
-              viewBox={`0 ${verticalScroll} ${canvasW} ${520}`}>
+            <svg width={canvasFullW} height={totalH} style={{ display: 'block' }}>
               {/* Header background */}
-              <rect x={0} y={0} width={canvasW} height={HEADER_H} fill="rgba(30,39,97,0.6)" />
+              <rect x={0} y={0} width={canvasFullW} height={HEADER_H} fill="rgba(30,39,97,0.6)" />
 
               {/* Tick lines & labels */}
               {ticks.map((tick, i) => {
-                const x = dayToX(daysDiff(projectStart, tick));
-                if (x < 0 || x > canvasW) return null;
+                const x = dateToX(tick);
+                if (x < 0 || x > canvasFullW) return null;
                 return (
                   <g key={i}>
                     <line x1={x} y1={HEADER_H - 8} x2={x} y2={totalH} stroke="rgba(202,220,252,0.05)" strokeWidth={1} />
-                    <text x={x + 3} y={HEADER_H - 16} fill="#334155" fontSize={9} fontFamily="sans-serif">
-                      {zoomLevel === 'month' ? fmtShort(tick) : fmtMonthYear(tick)}
-                    </text>
+                    <text x={x + 3} y={HEADER_H - 28} fill="#475569" fontSize={9} fontFamily="sans-serif">{fmtMonthYear(tick)}</text>
                     <line x1={x} y1={HEADER_H - 4} x2={x} y2={HEADER_H} stroke="rgba(202,220,252,0.2)" strokeWidth={1} />
                   </g>
                 );
               })}
 
               {/* Header border */}
-              <line x1={0} y1={HEADER_H} x2={canvasW} y2={HEADER_H} stroke="rgba(202,220,252,0.1)" strokeWidth={1} />
+              <line x1={0} y1={HEADER_H} x2={canvasFullW} y2={HEADER_H} stroke="rgba(202,220,252,0.1)" strokeWidth={1} />
 
-              {/* Activity bars */}
+              {/* Row backgrounds + bars */}
               {rows.map((row, i) => {
-                const y = HEADER_H + i * (ROW_H + ROW_GAP) + ROW_GAP / 2;
+                const y = HEADER_H + i * (ROW_H + ROW_GAP);
                 if (row.type === 'group') {
-                  return <rect key={i} x={0} y={y} width={canvasW} height={ROW_H + ROW_GAP} fill="rgba(30,39,97,0.3)" />;
+                  return <rect key={i} x={0} y={y} width={canvasFullW} height={ROW_H + ROW_GAP} fill="rgba(30,39,97,0.3)" />;
                 }
                 const { a } = row;
                 const s = parseDate(a.plannedStartDate);
                 const f = parseDate(a.plannedFinishDate);
                 if (!s || !f) return null;
-                const sx = dayToX(daysDiff(projectStart, s));
-                const fw = Math.max(2, dayToX(daysDiff(s, f)));
+                const sx = dateToX(s);
+                const fw = Math.max(2, dateToX(f) - sx);
                 const color = barColor(a);
                 const pct = a.percentComplete || 0;
-                const barY = y + 3;
+                const barY = y + ROW_GAP / 2 + 3;
                 const barH = ROW_H - 6;
 
                 return (
@@ -480,18 +416,15 @@ export default function TimelineMapTab({ activities }) {
                     onMouseMove={(e) => setTooltip({ x: e.clientX, y: e.clientY, a })}
                     onMouseLeave={() => setTooltip(null)}
                     style={{ cursor: 'pointer' }}>
-                    {/* bar background */}
                     <rect x={sx} y={barY} width={fw} height={barH} rx={2} fill={color} opacity={0.25} />
-                    {/* bar fill */}
                     <rect x={sx} y={barY} width={fw * pct / 100} height={barH} rx={2} fill={color} opacity={0.9} />
-                    {/* border */}
                     <rect x={sx} y={barY} width={fw} height={barH} rx={2} fill="none" stroke={color} strokeWidth={0.8} opacity={0.6} />
                   </g>
                 );
               })}
 
               {/* Today line */}
-              {todayVisible && (
+              {todayX >= 0 && todayX <= canvasFullW && (
                 <g>
                   <line x1={todayX} y1={0} x2={todayX} y2={totalH} stroke="#fbbf24" strokeWidth={1.5} strokeDasharray="4 3" opacity={0.85} />
                   <rect x={todayX - 14} y={4} width={28} height={14} rx={3} fill="rgba(251,191,36,0.15)" />
@@ -503,20 +436,16 @@ export default function TimelineMapTab({ activities }) {
         </div>
       </div>
 
-      <div className="text-[10px] mt-1 flex gap-4" style={{ color: '#334155' }}>
-        <span>🖱 Drag to pan · Scroll to move vertically · Shift+Scroll horizontal · Ctrl+Scroll to zoom</span>
-      </div>
-
-      <Tooltip tooltip={tooltip} containerRef={containerRef} />
+      <Tooltip tooltip={tooltip} />
 
       {/* Stats row */}
       <div className="flex gap-3 mt-3 flex-wrap">
         {[
-          { label: 'Total', value: validActivities.length, color: '#CADCFC' },
-          { label: 'Groups', value: groups.length, color: '#94a3b8' },
+          { label: 'Total',     value: validActivities.length,                                         color: '#CADCFC' },
+          { label: 'Groups',    value: groups.length,                                                  color: '#94a3b8' },
           { label: 'Completed', value: validActivities.filter(a => (a.percentComplete || 0) >= 100).length, color: '#10b981' },
-          { label: 'Delayed', value: validActivities.filter(isDelayed).length, color: '#f97316' },
-          { label: 'Critical', value: validActivities.filter(a => a.isCriticalPath).length, color: '#ef4444' },
+          { label: 'Delayed',   value: validActivities.filter(isDelayed).length,                       color: '#f97316' },
+          { label: 'Critical',  value: validActivities.filter(a => a.isCriticalPath).length,           color: '#ef4444' },
         ].map(s => (
           <div key={s.label} className="flex items-center gap-1.5 text-xs">
             <span style={{ color: '#475569' }}>{s.label}:</span>
