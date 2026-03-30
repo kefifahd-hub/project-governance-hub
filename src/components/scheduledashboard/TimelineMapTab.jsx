@@ -71,42 +71,41 @@ function Tooltip({ tip }) {
 }
 
 // ── MiniMap ──────────────────────────────────────────────────────────────────
-// mmW = canvasViewW only (no labels), positioned offset by LABEL_W
 function MiniMap({ allActs, ps, totalDays, canvasFullW, scrollLeft, canvasViewW, onSeek }) {
   const ref = useRef(null);
-  const dragging = useRef(false);
+  const isDown = useRef(false);
 
-  // Minimap always shows the FULL project timeline compressed into canvasViewW px.
-  // day d → minimap x = (d / totalDays) * canvasViewW
   const dmx = (d) => (d / Math.max(1, totalDays)) * canvasViewW;
-
-  // Viewport rect: scrollLeft in canvas-px → minimap-px via same scale (canvasViewW / canvasFullW)
   const mmScale = canvasViewW / Math.max(1, canvasFullW);
-  const vpX = scrollLeft * mmScale;
+  const vpX = Math.max(0, scrollLeft * mmScale);
   const vpW = Math.max(8, canvasViewW * mmScale);
-
   const todayX = dmx(diff(ps, TODAY));
   const rowH = Math.max(1, MINIMAP_H / Math.max(1, allActs.length));
 
-  const seek = useCallback((clientX) => {
+  const seek = (e) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(clientX - rect.left, canvasViewW));
-    // minimap x → canvas scrollLeft (center the viewport on the clicked point)
+    const x = Math.max(0, Math.min(e.clientX - rect.left, canvasViewW));
     const newScroll = (x / canvasViewW) * canvasFullW - canvasViewW / 2;
     onSeek(Math.max(0, Math.min(newScroll, canvasFullW - canvasViewW)));
-  }, [canvasViewW, canvasFullW, onSeek]);
+  };
+
+  // Use window listeners so drag works even if mouse leaves the element
+  const onMouseDown = (e) => {
+    isDown.current = true;
+    seek(e);
+    const onMove = (ev) => { if (isDown.current) seek(ev); };
+    const onUp = () => { isDown.current = false; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
 
   return (
     <div style={{ display: 'flex' }}>
-      {/* spacer matching label column */}
       <div style={{ width: LABEL_W, flexShrink: 0, background: 'rgba(10,15,30,0.5)', borderRight: '1px solid rgba(202,220,252,0.08)' }} />
       <svg ref={ref} width={canvasViewW} height={MINIMAP_H}
-        style={{ display: 'block', flex: 1, cursor: 'crosshair', userSelect: 'none', background: 'rgba(15,23,42,0.7)' }}
-        onMouseDown={(e) => { dragging.current = true; seek(e.clientX); }}
-        onMouseMove={(e) => { if (dragging.current) seek(e.clientX); }}
-        onMouseUp={() => { dragging.current = false; }}
-        onMouseLeave={() => { dragging.current = false; }}
+        style={{ display: 'block', cursor: 'crosshair', userSelect: 'none', background: 'rgba(15,23,42,0.7)' }}
+        onMouseDown={onMouseDown}
       >
         {allActs.map((a, i) => {
           const s = pd(a.plannedStartDate); const f = pd(a.plannedFinishDate);
@@ -117,10 +116,8 @@ function MiniMap({ allActs, ps, totalDays, canvasFullW, scrollLeft, canvasViewW,
         })}
         {todayX > 0 && todayX < canvasViewW &&
           <line x1={todayX} y1={0} x2={todayX} y2={MINIMAP_H} stroke="#fbbf24" strokeWidth={1.5} />}
-        {/* viewport rect */}
-        <rect x={Math.max(0, vpX)} y={0}
-          width={Math.min(vpW, canvasViewW - Math.max(0, vpX))} height={MINIMAP_H}
-          fill="rgba(202,220,252,0.12)" stroke="rgba(202,220,252,0.7)" strokeWidth={1.5} rx={1} />
+        <rect x={vpX} y={0} width={Math.min(vpW, canvasViewW - vpX)} height={MINIMAP_H}
+          fill="rgba(202,220,252,0.12)" stroke="rgba(202,220,252,0.8)" strokeWidth={2} rx={2} />
       </svg>
     </div>
   );
@@ -280,10 +277,34 @@ export default function TimelineMapTab({ activities }) {
             </div>
           </div>
 
-          {/* Gantt canvas — scrollable H+V */}
+          {/* Gantt canvas — scrollable H+V, drag to pan */}
           <div ref={ganttRef} onScroll={onScroll}
-            style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}
-            onMouseLeave={() => setTip(null)}>
+            style={{ flex: 1, overflowX: 'auto', overflowY: 'auto', cursor: 'grab' }}
+            onMouseLeave={() => setTip(null)}
+            onMouseDown={(e) => {
+              if (e.button !== 0) return;
+              const el = ganttRef.current;
+              const startX = e.clientX;
+              const startY = e.clientY;
+              const startScrollLeft = el.scrollLeft;
+              const startScrollTop = el.scrollTop;
+              el.style.cursor = 'grabbing';
+              el.style.userSelect = 'none';
+              setTip(null);
+              const onMove = (ev) => {
+                el.scrollLeft = startScrollLeft - (ev.clientX - startX);
+                el.scrollTop = startScrollTop - (ev.clientY - startY);
+              };
+              const onUp = () => {
+                el.style.cursor = 'grab';
+                el.style.userSelect = '';
+                window.removeEventListener('mousemove', onMove);
+                window.removeEventListener('mouseup', onUp);
+              };
+              window.addEventListener('mousemove', onMove);
+              window.addEventListener('mouseup', onUp);
+            }}
+          >
             <svg width={canvasFullW} height={totalH} style={{ display: 'block' }}>
               {/* header bg */}
               <rect x={0} y={0} width={canvasFullW} height={HEADER_H} fill="rgba(30,39,97,0.7)" />
