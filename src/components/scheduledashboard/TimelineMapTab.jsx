@@ -71,52 +71,56 @@ function Tooltip({ tip }) {
 }
 
 // ── MiniMap ──────────────────────────────────────────────────────────────────
-function MiniMap({ allActs, ps, totalDays, pxd, canvasFullW, scrollLeft, canvasViewW, mmW, onSeek }) {
+// mmW = canvasViewW only (no labels), positioned offset by LABEL_W
+function MiniMap({ allActs, ps, totalDays, canvasFullW, scrollLeft, canvasViewW, onSeek }) {
   const ref = useRef(null);
   const dragging = useRef(false);
 
-  // minimap scale: how many minimap-px per canvas-px
-  const mmScale = mmW / Math.max(1, canvasFullW);
+  // scale: minimap px per canvas px
+  const mmScale = canvasViewW / Math.max(1, canvasFullW);
   const vpX = scrollLeft * mmScale;
   const vpW = Math.max(8, canvasViewW * mmScale);
 
-  // day → minimap x
-  const dmx = (d) => (d / Math.max(1, totalDays)) * mmW;
+  // day → minimap x (maps totalDays → canvasViewW)
+  const dmx = (d) => (d / Math.max(1, totalDays)) * canvasViewW;
   const todayX = dmx(diff(ps, TODAY));
-
   const rowH = Math.max(1, MINIMAP_H / Math.max(1, allActs.length));
 
   const seek = useCallback((clientX) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(clientX - rect.left, mmW));
-    // x in minimap → canvas scroll position, centered
-    const newScroll = (x / mmW) * canvasFullW - canvasViewW / 2;
+    const x = Math.max(0, Math.min(clientX - rect.left, canvasViewW));
+    // clicked x in minimap → center of viewport in canvas
+    const newScroll = (x / canvasViewW) * canvasFullW - canvasViewW / 2;
     onSeek(Math.max(0, Math.min(newScroll, canvasFullW - canvasViewW)));
-  }, [mmW, canvasFullW, canvasViewW, onSeek]);
+  }, [canvasViewW, canvasFullW, onSeek]);
 
   return (
-    <svg ref={ref} width={mmW} height={MINIMAP_H}
-      style={{ display: 'block', cursor: 'crosshair', userSelect: 'none', background: 'rgba(15,23,42,0.7)' }}
-      onMouseDown={(e) => { dragging.current = true; seek(e.clientX); }}
-      onMouseMove={(e) => { if (dragging.current) seek(e.clientX); }}
-      onMouseUp={() => { dragging.current = false; }}
-      onMouseLeave={() => { dragging.current = false; }}
-    >
-      {allActs.map((a, i) => {
-        const s = pd(a.plannedStartDate); const f = pd(a.plannedFinishDate);
-        if (!s || !f) return null;
-        const sx = dmx(diff(ps, s));
-        const w = Math.max(1, dmx(diff(s, f)));
-        return <rect key={i} x={Math.max(0, sx)} y={i * rowH} width={w} height={rowH} fill={color(a)} opacity={0.8} />;
-      })}
-      {todayX > 0 && todayX < mmW &&
-        <line x1={todayX} y1={0} x2={todayX} y2={MINIMAP_H} stroke="#fbbf24" strokeWidth={1.5} />}
-      {/* viewport highlight */}
-      <rect x={Math.max(0, vpX)} y={0}
-        width={Math.min(vpW, mmW - Math.max(0, vpX))} height={MINIMAP_H}
-        fill="rgba(202,220,252,0.12)" stroke="rgba(202,220,252,0.7)" strokeWidth={1.5} rx={1} />
-    </svg>
+    <div style={{ display: 'flex' }}>
+      {/* spacer matching label column */}
+      <div style={{ width: LABEL_W, flexShrink: 0, background: 'rgba(10,15,30,0.5)', borderRight: '1px solid rgba(202,220,252,0.08)' }} />
+      <svg ref={ref} width={canvasViewW} height={MINIMAP_H}
+        style={{ display: 'block', flex: 1, cursor: 'crosshair', userSelect: 'none', background: 'rgba(15,23,42,0.7)' }}
+        onMouseDown={(e) => { dragging.current = true; seek(e.clientX); }}
+        onMouseMove={(e) => { if (dragging.current) seek(e.clientX); }}
+        onMouseUp={() => { dragging.current = false; }}
+        onMouseLeave={() => { dragging.current = false; }}
+      >
+        {allActs.map((a, i) => {
+          const s = pd(a.plannedStartDate); const f = pd(a.plannedFinishDate);
+          if (!s || !f) return null;
+          const sx = dmx(diff(ps, s));
+          const w = Math.max(1, dmx(diff(s, f)));
+          return <rect key={i} x={Math.max(0, sx)} y={i * rowH} width={w} height={rowH} fill={color(a)} opacity={0.8} />;
+        })}
+        {todayX > 0 && todayX < canvasViewW &&
+          <line x1={todayX} y1={0} x2={todayX} y2={MINIMAP_H} stroke="#fbbf24" strokeWidth={1.5} />}
+        {/* viewport rect */}
+        <rect x={Math.max(0, vpX)} y={0}
+          width={Math.min(vpW, canvasViewW - Math.max(0, vpX))} height={MINIMAP_H}
+          fill="rgba(202,220,252,0.12)" stroke="rgba(202,220,252,0.7)" strokeWidth={1.5} rx={1} />
+      </svg>
+    </div>
   );
 }
 
@@ -247,11 +251,9 @@ export default function TimelineMapTab({ activities }) {
           allActs={allActs}
           ps={ps}
           totalDays={totalDays}
-          pxd={pxd}
           canvasFullW={canvasFullW}
           scrollLeft={scrollLeft}
           canvasViewW={canvasViewW}
-          mmW={outerW}
           onSeek={onSeek}
         />
       </div>
