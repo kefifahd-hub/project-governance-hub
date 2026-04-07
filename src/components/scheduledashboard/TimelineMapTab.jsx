@@ -338,8 +338,17 @@ export default function TimelineMapTab({ activities }) {
                 const bY = y + 4; const bH = ROW_H - 8;
                 return (
                   <g key={i} style={{ cursor: 'pointer' }}
-                    onMouseMove={(e) => setTip({ x: e.clientX, y: e.clientY, a })}
-                    onMouseLeave={() => setTip(null)}>
+                   onMouseMove={(e) => setTip({ x: e.clientX, y: e.clientY, a: {
+                     activityName: a.activityName,
+                     activityId: a.activityId,
+                     plannedStartDate: a.plannedStartDate,
+                     plannedFinishDate: a.plannedFinishDate,
+                     percentComplete: a.percentComplete,
+                     status: a.status,
+                     isCriticalPath: a.isCriticalPath,
+                     contractors: a.contractors,
+                   }})}
+                   onMouseLeave={() => setTip(null)}>
                     <rect x={sx} y={bY} width={fw} height={bH} rx={2} fill={c} opacity={0.22} />
                     <rect x={sx} y={bY} width={Math.max(0, fw * pct / 100)} height={bH} rx={2} fill={c} opacity={0.9} />
                     <rect x={sx} y={bY} width={fw} height={bH} rx={2} fill="none" stroke={c} strokeWidth={0.8} opacity={0.55} />
