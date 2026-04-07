@@ -1,15 +1,55 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQueryClient } from '@tanstack/react-query';
 
 const CANVAS_W = 900;
 const CANVAS_H = 520;
 
 function easeInOut(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
 
-export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, selectedSynapseId, onNeuronClick, onSynapseClick, editMode }) {
+// ── Context Menu ─────────────────────────────────────────────────────────────
+function ContextMenu({ menu, onClose, onEditNeuron, onDeleteNeuron, onConnectFrom, onEditSynapse, onDeleteSynapse, onAddNeuron }) {
+  if (!menu) return null;
+  const items = menu.type === 'neuron'
+    ? [
+        { label: '✏️ Edit Neuron', action: () => { onEditNeuron(menu.id); onClose(); } },
+        { label: '🔗 Connect to…', action: () => { onConnectFrom(menu.id); onClose(); } },
+        { label: '🗑️ Delete Neuron', action: () => { onDeleteNeuron(menu.id); onClose(); }, danger: true },
+      ]
+    : menu.type === 'synapse'
+    ? [
+        { label: '✏️ Edit Synapse', action: () => { onEditSynapse(menu.id); onClose(); } },
+        { label: '🗑️ Delete Synapse', action: () => { onDeleteSynapse(menu.id); onClose(); }, danger: true },
+      ]
+    : [
+        { label: '➕ Add Neuron Here', action: () => { onAddNeuron(menu.canvasX, menu.canvasY); onClose(); } },
+      ];
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div className="fixed z-50 py-1 rounded-xl shadow-2xl min-w-[180px]"
+        style={{ left: menu.x, top: menu.y, background: 'rgba(10,15,35,0.98)', border: '1px solid rgba(202,220,252,0.15)' }}>
+        {items.map((item, i) => (
+          <button key={i} onClick={item.action}
+            className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 hover:bg-white/5 transition-colors"
+            style={{ color: item.danger ? '#ef4444' : '#CADCFC' }}>
+            {item.label}
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
+export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, selectedSynapseId, onNeuronClick, onSynapseClick, onEditNeuron, onAddSynapseFrom, editMode }) {
+  const qc = useQueryClient();
   const canvasRef = useRef(null);
   const animRef = useRef(null);
   const pulseRef = useRef([]);
   const [hovered, setHovered] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
+  const lastClickRef = useRef({ id: null, time: 0 });
 
   const getPos = useCallback((neuron, w, h) => ({
     x: neuron.position_x * w,
@@ -270,9 +310,33 @@ export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, sele
 
   const handleClick = (e) => {
     const hit = hitTest(e.clientX, e.clientY, canvasRef.current);
+    const now = Date.now();
+    const last = lastClickRef.current;
+
+    // Double-click detection
+    if (hit && hit.id === last.id && now - last.time < 400) {
+      if (hit.type === 'neuron' && onEditNeuron) onEditNeuron(hit.id);
+      else if (hit.type === 'synapse') onSynapseClick(hit.id);
+      lastClickRef.current = { id: null, time: 0 };
+      return;
+    }
+    lastClickRef.current = { id: hit?.id || null, time: now };
+
     if (hit?.type === 'neuron') onNeuronClick(hit.id);
     else if (hit?.type === 'synapse') onSynapseClick(hit.id);
     else { onNeuronClick(null); onSynapseClick(null); }
+  };
+
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    const hit = hitTest(e.clientX, e.clientY, canvas);
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const canvasX = ((e.clientX - rect.left) * scaleX) / canvas.width;
+    const canvasY = ((e.clientY - rect.top) * scaleY) / canvas.height;
+    setContextMenu({ x: e.clientX, y: e.clientY, type: hit?.type || 'canvas', id: hit?.id, canvasX, canvasY });
   };
 
   const handleMouseMove = (e) => {
@@ -281,15 +345,55 @@ export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, sele
     canvasRef.current.style.cursor = hit ? 'pointer' : 'default';
   };
 
+  const handleDeleteNeuron = async (id) => {
+    if (!window.confirm('Delete this neuron? This cannot be undone.')) return;
+    await base44.entities.Neuron.delete(id);
+    qc.invalidateQueries({ queryKey: ['neurons'] });
+  };
+
+  const handleDeleteSynapse = async (id) => {
+    if (!window.confirm('Delete this synapse?')) return;
+    await base44.entities.Synapse.delete(id);
+    qc.invalidateQueries({ queryKey: ['synapses'] });
+  };
+
+  const handleAddNeuronAt = async (px, py) => {
+    const name = prompt('Display name for new neuron:');
+    if (!name) return;
+    await base44.entities.Neuron.create({
+      module_key: name.toLowerCase().replace(/\s+/g, '_'),
+      display_name: name,
+      short_code: name.slice(0, 4).toUpperCase(),
+      category: 'Core', is_active: true, health_status: 'Healthy',
+      icon: '🧠', color: '#6366f1',
+      position_x: Math.max(0.05, Math.min(0.95, px)),
+      position_y: Math.max(0.05, Math.min(0.95, py)),
+    });
+    qc.invalidateQueries({ queryKey: ['neurons'] });
+  };
+
   return (
-    <canvas
-      ref={canvasRef}
-      width={CANVAS_W}
-      height={CANVAS_H}
-      onClick={handleClick}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setHovered(null)}
-      style={{ width: '100%', height: '100%', display: 'block', borderRadius: '0.5rem' }}
-    />
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_W}
+        height={CANVAS_H}
+        onClick={handleClick}
+        onContextMenu={handleContextMenu}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setHovered(null)}
+        style={{ width: '100%', height: '100%', display: 'block', borderRadius: '0.5rem' }}
+      />
+      <ContextMenu
+        menu={contextMenu}
+        onClose={() => setContextMenu(null)}
+        onEditNeuron={(id) => { onNeuronClick(id); if (onEditNeuron) onEditNeuron(id); }}
+        onDeleteNeuron={handleDeleteNeuron}
+        onConnectFrom={(id) => { if (onAddSynapseFrom) onAddSynapseFrom(id); }}
+        onEditSynapse={onSynapseClick}
+        onDeleteSynapse={handleDeleteSynapse}
+        onAddNeuron={handleAddNeuronAt}
+      />
+    </div>
   );
 }
