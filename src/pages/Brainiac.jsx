@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, RefreshCw, Eye, Pencil, X, Cpu, Search, Layers, Table2, Network, CheckCircle2, AlertTriangle, ChevronDown } from 'lucide-react';
+import { Plus, RefreshCw, Eye, Pencil, X, Cpu, Search, Layers, Table2, Network, CheckCircle2, AlertTriangle, ChevronDown, GripVertical, Maximize2, Minimize2 } from 'lucide-react';
 import NeuralCanvas from '../components/brainiac/NeuralCanvas';
 import NeuronPanel from '../components/brainiac/NeuronPanel';
 import SynapseConfigurator from '../components/brainiac/SynapseConfigurator';
@@ -30,6 +30,26 @@ export default function Brainiac() {
   const [searchQuery, setSearchQuery] = useState('');
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [validationResult, setValidationResult] = useState(null);
+  const [panelWidth, setPanelWidth] = useState(420);
+  const [panelExpanded, setPanelExpanded] = useState(false);
+  const dragRef = useRef(null);
+
+  const startResize = useCallback((e) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = panelWidth;
+    const onMove = (ev) => {
+      const delta = startX - ev.clientX;
+      const newW = Math.max(300, Math.min(900, startW + delta));
+      setPanelWidth(newW);
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [panelWidth]);
 
   const { data: neurons = [], isLoading: loadingNeurons } = useQuery({
     queryKey: ['neurons'],
@@ -241,34 +261,54 @@ export default function Brainiac() {
 
             {/* Right panel — detail */}
             {showRightPanel && (
-              <div className="flex-none flex flex-col" style={{ width: '420px', minWidth: '380px', maxWidth: '440px', borderLeft: '1px solid rgba(202,220,252,0.08)', height: '100%' }}>
-                <div className="flex items-center justify-between px-4 py-3 flex-none" style={{ borderBottom: '1px solid rgba(202,220,252,0.06)' }}>
-                  <span className="text-xs font-semibold tracking-widest" style={{ color: '#64748b' }}>
-                    {selectedSynapse ? 'SYNAPSE CONFIGURATOR' : 'NEURON INSPECTOR'}
-                  </span>
-                  <button onClick={() => { setSelectedNeuronId(null); setSelectedSynapseId(null); }}>
-                    <X className="w-4 h-4" style={{ color: '#64748b' }} />
-                  </button>
+              <>
+                {/* Drag handle */}
+                <div
+                  ref={dragRef}
+                  onMouseDown={startResize}
+                  className="flex-none flex items-center justify-center w-3 cursor-col-resize group transition-colors"
+                  style={{ background: 'transparent', borderLeft: '1px solid rgba(202,220,252,0.08)', zIndex: 10 }}
+                  title="Drag to resize"
+                >
+                  <GripVertical className="w-3 h-5 opacity-20 group-hover:opacity-60 transition-opacity" style={{ color: '#CADCFC' }} />
                 </div>
-                <div className="flex-1 overflow-y-auto p-4" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(202,220,252,0.1) transparent' }}>
-                  {selectedSynapse ? (
-                    <SynapseConfigurator
-                      synapse={selectedSynapse}
-                      neurons={neurons}
-                      onSaved={() => {}}
-                      onDeleted={() => setSelectedSynapseId(null)}
-                    />
-                  ) : selectedNeuron ? (
-                    <NeuronPanel
-                      neuron={selectedNeuron}
-                      synapses={synapses}
-                      neurons={neurons}
-                      onSynapseClick={handleSynapseClick}
-                      onAddSynapse={handleAddSynapse}
-                    />
-                  ) : null}
+
+                <div className="flex-none flex flex-col" style={{ width: panelExpanded ? '100%' : panelWidth, minWidth: 300, borderLeft: '1px solid rgba(202,220,252,0.08)', height: '100%' }}>
+                  <div className="flex items-center justify-between px-4 py-3 flex-none" style={{ borderBottom: '1px solid rgba(202,220,252,0.06)' }}>
+                    <span className="text-xs font-semibold tracking-widest" style={{ color: '#64748b' }}>
+                      {selectedSynapse ? 'SYNAPSE CONFIGURATOR' : 'NEURON INSPECTOR'}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setPanelExpanded(e => !e)} title={panelExpanded ? 'Shrink' : 'Expand'}>
+                        {panelExpanded
+                          ? <Minimize2 className="w-4 h-4" style={{ color: '#64748b' }} />
+                          : <Maximize2 className="w-4 h-4" style={{ color: '#64748b' }} />}
+                      </button>
+                      <button onClick={() => { setSelectedNeuronId(null); setSelectedSynapseId(null); setPanelExpanded(false); }}>
+                        <X className="w-4 h-4" style={{ color: '#64748b' }} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(202,220,252,0.1) transparent' }}>
+                    {selectedSynapse ? (
+                      <SynapseConfigurator
+                        synapse={selectedSynapse}
+                        neurons={neurons}
+                        onSaved={() => {}}
+                        onDeleted={() => setSelectedSynapseId(null)}
+                      />
+                    ) : selectedNeuron ? (
+                      <NeuronPanel
+                        neuron={selectedNeuron}
+                        synapses={synapses}
+                        neurons={neurons}
+                        onSynapseClick={handleSynapseClick}
+                        onAddSynapse={handleAddSynapse}
+                      />
+                    ) : null}
+                  </div>
                 </div>
-              </div>
+              </>
             )}
 
             {/* Neuron mini-list when nothing selected */}
