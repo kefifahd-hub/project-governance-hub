@@ -73,7 +73,9 @@ function Tooltip({ tip }) {
 // ── MiniMap ──────────────────────────────────────────────────────────────────
 function MiniMap({ allActs, ps, totalDays, canvasFullW, scrollLeft, canvasViewW, onSeek }) {
   const ref = useRef(null);
-  const isDown = useRef(false);
+  // Store latest props in refs so window listeners always have current values
+  const propsRef = useRef({});
+  propsRef.current = { canvasViewW, canvasFullW, onSeek };
 
   const dmx = (d) => (d / Math.max(1, totalDays)) * canvasViewW;
   const mmScale = canvasViewW / Math.max(1, canvasFullW);
@@ -82,20 +84,23 @@ function MiniMap({ allActs, ps, totalDays, canvasFullW, scrollLeft, canvasViewW,
   const todayX = dmx(diff(ps, TODAY));
   const rowH = Math.max(1, MINIMAP_H / Math.max(1, allActs.length));
 
-  const seek = (e) => {
+  const seekFromClientX = (clientX) => {
     if (!ref.current) return;
+    const { canvasViewW: cvw, canvasFullW: cfw, onSeek: seek } = propsRef.current;
     const rect = ref.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(e.clientX - rect.left, canvasViewW));
-    const newScroll = (x / canvasViewW) * canvasFullW - canvasViewW / 2;
-    onSeek(Math.max(0, Math.min(newScroll, canvasFullW - canvasViewW)));
+    const x = Math.max(0, Math.min(clientX - rect.left, cvw));
+    const newScroll = (x / cvw) * cfw - cvw / 2;
+    seek(Math.max(0, Math.min(newScroll, cfw - cvw)));
   };
 
-  // Use window listeners so drag works even if mouse leaves the element
   const onMouseDown = (e) => {
-    isDown.current = true;
-    seek(e);
-    const onMove = (ev) => { if (isDown.current) seek(ev); };
-    const onUp = () => { isDown.current = false; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    e.preventDefault();
+    seekFromClientX(e.clientX);
+    const onMove = (ev) => seekFromClientX(ev.clientX);
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
   };
