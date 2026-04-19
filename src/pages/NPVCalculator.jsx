@@ -350,24 +350,27 @@ export default function NPVCalculator() {
                   background: results.isViable 
                     ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%)'
                     : 'linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                  border: `2px solid ${results.isViable ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                  border: `2px solid ${results.isViable ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                  overflow: 'hidden'
                 }}>
-                  <CardContent className="p-8 text-center relative">
+                  <CardContent className="p-8 text-center" style={{ position: 'relative', zIndex: 1 }}>
                     <div style={{ 
                       position: 'absolute', 
-                      top: '-30px', 
-                      right: '-30px', 
+                      top: 0,
+                      right: 0, 
                       width: '150px', 
                       height: '150px',
                       background: results.isViable 
                         ? 'radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%)'
                         : 'radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, transparent 70%)',
-                      borderRadius: '50%'
+                      borderRadius: '50%',
+                      zIndex: 0,
+                      pointerEvents: 'none'
                     }} />
-                    <div className="text-sm mb-2" style={{ color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <div className="text-sm mb-2" style={{ color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', position: 'relative', zIndex: 1 }}>
                       Net Present Value
                     </div>
-                    <div className="text-4xl sm:text-6xl font-bold mb-4" style={{ 
+                    <div className="text-4xl sm:text-6xl font-bold mb-4" style={{ position: 'relative', zIndex: 1,
                       color: results.isViable ? '#10B981' : '#EF4444',
                       fontFamily: "'Courier New', monospace"
                     }}>
@@ -376,7 +379,9 @@ export default function NPVCalculator() {
                     <div className="text-xl font-semibold" style={{ 
                       color: results.isViable ? '#10B981' : '#EF4444',
                       textTransform: 'uppercase',
-                      letterSpacing: '0.05em'
+                      letterSpacing: '0.05em',
+                      position: 'relative',
+                      zIndex: 1
                     }}>
                       {results.isViable ? '✓ Project Viable' : '✗ Negative Return'}
                     </div>
@@ -418,27 +423,34 @@ export default function NPVCalculator() {
                     <CardTitle className="text-sm sm:text-base" style={{ color: '#CADCFC' }}>20-Year Cash Flow Projection</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-48 sm:h-64 overflow-x-auto">
-                      <div className="flex gap-1 sm:gap-2 h-full items-end" style={{ minWidth: `${results.cashFlows.length * 32}px` }}>
-                        {results.cashFlows.map((cf, idx) => {
-                          const maxCashFlow = Math.max(...results.cashFlows.map(c => c.cashFlow));
-                          const height = (cf.cashFlow / maxCashFlow) * 100;
-                          return (
-                            <div key={idx} className="flex-1 flex flex-col items-center gap-1">
-                              <div 
-                                className="w-full rounded-t transition-all hover:opacity-80"
-                                style={{ 
-                                  height: `${Math.max(height, 5)}%`,
-                                  background: cf.cashFlow > 0 ? 'linear-gradient(180deg, #10B981 0%, #059669 100%)' : '#EF4444',
-                                  minWidth: '16px'
-                                }}
-                                title={`Year ${cf.year}: €${cf.cashFlow.toFixed(1)}M`}
-                              />
-                              <div className="text-[10px] sm:text-xs" style={{ color: '#94A3B8' }}>Y{cf.year}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
+                    <div className="overflow-x-auto">
+                      {(() => {
+                        const maxCF = Math.max(...results.cashFlows.map(c => Math.abs(c.cashFlow)));
+                        const chartH = 180;
+                        return (
+                          <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: chartH + 24, minWidth: results.cashFlows.length * 32 }}>
+                            {results.cashFlows.map((cf, idx) => {
+                              const barH = Math.max((Math.abs(cf.cashFlow) / maxCF) * chartH, 4);
+                              return (
+                                <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>
+                                  <div
+                                    title={`Year ${cf.year}: €${cf.cashFlow.toFixed(1)}M`}
+                                    style={{
+                                      width: '100%',
+                                      minWidth: 14,
+                                      height: barH,
+                                      background: cf.cashFlow > 0 ? 'linear-gradient(180deg, #10B981 0%, #059669 100%)' : '#EF4444',
+                                      borderRadius: '3px 3px 0 0',
+                                      cursor: 'default',
+                                    }}
+                                  />
+                                  <div style={{ fontSize: 9, color: '#94A3B8', whiteSpace: 'nowrap' }}>Y{cf.year}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </CardContent>
                 </Card>

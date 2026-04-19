@@ -117,12 +117,14 @@ export default function ProjectSidebar() {
                   <button
                     onClick={() => anyChildEnabled && setScheduleOpen(o => !o)}
                     disabled={!anyChildEnabled}
+                    title={!anyChildEnabled ? `Available in a later project phase (current: ${project.currentPhase})` : 'Schedule'}
+                    aria-label={!anyChildEnabled ? `Schedule — available in a later project phase` : 'Schedule'}
                     className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all"
                     style={{
-                      color: isScheduleActive ? '#00A896' : anyChildEnabled ? '#94A3B8' : '#334155',
+                      color: isScheduleActive ? '#00A896' : anyChildEnabled ? '#94A3B8' : '#64748b',
                       background: isScheduleActive ? 'rgba(0,168,150,0.1)' : 'transparent',
-                      cursor: anyChildEnabled ? 'pointer' : 'default',
-                      opacity: anyChildEnabled ? 1 : 0.45,
+                      cursor: anyChildEnabled ? 'pointer' : 'not-allowed',
+                      opacity: anyChildEnabled ? 1 : 0.65,
                     }}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
@@ -163,12 +165,14 @@ export default function ProjectSidebar() {
                 key={tool.page}
                 onClick={() => enabled && navigate(createPageUrl(`${tool.page}?id=${projectId}`))}
                 disabled={!enabled}
+                title={!enabled ? `Available in a later project phase (current: ${project.currentPhase})` : tool.label}
+                aria-label={!enabled ? `${tool.label} — available in a later project phase` : tool.label}
                 className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all"
                 style={{
-                  color: active ? '#00A896' : enabled ? '#94A3B8' : '#334155',
+                  color: active ? '#00A896' : enabled ? '#94A3B8' : '#64748b',
                   background: active ? 'rgba(0,168,150,0.1)' : 'transparent',
-                  cursor: enabled ? 'pointer' : 'default',
-                  opacity: enabled ? 1 : 0.45,
+                  cursor: enabled ? 'pointer' : 'not-allowed',
+                  opacity: enabled ? 1 : 0.65,
                 }}
               >
                 <Icon className="w-4 h-4 shrink-0" />

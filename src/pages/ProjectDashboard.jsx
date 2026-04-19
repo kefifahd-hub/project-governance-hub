@@ -185,7 +185,7 @@ export default function ProjectDashboard() {
               <div className="flex items-center gap-4 mt-4">
                 <div className="text-sm">
                   <span style={{ color: '#94A3B8' }}>Owner: </span>
-                  <span className="font-medium" style={{ color: '#F8FAFC' }}>{project.owner}</span>
+                  <span className="font-medium" style={{ color: '#F8FAFC' }}>{project.projectOwner || project.owner || '—'}</span>
                 </div>
                 <div className="text-sm">
                   <span style={{ color: '#94A3B8' }}>Status: </span>
@@ -201,11 +201,14 @@ export default function ProjectDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded-full ${healthStatus.color.split(' ')[0]}`} />
+                  <div
+                    className={`w-4 h-4 rounded-full shrink-0 ${healthStatus.color.split(' ')[0]}`}
+                    aria-hidden="true"
+                  />
                   <div>
                     <div className="text-xl sm:text-2xl font-bold" style={{ color: '#F8FAFC' }}>{healthScore.toFixed(1)}%</div>
                     <div className={`text-sm font-medium ${healthStatus.color.split(' ')[1]}`}>
-                      {healthStatus.label}
+                      Status: {healthStatus.label}
                     </div>
                   </div>
                 </div>

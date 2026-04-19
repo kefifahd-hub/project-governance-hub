@@ -179,6 +179,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.name}
                   to={item.path}
+                  aria-label={item.name}
                   className="flex flex-col items-center gap-0.5 sm:gap-1 px-2 sm:px-6 py-1 sm:py-2 rounded-lg transition-all"
                   style={{
                     color: item.glow ? (active ? '#a78bfa' : '#7c3aed') : item.glow2 ? (active ? '#34d399' : '#059669') : (active ? '#00A896' : '#94A3B8'),
