@@ -1,13 +1,6 @@
 #env
 .env
 .env.*
-
-# Brain system: raw (un-anonymized) data and identity mappings — NEVER commit
-brain/inbox/*
-!brain/inbox/.gitkeep
-brain/_private/*
-!brain/_private/.gitkeep
-
 # Logs
 logs
 *.log
