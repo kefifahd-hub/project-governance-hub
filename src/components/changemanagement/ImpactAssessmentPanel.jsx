@@ -8,19 +8,21 @@ import { ChevronDown, ChevronRight, Wrench, DollarSign, Calendar } from 'lucide-
 
 const REMAINING_YEARS = 10;
 
+// Change ranks per the governance change-management framework:
+// no cost impact stays with the PM; the Project Director decides up to $100K;
+// the Change Control Board up to $500K; the Global Capex Committee above that.
+// Critical-path changes over 30 days escalate to at least the CCB.
 function calcApprovalLevel(capex, opexAnnual, accelCost, criticalPath, scheduleDays) {
   const total = Math.abs(capex || 0) + Math.abs(opexAnnual || 0) * REMAINING_YEARS + Math.abs(accelCost || 0);
   let level = 1;
-  if (total > 5000000) level = 5;
-  else if (total > 1000000) level = 4;
-  else if (total > 250000) level = 3;
-  else if (total > 50000) level = 2;
-  // Escalation
-  if (criticalPath && scheduleDays > 30 && level < 2) level = 2;
+  if (total > 500000) level = 4;
+  else if (total > 100000) level = 3;
+  else if (total > 0) level = 2;
+  if (criticalPath && scheduleDays > 30 && level < 3) level = 3;
   return { total, level };
 }
 
-const LEVEL_LABELS = {1:'Project Manager', 2:'Project Director', 3:'CFO', 4:'CEO', 5:'Board / Investor'};
+const LEVEL_LABELS = {1:'Project Manager (no cost impact)', 2:'Project Director (≤ $100K)', 3:'Change Control Board (≤ $500K)', 4:'Global Capex Committee (> $500K)'};
 
 export default function ImpactAssessmentPanel({ cr, impact, onSave }) {
   const [open, setOpen] = useState({ tech: true, finance: false, schedule: false });
