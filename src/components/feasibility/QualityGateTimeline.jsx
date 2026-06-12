@@ -8,15 +8,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
+// Industrialization Quality Gate framework (QG0-QG8).
+// Promoter is the Project Director through QG5, then the General Manager;
+// if no PD is assigned, the PMO carries promoter responsibility.
 const GATES = [
-  { number: 0, name: 'QG0', full: 'Opportunity Assessment' },
-  { number: 1, name: 'QG1', full: 'Pre-Feasibility' },
-  { number: 2, name: 'QG2', full: 'FEED Complete' },
-  { number: 3, name: 'QG3', full: 'FID' },
-  { number: 4, name: 'QG4', full: 'Mech. Completion' },
-  { number: 5, name: 'QG5', full: 'Commissioning' },
-  { number: 6, name: 'QG6', full: 'SOP' },
-  { number: 7, name: 'QG7', full: 'Full Production' },
+  { number: 0, name: 'QG0', full: 'Project Proposal', promoter: 'PD',
+    departments: ['M&S', 'IE/IS', 'TBB', 'IT', 'PPC', 'GEC', 'GID-DM', 'QA', 'PMO', 'HR'],
+    scope: 'Demand validated, allocation/blueprint approved, proposal ready for decision.' },
+  { number: 1, name: 'QG1', full: 'Project Planning', promoter: 'PD',
+    departments: ['IE/IS', 'GID', 'IT', 'PPC', 'GEC', 'GID-DM', 'SCM', 'QA'],
+    scope: 'Charter, execution plan, financial plan baseline and master schedule L1 in place.' },
+  { number: 2, name: 'QG2', full: 'Equipment & Building PO', promoter: 'PD',
+    departments: ['FIN', 'GID', 'EHS', 'R&D', 'IT', 'PPC'],
+    scope: 'Design inputs mature enough to commit purchase orders (if applicable).' },
+  { number: 3, name: 'QG3', full: 'Detailed Design / Construction', promoter: 'PD',
+    departments: ['IE/IS', 'IT', 'PPC', 'GEC'],
+    scope: 'Detailed design released; construction execution underway per plan.' },
+  { number: 4, name: 'QG4', full: 'Installation / Commissioning', promoter: 'PD',
+    departments: ['GID', 'IT', 'PPC', 'GEC'],
+    scope: 'Equipment installed, hooked up and commissioned (FAT closed, toward SAT).' },
+  { number: 5, name: 'QG5', full: 'Qualification', promoter: 'PD',
+    departments: ['PPC'],
+    scope: 'Product line qualification: SAT entry conditions met, trial production released.' },
+  { number: 6, name: 'QG6', full: 'C & D-Sample', promoter: 'GM',
+    departments: ['PPC'],
+    scope: 'Customer sample builds validated.' },
+  { number: 7, name: 'QG7', full: 'SOP', promoter: 'GM',
+    departments: ['PPC'],
+    scope: 'Start of production achieved at target quality and output.' },
+  { number: 8, name: 'QG8', full: 'Project Handover', promoter: 'GM',
+    departments: ['PPC'],
+    scope: 'Project closed out and handed to operations; lessons learned submitted.' },
+];
+
+// Overall gate maturity decision rule (traffic-light assessment of the gate checklist).
+const MATURITY_RULE = [
+  { status: 'Passed', light: '🟢 Green', rule: 'Approve — no follow-up actions' },
+  { status: 'Passed with Reserves', light: '🟡 Yellow', rule: 'Approve with follow-up actions (track reserves to closure)' },
+  { status: 'Not Passed', light: '🔴 Red', rule: 'Rejection — rework deliverables and re-review' },
 ];
 
 const statusColors = {
@@ -84,7 +113,8 @@ export default function QualityGateTimeline({ projectId }) {
                   )}
                 </div>
                 <div className="text-xs font-bold mt-1" style={{ color: isReached ? s.node : '#475569' }}>{gate.name}</div>
-                <div className="text-xs text-center leading-tight" style={{ color: isReached ? '#94A3B8' : '#374155', maxWidth: 60, fontSize: 9 }}>{gate.full}</div>
+                <div className="text-xs text-center leading-tight" style={{ color: isReached ? '#94A3B8' : '#374155', maxWidth: 64, fontSize: 9 }}>{gate.full}</div>
+                <div style={{ color: '#475569', fontSize: 8 }}>{gate.promoter}</div>
                 {s.text && <div className="text-xs mt-0.5" style={{ color: s.node, fontSize: 9, whiteSpace: 'nowrap' }}>{s.text}</div>}
                 {data.decisionDate && <div style={{ color: '#64748B', fontSize: 9 }}>{data.decisionDate}</div>}
               </button>
@@ -136,6 +166,23 @@ function GateForm({ gate, onSave, onClose }) {
 
   return (
     <div className="space-y-3">
+      {/* Framework reference for this gate */}
+      <div className="rounded p-3 text-xs space-y-1.5" style={{ background: 'rgba(0, 168, 150, 0.08)', border: '1px solid rgba(0, 168, 150, 0.25)', color: '#94A3B8' }}>
+        {gate.scope && <div style={{ color: '#CADCFC' }}>{gate.scope}</div>}
+        {gate.promoter && (
+          <div><span style={{ color: '#00A896' }}>Promoter:</span> {gate.promoter === 'PD' ? 'Project Director' : 'General Manager'} (PMO if no PD assigned)</div>
+        )}
+        {gate.departments?.length > 0 && (
+          <div><span style={{ color: '#00A896' }}>Level 1 gate owners:</span> {gate.departments.join(', ')}</div>
+        )}
+        <div>
+          <span style={{ color: '#00A896' }}>Decision rule:</span>
+          {MATURITY_RULE.map(m => (
+            <div key={m.status} style={{ paddingLeft: 8 }}>{m.light} → {m.rule}</div>
+          ))}
+        </div>
+        <div style={{ color: '#F59E0B' }}>Pre-approval review with all Level 1 owners is mandatory 1 week before expected gate completion.</div>
+      </div>
       <div>
         <Label style={{ color: '#94A3B8' }}>Status</Label>
         <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
@@ -143,9 +190,10 @@ function GateForm({ gate, onSave, onClose }) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {['Not Reached', 'Active', 'Passed', 'Passed with Reserves', 'Not Passed'].map(s => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
-            ))}
+            {['Not Reached', 'Active', 'Passed', 'Passed with Reserves', 'Not Passed'].map(s => {
+              const light = MATURITY_RULE.find(m => m.status === s);
+              return <SelectItem key={s} value={s}>{light ? `${s} (${light.light.slice(0, 2)})` : s}</SelectItem>;
+            })}
           </SelectContent>
         </Select>
       </div>
