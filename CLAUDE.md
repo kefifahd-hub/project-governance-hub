@@ -12,7 +12,8 @@ in a folder named **"Claude Brain"**. It contains:
 - **2 - Governance Brain (PMO Hub)** — project governance and PMO knowledge
   relevant to this app
 - **BRAIN MANUAL — Claude reads this first** — the operating rules (recall,
-  ingestion, anonymization)
+  ingestion, anonymization, reorganization). If several versions exist, follow
+  the highest version number.
 
 If the Google Drive connector is available in the session and the task involves
 the owner's knowledge, projects, or governance practices: search Drive for the
