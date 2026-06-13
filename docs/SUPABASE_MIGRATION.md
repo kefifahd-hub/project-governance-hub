@@ -46,11 +46,29 @@ features fall back gracefully (e.g. the Process Library checklist saves to `loca
 
 ## SQL migrations
 
-Versioned SQL lives in [`supabase/migrations/`](../supabase/migrations). Run via the Supabase
-SQL editor or `supabase db push`.
+Versioned SQL lives in [`supabase/migrations/`](../supabase/migrations). The Supabase
+project's database is currently **empty** (dashboard shows "No migrations"), so these create
+the schema from scratch. The repo is linked to Supabase via GitHub.
 
-- `0001_gate_governance.sql` — `gate_checklist_state` table (gate-readiness persistence, RLS,
-  `updated_at` trigger). This is the first table created natively for Supabase.
+- `0001_gate_governance.sql` — `gate_checklist_state` table (gate-readiness persistence).
+- `0002_core_schema.sql` — the 8 core tables (`project`, `risk`, `milestone`, `quality_gate`,
+  `non_conformity`, `qa_record`, `change_request`, `budget_tracking`). **Columns use the app's
+  camelCase field names** so `db.js` is a drop-in; `id` is `text` so existing Base44 ids import
+  cleanly.
+
+### How to apply
+
+Easiest: open the Supabase **SQL editor**, paste the contents of each migration in order
+(`0001`, then `0002`), and run. Or, with the Supabase CLI linked to the project:
+`supabase db push`.
+
+## Cutting an entity over (after the schema is applied)
+
+1. **Migrate its data** Base44 → Supabase (export the entity's records, insert into the table;
+   ids are preserved because `id` is `text`).
+2. In `db.js`, uncomment the entity in `ENTITY_SOURCE` (e.g. `Project: 'supabase'`).
+3. Swap the imports in the pages that use it from `@/api/base44Client` to `@/api/db`.
+4. Verify reads/writes, then commit.
 
 ## Status
 
@@ -58,11 +76,15 @@ SQL editor or `supabase db push`.
 |---------|---------|
 | New governance tables (`gate_checklist_state`) | **Supabase** |
 | Process Library checklist persistence | **Supabase** (localStorage fallback) |
-| All existing entities (Project, Risk, …) | Base44 (route to Supabase as migrated) |
+| Core entity **schema** (project, risk, …) | **defined in `0002_core_schema.sql`** — apply it |
+| Core entity **routing** (`ENTITY_TABLE` set) | ready; `ENTITY_SOURCE` still Base44 until data migrated |
+| Other ~47 entities | Base44 (schema + routing to add later) |
 | Auth & integrations (InvokeLLM, UploadFile) | Base44 (migrate to Supabase Auth later) |
 
 ## Not yet done
 
-- Migrate the ~55 existing entities table-by-table (flip `ENTITY_SOURCE`, swap imports).
+- **Apply `0002_core_schema.sql`** to the Supabase project (DB is empty today).
+- Migrate core entity **data** from Base44, then flip `ENTITY_SOURCE` + swap page imports.
+- Schema + routing for the remaining ~47 entities.
 - Move auth from Base44 to Supabase Auth (`AuthContext`).
 - Move `integrations.Core.InvokeLLM` / `UploadFile` to Supabase Edge Functions / Storage.

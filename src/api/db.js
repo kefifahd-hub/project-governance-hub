@@ -18,13 +18,31 @@ import { supabase, isSupabaseConfigured } from './supabaseClient';
  */
 
 // entity -> backend. Add entries here as tables are migrated to Supabase.
+// Flip an entity to 'supabase' only AFTER its table exists (0002_core_schema.sql)
+// and its data has been imported — otherwise reads return empty.
 const ENTITY_SOURCE = {
   GateChecklistState: 'supabase', // new governance table (roadmap D), Supabase-only
+  // Project: 'supabase',   // <- uncomment per entity once schema applied + data migrated
+  // Risk: 'supabase',
+  // Milestone: 'supabase',
+  // QualityGate: 'supabase',
+  // NonConformity: 'supabase',
+  // QARecord: 'supabase',
+  // ChangeRequest: 'supabase',
+  // BudgetTracking: 'supabase',
 };
 
-// entity -> Supabase table name. Defaults to snake_case of the entity name.
+// entity -> Supabase table name (columns match the app's camelCase fields).
 const ENTITY_TABLE = {
   GateChecklistState: 'gate_checklist_state',
+  Project: 'project',
+  Risk: 'risk',
+  Milestone: 'milestone',
+  QualityGate: 'quality_gate',
+  NonConformity: 'non_conformity',
+  QARecord: 'qa_record',
+  ChangeRequest: 'change_request',
+  BudgetTracking: 'budget_tracking',
 };
 
 const toSnake = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
