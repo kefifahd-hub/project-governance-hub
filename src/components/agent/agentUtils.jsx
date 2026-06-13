@@ -1,3 +1,5 @@
+import { librarySummaryForAgent } from '../../lib/processLibrary';
+
 export const DEFAULT_SYSTEM_PROMPT = `You are the PMO Agent — the AI assistant embedded in the Project Governance Hub platform for a battery gigafactory program.
 
 ## WHO YOU ARE
@@ -26,8 +28,17 @@ When the user types a command starting with /, interpret it:
 /overdue — list all overdue items from the context
 /briefing — give a morning briefing with today's priorities
 /gate [number] — gate readiness check
+/procedure [topic] — surface the relevant procedure from the Process Library
+/checklist — show the current phase's gate-readiness checklist
 /help — list all commands
-`;
+
+## PROCESS LIBRARY
+- The platform includes a Process & Procedure Library: the governing procedures and gate
+  checklists for each lifecycle phase. The relevant guidance for the current phase is provided
+  in the context below.
+- When the user asks "how do I…", "what's the process for…", "what do I need for the gate", or
+  uses /procedure or /checklist, ground your answer in this library — cite the procedure or
+  checklist by name and point them to the Library page if they want the full detail.`;
 
 export function buildSystemPrompt(user, project, contextData = {}) {
   const firstName = user?.full_name?.split(' ')[0] || 'there';
@@ -71,6 +82,9 @@ ${crSummary}
 ### Upcoming Milestones:
 ${milestoneSummary}
 
+### Process Library — guidance for the current phase:
+${librarySummaryForAgent(project?.currentPhase)}
+
 ---
 Address the user as ${firstName}. Be direct, use the data above.`;
 }
@@ -91,6 +105,8 @@ export const SLASH_COMMANDS = [
   { cmd: '/overdue', label: '/overdue', hint: 'List all overdue items' },
   { cmd: '/briefing', label: '/briefing', hint: 'Morning briefing' },
   { cmd: '/gate', label: '/gate [number]', hint: 'Gate readiness check' },
+  { cmd: '/procedure', label: '/procedure [topic]', hint: 'Find a procedure in the library' },
+  { cmd: '/checklist', label: '/checklist', hint: 'Current phase gate checklist' },
   { cmd: '/help', label: '/help', hint: 'Show all commands' },
 ];
 

@@ -64,6 +64,7 @@ ActionTracker · RiskRegister · BudgetTracking · Reports · UserAccess/AuditLo
 | Brainiac | `Brainiac` | Knowledge graph wiring data between modules |
 | PMO Agent | `PMOAgent` | Conversational assistant over project data |
 | **Portfolio Governance** | `PortfolioDashboard` | **NEW — cross-project gate / health / exposure view** |
+| **Process & Procedure Library** | `ProcessLibrary` | **NEW — phase/gate-aware procedures + interactive gate checklists** |
 
 ---
 
@@ -87,22 +88,26 @@ Everything was single-project (`?id=`); a PMO governs a **portfolio**. The new
 progress, budget and open critical-risk count, plus a lifecycle-distribution strip.
 _Next: drill-downs, budget-variance roll-up, exportable portfolio report._
 
-### C. Enforce gate-keeping (not just record it) — _proposed_
-Quality gates can be marked complete and can carry "Passed with Reserves" + unresolved
-reserves, but nothing surfaces or blocks downstream work when a gate is advanced with open
-reserves or missing mandatory evidence / decision authority. **Propose:** a gate-readiness
-checklist that aggregates open risks, unapproved high-impact changes, open NCs and overdue
-actions, and warns (or soft-blocks) on gate advance.
+### C. Process & Procedure Library + gate checklists ✅ _(first cut done)_
+The hub is not only a monitor/control surface — it is also the **library** of how the work
+should be governed. `src/lib/processLibrary.js` is a code-defined catalog of procedures and
+gate checklists for every lifecycle phase; the `ProcessLibrary` page browses it, auto-opens
+the project's current phase, and offers **interactive gate-readiness checklists** whose
+mandatory-item completion drives a readiness bar (state persisted per project in
+`localStorage`). Each checklist item can deep-link to the platform tool that provides its
+evidence — wiring the library to the monitor/control side.
+_Next: persist checklist completion to a backend entity and surface readiness on the gate itself._
 
 ### D. Tie cross-cutting registers to gates — _proposed_
-Risk Register, Budget and Change Management are not linked to gate criteria. A critical open
-risk or an unapproved high-impact change should be a gate-exit blocker. **Propose:** surface
-these on the gate-readiness checklist (builds on C).
+Risk Register, Budget and Change Management are not yet linked to gate criteria. A critical
+open risk or an unapproved high-impact change should be a gate-exit blocker. **Propose:**
+auto-tick (or block) library checklist items from live register data.
 
-### E. Use the AI layer for governance, not just chat — _proposed_
-Brainiac (knowledge graph) and PMO Agent are well-built but disconnected from gate decisions.
-**Propose:** an automated "gate-readiness assessment" the Agent generates from live entity
-data, attached to each Quality Gate.
+### E. AI agent as guide over the library ✅ _(first cut done)_
+The PMO Agent now receives the current phase's library guidance in its context and advertises
+`/procedure` and `/checklist` commands, so it can guide the user through the right process for
+where the project is — not just answer from live data.
+_Next: have the Agent generate an automated gate-readiness assessment attached to each Quality Gate._
 
 ---
 
@@ -111,3 +116,6 @@ data, attached to each Quality Gate.
 - Added `src/lib/lifecycle.js` — single source of truth for phases, gates and phase→tool mapping.
 - Refactored `FEEDTracker`, `ProjectSidebar`, `QualityGateTimeline` to consume it.
 - Added `PortfolioDashboard` page + bottom-nav entry for cross-project governance.
+- Added `src/lib/processLibrary.js` — code-defined catalog of procedures and gate checklists per phase.
+- Added `ProcessLibrary` page (browse by phase, interactive gate checklists, deep-links to tools) + Library nav entry.
+- Made the PMO Agent library-aware (`/procedure`, `/checklist`, phase guidance in its context).
