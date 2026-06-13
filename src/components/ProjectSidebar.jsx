@@ -4,20 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { createPageUrl } from '../utils';
-
-// Phase → which tools are relevant
-const PHASE_TOOLS = {
-  'Feasibility': ['SiteSelection', 'FeasibilityStudy', 'NPVCalculator', 'FinanceModel', 'SiteSelection'],
-  'Pre-FEED':    ['SiteSelection', 'FeasibilityStudy', 'NPVCalculator', 'FinanceModel', 'RiskRegister'],
-  'FEED':        ['FeasibilityStudy', 'FinanceModel', 'NPVCalculator', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard'],
-  'Investment Decision': ['FinanceModel', 'NPVCalculator', 'RiskRegister', 'BudgetDashboard'],
-  'Project Setup':       ['FinanceModel', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring'],
-  'Detailed Engineering':['ActionTracker', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'ChangeManagement', 'UserAccess', 'Reports'],
-  'Procurement':         ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'UserAccess', 'Reports'],
-  'Construction':        ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'UserAccess', 'Reports'],
-  'Commissioning':       ['ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister', 'ChangeManagement', 'ActionTracker', 'UserAccess', 'Reports'],
-  'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports'],
-};
+import { PHASE_TOOLS, matchPhaseKey } from '../lib/lifecycle';
 
 const SCHEDULE_PAGES = ['ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard'];
 
@@ -65,9 +52,8 @@ export default function ProjectSidebar() {
   const isHomePage = currentPath.endsWith('/Home') || currentPath === '/';
   const isScheduleActive = SCHEDULE_PAGES.some(p => currentPath.includes(p));
 
-  // Normalize phase matching (trim + case-insensitive fallback)
-  const phase = project?.currentPhase?.trim();
-  const matchedPhase = Object.keys(PHASE_TOOLS).find(k => k.toLowerCase() === phase?.toLowerCase()) || phase;
+  // Normalize phase matching (trim + case-insensitive fallback) via shared lifecycle
+  const matchedPhase = matchPhaseKey(project?.currentPhase);
   const phaseTools = ALL_TOOLS.filter(t => (PHASE_TOOLS[matchedPhase] || []).includes(t.page));
 
   if (!projectId || !project) return null;

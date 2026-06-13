@@ -59,6 +59,7 @@ import Home from './pages/Home';
 import NPVCalculator from './pages/NPVCalculator';
 import NewProject from './pages/NewProject';
 import PMOAgent from './pages/PMOAgent';
+import PortfolioDashboard from './pages/PortfolioDashboard';
 import ProjectDashboard from './pages/ProjectDashboard';
 import QAQCDashboard from './pages/QAQCDashboard';
 import Reports from './pages/Reports';
@@ -86,6 +87,7 @@ export const PAGES = {
     "NPVCalculator": NPVCalculator,
     "NewProject": NewProject,
     "PMOAgent": PMOAgent,
+    "PortfolioDashboard": PortfolioDashboard,
     "ProjectDashboard": ProjectDashboard,
     "QAQCDashboard": QAQCDashboard,
     "Reports": Reports,

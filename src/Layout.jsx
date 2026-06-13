@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { Home, Wrench, Settings, Menu, ChevronDown, Briefcase, FileBarChart, Users, BrainCircuit, Bot } from 'lucide-react';
+import { Home, Wrench, Settings, Menu, ChevronDown, Briefcase, FileBarChart, Users, BrainCircuit, Bot, LayoutGrid } from 'lucide-react';
 import { createPageUrl } from './utils';
 import ProjectSidebar from './components/ProjectSidebar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
@@ -62,6 +62,7 @@ export default function Layout({ children, currentPageName }) {
   
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
+    { name: 'Portfolio', icon: LayoutGrid, path: createPageUrl('PortfolioDashboard') },
     { name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('ProjectDashboard') },
     { name: 'Brainiac', icon: BrainCircuit, path: createPageUrl('Brainiac'), glow: true },
     { name: 'PMO Agent', icon: Bot, path: createPageUrl('PMOAgent'), glow2: true },

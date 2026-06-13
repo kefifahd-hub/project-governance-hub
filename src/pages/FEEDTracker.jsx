@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { createPageUrl } from '../utils';
+import { DEFAULT_MILESTONE_PHASES } from '../lib/lifecycle';
 
 export default function FEEDTracker() {
   const navigate = useNavigate();
@@ -49,8 +50,7 @@ export default function FEEDTracker() {
 
   const createDefaultMilestones = useMutation({
     mutationFn: async () => {
-      const phases = ['Feasibility', 'Pre-FEED', 'FEED', 'Investment Decision', 'Project Setup', 'Detailed Engineering', 'Procurement', 'Construction', 'Commissioning', 'SOP'];
-      const milestoneData = phases.map(phase => ({
+      const milestoneData = DEFAULT_MILESTONE_PHASES.map(phase => ({
         projectId,
         phaseName: phase,
         completionPercent: 0,

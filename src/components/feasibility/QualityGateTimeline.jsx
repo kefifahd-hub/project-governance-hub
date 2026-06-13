@@ -7,17 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-
-const GATES = [
-  { number: 0, name: 'QG0', full: 'Opportunity Assessment' },
-  { number: 1, name: 'QG1', full: 'Pre-Feasibility' },
-  { number: 2, name: 'QG2', full: 'FEED Complete' },
-  { number: 3, name: 'QG3', full: 'FID' },
-  { number: 4, name: 'QG4', full: 'Mech. Completion' },
-  { number: 5, name: 'QG5', full: 'Commissioning' },
-  { number: 6, name: 'QG6', full: 'SOP' },
-  { number: 7, name: 'QG7', full: 'Full Production' },
-];
+import { QUALITY_GATES as GATES } from '../../lib/lifecycle';
 
 const statusColors = {
   'Passed': { node: '#10B981', text: '✅ Passed', line: '#10B981' },
