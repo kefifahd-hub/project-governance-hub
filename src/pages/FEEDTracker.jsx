@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { db } from '@/api/db';
+import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CheckCircle, Circle, Clock, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ export default function FEEDTracker() {
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const result = await db.entities.Project.filter({ id: projectId });
+      const result = await base44.entities.Project.filter({ id: projectId });
       return result[0];
     },
     enabled: !!projectId
@@ -28,18 +28,18 @@ export default function FEEDTracker() {
 
   const { data: milestones = [] } = useQuery({
     queryKey: ['milestones', projectId],
-    queryFn: () => db.entities.Milestone.filter({ projectId }),
+    queryFn: () => base44.entities.Milestone.filter({ projectId }),
     enabled: !!projectId
   });
 
   const { data: qualityGates = [] } = useQuery({
     queryKey: ['qualityGates', projectId],
-    queryFn: () => db.entities.QualityGate.filter({ projectId }),
+    queryFn: () => base44.entities.QualityGate.filter({ projectId }),
     enabled: !!projectId
   });
 
   const updateGateMutation = useMutation({
-    mutationFn: ({ id, status }) => db.entities.QualityGate.update(id, { 
+    mutationFn: ({ id, status }) => base44.entities.QualityGate.update(id, { 
       status,
       completionDate: status === 'Complete' ? new Date().toISOString().split('T')[0] : null
     }),
@@ -56,7 +56,7 @@ export default function FEEDTracker() {
         completionPercent: 0,
         status: 'Pending'
       }));
-      return db.entities.Milestone.bulkCreate(milestoneData);
+      return base44.entities.Milestone.bulkCreate(milestoneData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['milestones', projectId] });

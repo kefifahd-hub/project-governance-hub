@@ -5,7 +5,7 @@ import { createPageUrl } from './utils';
 import ProjectSidebar from './components/ProjectSidebar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { db } from '@/api/db';
+import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
 export default function Layout({ children, currentPageName }) {
@@ -25,14 +25,14 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => db.entities.Project.filter({ status: 'Active' }, '-created_date'),
+    queryFn: () => base44.entities.Project.filter({ status: 'Active' }, '-created_date'),
     enabled: authed,
   });
 
   const { data: currentProject } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const result = await db.entities.Project.filter({ id: projectId });
+      const result = await base44.entities.Project.filter({ id: projectId });
       return result[0];
     },
     enabled: authed && !!projectId,

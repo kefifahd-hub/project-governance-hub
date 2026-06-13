@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { db } from '@/api/db';
+import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, FileText, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,7 +30,7 @@ export default function WeeklyReports() {
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const projects = await db.entities.Project.filter({ id: projectId });
+      const projects = await base44.entities.Project.filter({ id: projectId });
       return projects[0];
     },
     enabled: !!projectId
@@ -38,12 +38,12 @@ export default function WeeklyReports() {
 
   const { data: reports = [] } = useQuery({
     queryKey: ['reports', projectId],
-    queryFn: () => db.entities.WeeklyReport.filter({ projectId }, '-weekEnding'),
+    queryFn: () => base44.entities.WeeklyReport.filter({ projectId }, '-weekEnding'),
     enabled: !!projectId
   });
 
   const createReportMutation = useMutation({
-    mutationFn: (data) => db.entities.WeeklyReport.create({
+    mutationFn: (data) => base44.entities.WeeklyReport.create({
       projectId,
       ...data,
       highlights: data.highlights.split('\n').filter(h => h.trim()),

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { db } from '@/api/db';
+import { base44 } from '@/api/base44Client';
 import { parseISO, isWithinInterval } from 'date-fns';
 
 function Section({ icon, title, children }) {
@@ -48,37 +48,37 @@ export default function WeeklyAutoSections({ projectId, enabledSections, reporti
 
   const { data: actionItems = [] } = useQuery({
     queryKey: ['actionItems', projectId],
-    queryFn: () => db.entities.ActionItem.filter({ projectId }),
+    queryFn: () => base44.entities.ActionItem.filter({ projectId }),
     enabled: !!projectId && (enabledSections.includes('actions') || enabledSections.includes('lookahead')),
   });
 
   const { data: risks = [] } = useQuery({
     queryKey: ['risks', projectId],
-    queryFn: () => db.entities.Risk.filter({ projectId }),
+    queryFn: () => base44.entities.Risk.filter({ projectId }),
     enabled: !!projectId && enabledSections.includes('risks'),
   });
 
   const { data: changeRequests = [] } = useQuery({
     queryKey: ['changeRequests', projectId],
-    queryFn: () => db.entities.ChangeRequest.filter({ projectId }),
+    queryFn: () => base44.entities.ChangeRequest.filter({ projectId }),
     enabled: !!projectId && enabledSections.includes('changes'),
   });
 
   const { data: milestones = [] } = useQuery({
     queryKey: ['milestones', projectId],
-    queryFn: () => db.entities.Milestone.filter({ projectId }),
+    queryFn: () => base44.entities.Milestone.filter({ projectId }),
     enabled: !!projectId && (enabledSections.includes('schedule') || enabledSections.includes('lookahead')),
   });
 
   const { data: qualityGates = [] } = useQuery({
     queryKey: ['qualityGates', projectId],
-    queryFn: () => db.entities.QualityGate.filter({ projectId }),
+    queryFn: () => base44.entities.QualityGate.filter({ projectId }),
     enabled: !!projectId && enabledSections.includes('quality'),
   });
 
   const { data: dsrs = [] } = useQuery({
     queryKey: ['dsrs', projectId],
-    queryFn: () => db.entities.DailySiteReport.filter({ projectId }),
+    queryFn: () => base44.entities.DailySiteReport.filter({ projectId }),
     enabled: !!projectId && enabledSections.includes('site'),
   });
 

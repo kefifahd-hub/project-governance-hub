@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { db } from '@/api/db';
+import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Briefcase, AlertTriangle, TrendingUp, Layers, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,12 +27,12 @@ export default function PortfolioDashboard() {
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['portfolio-projects'],
-    queryFn: () => db.entities.Project.list('-created_date'),
+    queryFn: () => base44.entities.Project.list('-created_date'),
   });
 
   const { data: risks = [] } = useQuery({
     queryKey: ['portfolio-risks'],
-    queryFn: () => db.entities.Risk.list(),
+    queryFn: () => base44.entities.Risk.list(),
   });
 
   // Open critical risks per project

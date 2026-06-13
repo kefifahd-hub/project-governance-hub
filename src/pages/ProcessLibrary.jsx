@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { db, isSupabaseConfigured } from '@/api/db';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import {
-  BookOpen, Search, ChevronDown, ChevronRight, CheckCircle2, Circle, AlertCircle,
-  ListChecks, FileText, ArrowUpRight, Target, Zap, Cloud, HardDrive,
+  BookOpen, Search, ChevronDown, ChevronRight, CheckCircle2, Circle,
+  ListChecks, FileText, ArrowUpRight, Target,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,11 +13,10 @@ import { Progress } from '@/components/ui/progress';
 import { createPageUrl } from '../utils';
 import { LIFECYCLE_PHASES, QUALITY_GATES, getPhase } from '../lib/lifecycle';
 import { orderedLibrary, searchLibrary } from '../lib/processLibrary';
-import { evaluateItem } from '../lib/gateReadiness';
 
 const cardStyle = { background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' };
 
-// localStorage fallback when Supabase isn't configured
+// localStorage-backed checklist state (durable per project, no backend entity needed)
 function storageKey(projectId) {
   return `pmo_checklist_${projectId || 'global'}`;
 }
@@ -33,79 +32,38 @@ export default function ProcessLibrary() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
-  const queryClient = useQueryClient();
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState({});
-  const [localChecks, setLocalChecks] = useState(() => loadChecks(projectId));
-
-  const useRemote = isSupabaseConfigured && !!projectId;
+  const [checks, setChecks] = useState(() => loadChecks(projectId));
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
-    queryFn: async () => { const r = await db.entities.Project.filter({ id: projectId }); return r[0]; },
+    queryFn: async () => { const r = await base44.entities.Project.filter({ id: projectId }); return r[0]; },
     enabled: !!projectId,
-  });
-
-  // Live registers feed the auto-evaluators (roadmap D)
-  const { data: risks = [] } = useQuery({
-    queryKey: ['risks', projectId], enabled: !!projectId,
-    queryFn: () => db.entities.Risk.filter({ projectId }),
-  });
-  const { data: nonConformities = [] } = useQuery({
-    queryKey: ['nonConformities', projectId], enabled: !!projectId,
-    queryFn: () => db.entities.NonConformity.filter({ projectId }),
-  });
-  const { data: changeRequests = [] } = useQuery({
-    queryKey: ['changeRequests', projectId], enabled: !!projectId,
-    queryFn: () => db.entities.ChangeRequest.filter({ projectId }),
-  });
-  const ctx = useMemo(() => ({ risks, nonConformities, changeRequests }), [risks, nonConformities, changeRequests]);
-
-  // Persisted manual ticks (Supabase when configured, else localStorage)
-  const { data: remoteRows = [] } = useQuery({
-    queryKey: ['gateChecklist', projectId], enabled: useRemote,
-    queryFn: () => db.entities.GateChecklistState.filter({ project_id: projectId }),
-  });
-  const checks = useRemote
-    ? remoteRows.reduce((acc, r) => ({ ...acc, [`${r.checklist_id}.${r.item_id}`]: r.checked }), {})
-    : localChecks;
-
-  const toggleMutation = useMutation({
-    mutationFn: ({ clId, itemId, next }) =>
-      db.entities.GateChecklistState.upsert(
-        { project_id: projectId, checklist_id: clId, item_id: itemId, checked: next },
-        'project_id,checklist_id,item_id'
-      ),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gateChecklist', projectId] }),
   });
 
   const currentPhaseKey = getPhase(project?.currentPhase)?.key;
   const entries = useMemo(() => orderedLibrary(), []);
   const results = useMemo(() => (query ? searchLibrary(query) : []), [query]);
 
+  // Auto-expand the project's current phase once it's known
   useEffect(() => {
     if (currentPhaseKey) setExpanded((e) => ({ ...e, [currentPhaseKey]: true }));
   }, [currentPhaseKey]);
 
+  // Persist checklist state
   useEffect(() => {
-    if (!useRemote) localStorage.setItem(storageKey(projectId), JSON.stringify(localChecks));
-  }, [localChecks, projectId, useRemote]);
+    localStorage.setItem(storageKey(projectId), JSON.stringify(checks));
+  }, [checks, projectId]);
 
   const isChecked = (clId, itemId) => !!checks[`${clId}.${itemId}`];
-  const toggle = (clId, itemId) => {
-    const next = !isChecked(clId, itemId);
-    if (useRemote) toggleMutation.mutate({ clId, itemId, next });
-    else setLocalChecks((c) => ({ ...c, [`${clId}.${itemId}`]: next }));
-  };
+  const toggle = (clId, itemId) =>
+    setChecks((c) => ({ ...c, [`${clId}.${itemId}`]: !c[`${clId}.${itemId}`] }));
 
-  // An item is satisfied if its live evaluator passes, else if manually ticked
-  const itemSatisfied = (clId, item) => {
-    const auto = evaluateItem(item.id, ctx);
-    return auto ? auto.satisfied : isChecked(clId, item.id);
-  };
+  // Mandatory-item completion drives gate readiness
   const checklistReadiness = (cl) => {
     const mandatory = cl.items.filter((i) => i.mandatory);
-    const done = mandatory.filter((i) => itemSatisfied(cl.id, i)).length;
+    const done = mandatory.filter((i) => isChecked(cl.id, i.id)).length;
     return { done, total: mandatory.length, pct: mandatory.length ? Math.round((done / mandatory.length) * 100) : 100 };
   };
 
@@ -121,14 +79,9 @@ export default function ProcessLibrary() {
           </div>
           <p className="mt-2" style={{ color: '#94A3B8' }}>
             The processes, procedures and gate checklists for every phase of the industrialization lifecycle.
-            {project && <> Current project phase: <span style={{ color: '#00A896' }}>{getPhase(project.currentPhase)?.label || project.currentPhase}</span></>}
+            {project ? ` Current project phase: ` : ''}
+            {project && <span style={{ color: '#00A896' }}>{getPhase(project.currentPhase)?.label || project.currentPhase}</span>}
           </p>
-          {projectId && (
-            <div className="mt-2 inline-flex items-center gap-1.5 text-xs" style={{ color: '#64748b' }}>
-              {useRemote ? <Cloud className="w-3.5 h-3.5" /> : <HardDrive className="w-3.5 h-3.5" />}
-              {useRemote ? 'Checklist state synced to Supabase' : 'Checklist state saved locally (configure Supabase to sync)'}
-            </div>
-          )}
 
           <div className="mt-4 relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#64748b' }} />
@@ -144,6 +97,7 @@ export default function ProcessLibrary() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-8">
+        {/* Search results */}
         {query ? (
           <div className="space-y-2">
             <p className="text-sm mb-2" style={{ color: '#94A3B8' }}>{results.length} result(s) for “{query}”</p>
@@ -160,6 +114,7 @@ export default function ProcessLibrary() {
             ))}
           </div>
         ) : (
+          /* Phase-by-phase library */
           <div className="space-y-3">
             {entries.map((entry) => {
               const phaseMeta = LIFECYCLE_PHASES.find((p) => p.key === entry.phase);
@@ -170,6 +125,7 @@ export default function ProcessLibrary() {
               return (
                 <Card key={entry.phase} style={{ ...cardStyle, ...(isCurrent ? { borderColor: 'rgba(0,168,150,0.5)' } : {}) }}>
                   <CardContent className="p-0">
+                    {/* Phase header */}
                     <button onClick={() => toggleExpand(entry.phase)} className="w-full text-left p-5 flex items-center gap-3">
                       <Chevron className="w-5 h-5 shrink-0" style={{ color: '#64748b' }} />
                       <div className="flex-1">
@@ -187,6 +143,7 @@ export default function ProcessLibrary() {
 
                     {open && (
                       <div className="px-5 pb-5 space-y-5">
+                        {/* Procedures */}
                         {entry.procedures.map((proc) => (
                           <div key={proc.id} className="rounded-lg p-4" style={{ background: 'rgba(15,23,42,0.4)' }}>
                             <div className="flex items-start gap-2">
@@ -219,6 +176,7 @@ export default function ProcessLibrary() {
                           </div>
                         ))}
 
+                        {/* Checklists */}
                         {entry.checklists.map((cl) => {
                           const r = checklistReadiness(cl);
                           return (
@@ -233,30 +191,16 @@ export default function ProcessLibrary() {
                               <Progress value={r.pct} className="h-1.5 mb-3" />
                               <div className="space-y-1.5">
                                 {cl.items.map((item) => {
-                                  const auto = projectId ? evaluateItem(item.id, ctx) : null;
-                                  const satisfied = auto ? auto.satisfied : isChecked(cl.id, item.id);
+                                  const checked = isChecked(cl.id, item.id);
                                   return (
                                     <div key={item.id} className="flex items-center gap-2.5">
-                                      {auto ? (
-                                        <span className="shrink-0" title={`Auto-evaluated: ${auto.detail}`}>
-                                          {satisfied
-                                            ? <CheckCircle2 className="w-4 h-4" style={{ color: '#10B981' }} />
-                                            : <AlertCircle className="w-4 h-4" style={{ color: '#F59E0B' }} />}
-                                        </span>
-                                      ) : (
-                                        <button onClick={() => toggle(cl.id, item.id)} className="shrink-0">
-                                          {satisfied
-                                            ? <CheckCircle2 className="w-4 h-4" style={{ color: '#10B981' }} />
-                                            : <Circle className="w-4 h-4" style={{ color: '#64748b' }} />}
-                                        </button>
-                                      )}
-                                      <span className="flex-1 text-sm" style={{ color: satisfied ? '#64748b' : '#CADCFC', textDecoration: satisfied ? 'line-through' : 'none' }}>
+                                      <button onClick={() => toggle(cl.id, item.id)} className="shrink-0">
+                                        {checked
+                                          ? <CheckCircle2 className="w-4 h-4" style={{ color: '#10B981' }} />
+                                          : <Circle className="w-4 h-4" style={{ color: '#64748b' }} />}
+                                      </button>
+                                      <span className="flex-1 text-sm" style={{ color: checked ? '#64748b' : '#CADCFC', textDecoration: checked ? 'line-through' : 'none' }}>
                                         {item.text}
-                                        {auto && (
-                                          <span className="ml-2 inline-flex items-center gap-0.5 text-xs" style={{ color: '#7c3aed' }}>
-                                            <Zap className="w-3 h-3" />{auto.detail}
-                                          </span>
-                                        )}
                                       </span>
                                       {item.mandatory && <Badge style={{ background: 'rgba(239,68,68,0.12)', color: '#EF4444', fontSize: 10 }}>required</Badge>}
                                       {item.relatedTool && projectId && (

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { db } from '@/api/db';
+import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,15 +23,15 @@ export default function QualityGateTimeline({ projectId }) {
 
   const { data: gates = [] } = useQuery({
     queryKey: ['qualityGates', projectId],
-    queryFn: () => db.entities.QualityGate.filter({ projectId }),
+    queryFn: () => base44.entities.QualityGate.filter({ projectId }),
     enabled: !!projectId,
   });
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
       const existing = gates.find(g => g.gateNumber === data.gateNumber);
-      if (existing) return db.entities.QualityGate.update(existing.id, data);
-      return db.entities.QualityGate.create({ ...data, projectId });
+      if (existing) return base44.entities.QualityGate.update(existing.id, data);
+      return base44.entities.QualityGate.create({ ...data, projectId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['qualityGates', projectId] });

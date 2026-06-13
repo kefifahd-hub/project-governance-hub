@@ -16,9 +16,9 @@ The portal's Supabase project **already contains snake_case tables for almost ev
 only *queries* 9 of them. **So the remaining work is mostly wiring pages + write paths + RLS
 — not creating schema.**
 
-> ⚠️ Column convention: portal tables are **snake_case** (`project_name`). The legacy app and
-> this repo's experimental `db` adapter use **camelCase** (`projectName`). Do **not** run this
-> repo's `/SupabaseMigration` tool against the portal DB — it would issue malformed writes.
+> ⚠️ Column convention: portal tables are **snake_case** (`project_name`), while the legacy
+> Base44 app uses **camelCase** (`projectName`). The portal data layer must map between them
+> consistently when wiring each page.
 
 ## Status legend
 - ✅ **ported** — already read in the portal today (one of its 9 queried tables)

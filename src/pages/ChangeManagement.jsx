@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { db } from '@/api/db';
+import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ChangeLogTable from '../components/changemanagement/ChangeLogTable';
@@ -18,13 +18,13 @@ export default function ChangeManagement() {
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
-    queryFn: async () => { const r = await db.entities.Project.filter({ id: projectId }); return r[0]; },
+    queryFn: async () => { const r = await base44.entities.Project.filter({ id: projectId }); return r[0]; },
     enabled: !!projectId,
   });
 
   const { data: changes = [] } = useQuery({
     queryKey: ['changeRequests', projectId],
-    queryFn: () => db.entities.ChangeRequest.filter({ projectId }),
+    queryFn: () => base44.entities.ChangeRequest.filter({ projectId }),
     enabled: !!projectId,
   });
 
@@ -33,7 +33,7 @@ export default function ChangeManagement() {
     queryFn: async () => {
       const ids = changes.map(c => c.id);
       if (!ids.length) return [];
-      const all = await Promise.all(ids.map(id => db.entities.ChangeImpactAssessment.filter({ crId: id })));
+      const all = await Promise.all(ids.map(id => base44.entities.ChangeImpactAssessment.filter({ crId: id })));
       return all.flat();
     },
     enabled: changes.length > 0,
@@ -44,7 +44,7 @@ export default function ChangeManagement() {
     queryFn: async () => {
       const ids = changes.map(c => c.id);
       if (!ids.length) return [];
-      const all = await Promise.all(ids.map(id => db.entities.ChangeApproval.filter({ crId: id })));
+      const all = await Promise.all(ids.map(id => base44.entities.ChangeApproval.filter({ crId: id })));
       return all.flat();
     },
     enabled: changes.length > 0,
@@ -55,7 +55,7 @@ export default function ChangeManagement() {
       // auto-generate CR number
       const count = changes.length + 1;
       const crNumber = `CR-${String(count).padStart(3, '0')}`;
-      return db.entities.ChangeRequest.create({ ...data, crNumber });
+      return base44.entities.ChangeRequest.create({ ...data, crNumber });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['changeRequests', projectId] });
@@ -64,7 +64,7 @@ export default function ChangeManagement() {
   });
 
   const updateCRMutation = useMutation({
-    mutationFn: ({ id, data }) => db.entities.ChangeRequest.update(id, data),
+    mutationFn: ({ id, data }) => base44.entities.ChangeRequest.update(id, data),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['changeRequests', projectId] });
       // refresh selected
@@ -76,8 +76,8 @@ export default function ChangeManagement() {
   const saveImpactMutation = useMutation({
     mutationFn: async (data) => {
       const existing = impacts.find(i => i.crId === data.crId);
-      if (existing) return db.entities.ChangeImpactAssessment.update(existing.id, data);
-      return db.entities.ChangeImpactAssessment.create(data);
+      if (existing) return base44.entities.ChangeImpactAssessment.update(existing.id, data);
+      return base44.entities.ChangeImpactAssessment.create(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['changeImpacts', projectId] });

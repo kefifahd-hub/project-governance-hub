@@ -4,7 +4,7 @@ import { Download, Loader2 } from 'lucide-react';
 import { format, parseISO, isWithinInterval } from 'date-fns';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { db } from '@/api/db';
+import { base44 } from '@/api/base44Client';
 
 const RAG_COLORS = { Green: '#10b981', Amber: '#f59e0b', Red: '#ef4444' };
 const RAG_EMOJI = { Green: '🟢', Amber: '🟡', Red: '🔴' };
@@ -293,12 +293,12 @@ export default function ExportPdfButton({ report, project, size = 'sm' }) {
 
       // Fetch all section data in parallel
       const [actionItems, risks, changeRequests, milestones, qualityGates, dsrs] = await Promise.all([
-        has('actions') || has('lookahead') ? db.entities.ActionItem.filter({ projectId }) : Promise.resolve([]),
-        has('risks') ? db.entities.Risk.filter({ projectId }) : Promise.resolve([]),
-        has('changes') || has('lookahead') ? db.entities.ChangeRequest.filter({ projectId }) : Promise.resolve([]),
-        has('schedule') || has('lookahead') ? db.entities.Milestone.filter({ projectId }) : Promise.resolve([]),
-        has('quality') ? db.entities.QualityGate.filter({ projectId }) : Promise.resolve([]),
-        has('site') ? db.entities.DailySiteReport.filter({ projectId }) : Promise.resolve([]),
+        has('actions') || has('lookahead') ? base44.entities.ActionItem.filter({ projectId }) : Promise.resolve([]),
+        has('risks') ? base44.entities.Risk.filter({ projectId }) : Promise.resolve([]),
+        has('changes') || has('lookahead') ? base44.entities.ChangeRequest.filter({ projectId }) : Promise.resolve([]),
+        has('schedule') || has('lookahead') ? base44.entities.Milestone.filter({ projectId }) : Promise.resolve([]),
+        has('quality') ? base44.entities.QualityGate.filter({ projectId }) : Promise.resolve([]),
+        has('site') ? base44.entities.DailySiteReport.filter({ projectId }) : Promise.resolve([]),
       ]);
 
       const sectionData = { actionItems, risks, changeRequests, milestones, qualityGates, dsrs };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { db } from '@/api/db';
+import { base44 } from '@/api/base44Client';
 import { getISOWeek, getYear, startOfISOWeek, endOfISOWeek, format, addWeeks, subWeeks, parseISO } from 'date-fns';
 import WeeklyReportEditor from './WeeklyReportEditor';
 import WeeklyReportReadOnly from './WeeklyReportReadOnly';
@@ -53,18 +53,18 @@ export default function WeeklyReportView({ projectId }) {
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
-    queryFn: async () => { const r = await db.entities.Project.filter({ id: projectId }); return r[0]; },
+    queryFn: async () => { const r = await base44.entities.Project.filter({ id: projectId }); return r[0]; },
     enabled: !!projectId,
   });
 
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ['weeklyReports', projectId],
-    queryFn: () => db.entities.WeeklyReport.filter({ projectId }),
+    queryFn: () => base44.entities.WeeklyReport.filter({ projectId }),
     enabled: !!projectId,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => db.entities.WeeklyReport.create(data),
+    mutationFn: (data) => base44.entities.WeeklyReport.create(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['weeklyReports', projectId] }),
   });
 
