@@ -68,6 +68,7 @@ import RiskRegister from './pages/RiskRegister';
 import ScheduleMonitoring from './pages/ScheduleMonitoring';
 import ScheduleSync from './pages/ScheduleSync';
 import Settings from './pages/Settings';
+import SupabaseMigration from './pages/SupabaseMigration';
 import SiteSelection from './pages/SiteSelection';
 import UserAccess from './pages/UserAccess';
 import WeeklyReports from './pages/WeeklyReports';
@@ -97,6 +98,7 @@ export const PAGES = {
     "ScheduleMonitoring": ScheduleMonitoring,
     "ScheduleSync": ScheduleSync,
     "Settings": Settings,
+    "SupabaseMigration": SupabaseMigration,
     "SiteSelection": SiteSelection,
     "UserAccess": UserAccess,
     "WeeklyReports": WeeklyReports,
