@@ -33,6 +33,29 @@ building schema.
 4. There's a debug commit in middleware in this repo's history (flagged in the consolidation
    analysis) — clean it out before serious merge work.
 
+## Access model for RLS — DECIDED: org-scoped via `profiles`
+Derived from the legacy auth model (don't re-litigate): `PlatformUser` carries `org_id`,
+`role_name`, `org_name`, `is_active` — a user belongs to **exactly one org** and has **one
+role**. `Organization` is first-class (with `PlatformRole` + `AuditLog`). There is **no
+per-project membership** anywhere in the legacy app; access is by **org membership + role**, and
+a user sees **all projects in their org**.
+
+So Wave-1 RLS = **org-scoping**, not a `project_member` join (don't invent granularity the
+product never had) and not single-tenant (that discards the org boundary the product is built
+on).
+
+- **`profiles` table** (mirrors `PlatformUser`): `user_id` (→ `auth.users`), `organization`,
+  `role`, `is_active`. One row per user.
+- **Policy shape:** a row is visible/writable when its `project.organization` matches the
+  caller's `profiles.organization` (child tables resolve org via `project_id → project.organization`).
+- **Wave-1 scope:** gate **visibility** by org; allow **writes** to any authed member of the
+  org. Defer `role_name`/`PlatformRole` write-gating to a later pass.
+
+> ⚠️ **Step 0 prerequisite — blocks every policy below.** `NewProject` collects `clientName`,
+> but `Project` has **no explicit `organization`/`org_id`** (Base44 isolated tenants
+> implicitly). Before any RLS works, the portal `project` table **must carry an `organization`
+> column** (backfill existing rows). Confirm this exists/added first, then scope everything off it.
+
 ## Port sequencing (by entity-graph depth, not page count)
 - **Wave 0 (done, read-only):** project, milestone, risk, action_item, budget_tracking,
   schedule_activity, neuron, synapse, agent_conversation.
