@@ -98,10 +98,14 @@ mandatory-item completion drives a readiness bar (state persisted per project in
 evidence — wiring the library to the monitor/control side.
 _Next: persist checklist completion to a backend entity and surface readiness on the gate itself._
 
-### D. Tie cross-cutting registers to gates — _proposed_
-Risk Register, Budget and Change Management are not yet linked to gate criteria. A critical
-open risk or an unapproved high-impact change should be a gate-exit blocker. **Propose:**
-auto-tick (or block) library checklist items from live register data.
+### D. Tie cross-cutting registers to gates ✅ _(first cut done)_
+Gate checklist items can now be **auto-evaluated from live registers** instead of a manual
+tick (`src/lib/gateReadiness.js`): e.g. "all high/critical risks have mitigation owners" reads
+the Risk register, "open non-conformities resolved" reads QA/QC, "change log current" reads
+Change Management. Auto-items show a live status and reason and feed the readiness bar; the
+rest stay manual and now **persist to Supabase** (`gate_checklist_state`, localStorage
+fallback). See `docs/SUPABASE_MIGRATION.md`.
+_Next: soft-block gate advance when mandatory readiness < 100%; surface readiness on the gate itself._
 
 ### E. AI agent as guide over the library ✅ _(first cut done)_
 The PMO Agent now receives the current phase's library guidance in its context and advertises
