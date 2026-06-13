@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,7 @@ export default function NewProject() {
   });
 
   const createProjectMutation = useMutation({
-    mutationFn: (data) => base44.entities.Project.create(data),
+    mutationFn: (data) => db.entities.Project.create(data),
     onSuccess: (newProject) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       navigate(createPageUrl(`ProjectDashboard?id=${newProject.id}`));

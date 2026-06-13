@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, Calendar, TrendingUp, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -41,7 +41,7 @@ export default function ScheduleMonitoring() {
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const projects = await base44.entities.Project.filter({ id: projectId });
+      const projects = await db.entities.Project.filter({ id: projectId });
       return projects[0];
     },
     enabled: !!projectId
@@ -49,12 +49,12 @@ export default function ScheduleMonitoring() {
 
   const { data: activities = [] } = useQuery({
     queryKey: ['scheduleActivities', projectId],
-    queryFn: () => base44.entities.ScheduleActivity.filter({ projectId }, 'plannedStartDate'),
+    queryFn: () => db.entities.ScheduleActivity.filter({ projectId }, 'plannedStartDate'),
     enabled: !!projectId
   });
 
   const createActivityMutation = useMutation({
-    mutationFn: (data) => base44.entities.ScheduleActivity.create({ ...data, projectId }),
+    mutationFn: (data) => db.entities.ScheduleActivity.create({ ...data, projectId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduleActivities', projectId] });
       setShowAddDialog(false);

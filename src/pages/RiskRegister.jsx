@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -37,7 +37,7 @@ export default function RiskRegister() {
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const result = await base44.entities.Project.filter({ id: projectId });
+      const result = await db.entities.Project.filter({ id: projectId });
       return result[0];
     },
     enabled: !!projectId
@@ -45,7 +45,7 @@ export default function RiskRegister() {
 
   const { data: risks = [] } = useQuery({
     queryKey: ['risks', projectId],
-    queryFn: () => base44.entities.Risk.filter({ projectId }),
+    queryFn: () => db.entities.Risk.filter({ projectId }),
     enabled: !!projectId
   });
 
@@ -57,7 +57,7 @@ export default function RiskRegister() {
       else if (riskScore >= 4) riskLevel = 'High';
       else if (riskScore >= 2) riskLevel = 'Medium';
       
-      return base44.entities.Risk.create({ 
+      return db.entities.Risk.create({ 
         ...data, 
         projectId, 
         riskScore, 

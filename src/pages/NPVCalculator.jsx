@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Calculator, Save, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,7 @@ export default function NPVCalculator() {
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const result = await base44.entities.Project.filter({ id: projectId });
+      const result = await db.entities.Project.filter({ id: projectId });
       return result[0];
     },
     enabled: !!projectId
@@ -43,12 +43,12 @@ export default function NPVCalculator() {
 
   const { data: scenarios = [] } = useQuery({
     queryKey: ['scenarios', projectId],
-    queryFn: () => base44.entities.NPVScenario.filter({ projectId }),
+    queryFn: () => db.entities.NPVScenario.filter({ projectId }),
     enabled: !!projectId
   });
 
   const saveScenarioMutation = useMutation({
-    mutationFn: (data) => base44.entities.NPVScenario.create(data),
+    mutationFn: (data) => db.entities.NPVScenario.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scenarios', projectId] });
     }

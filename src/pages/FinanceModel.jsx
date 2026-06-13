@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -32,13 +32,13 @@ export default function FinanceModel() {
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
-    queryFn: async () => { const r = await base44.entities.Project.filter({ id: projectId }); return r[0]; },
+    queryFn: async () => { const r = await db.entities.Project.filter({ id: projectId }); return r[0]; },
     enabled: !!projectId
   });
 
   const { data: financeModels = [] } = useQuery({
     queryKey: ['financeModels', projectId],
-    queryFn: () => base44.entities.FinanceModel.filter({ projectId }),
+    queryFn: () => db.entities.FinanceModel.filter({ projectId }),
     enabled: !!projectId
   });
 
@@ -46,19 +46,19 @@ export default function FinanceModel() {
   const modelId = model?.id;
 
   // All supporting data queries
-  const { data: cells = [] } = useQuery({ queryKey: ['cellConfigs', modelId], queryFn: () => base44.entities.CellConfig.filter({ financeModelId: modelId }), enabled: !!modelId });
-  const { data: revenueData = [] } = useQuery({ queryKey: ['revenueAssumptions', modelId], queryFn: () => base44.entities.RevenueAssumptions.filter({ financeModelId: modelId }), enabled: !!modelId });
-  const { data: bomData = [] } = useQuery({ queryKey: ['bomAssumptions', modelId], queryFn: () => base44.entities.BOMAssumptions.filter({ financeModelId: modelId }), enabled: !!modelId });
-  const { data: headcountData = [] } = useQuery({ queryKey: ['headcountPlan', modelId], queryFn: () => base44.entities.HeadcountPlan.filter({ financeModelId: modelId }), enabled: !!modelId });
-  const { data: capexItems = [] } = useQuery({ queryKey: ['capexPlan', modelId], queryFn: () => base44.entities.CapexPlan.filter({ financeModelId: modelId }), enabled: !!modelId });
-  const { data: grants = [] } = useQuery({ queryKey: ['grants', modelId], queryFn: () => base44.entities.GrantAssumptions.filter({ financeModelId: modelId }), enabled: !!modelId });
-  const { data: overheads = [] } = useQuery({ queryKey: ['overheads', modelId], queryFn: () => base44.entities.OverheadAssumptions.filter({ financeModelId: modelId }), enabled: !!modelId });
-  const { data: utilAssumptions } = useQuery({ queryKey: ['utilAssumptions', modelId], queryFn: async () => { const r = await base44.entities.UtilityAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
-  const { data: taxAssumptions } = useQuery({ queryKey: ['taxAssumptions', modelId], queryFn: async () => { const r = await base44.entities.TaxAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
-  const { data: wcAssumptions } = useQuery({ queryKey: ['wcAssumptions', modelId], queryFn: async () => { const r = await base44.entities.WorkingCapitalAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
-  const { data: dcfAssumptions } = useQuery({ queryKey: ['dcfAssumptions', modelId], queryFn: async () => { const r = await base44.entities.DCFAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
-  const { data: otherOpex } = useQuery({ queryKey: ['otherOpex', modelId], queryFn: async () => { const r = await base44.entities.OtherOpexAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
-  const { data: financingAssumptions } = useQuery({ queryKey: ['financingAssumptions', modelId], queryFn: async () => { const r = await base44.entities.FinancingAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
+  const { data: cells = [] } = useQuery({ queryKey: ['cellConfigs', modelId], queryFn: () => db.entities.CellConfig.filter({ financeModelId: modelId }), enabled: !!modelId });
+  const { data: revenueData = [] } = useQuery({ queryKey: ['revenueAssumptions', modelId], queryFn: () => db.entities.RevenueAssumptions.filter({ financeModelId: modelId }), enabled: !!modelId });
+  const { data: bomData = [] } = useQuery({ queryKey: ['bomAssumptions', modelId], queryFn: () => db.entities.BOMAssumptions.filter({ financeModelId: modelId }), enabled: !!modelId });
+  const { data: headcountData = [] } = useQuery({ queryKey: ['headcountPlan', modelId], queryFn: () => db.entities.HeadcountPlan.filter({ financeModelId: modelId }), enabled: !!modelId });
+  const { data: capexItems = [] } = useQuery({ queryKey: ['capexPlan', modelId], queryFn: () => db.entities.CapexPlan.filter({ financeModelId: modelId }), enabled: !!modelId });
+  const { data: grants = [] } = useQuery({ queryKey: ['grants', modelId], queryFn: () => db.entities.GrantAssumptions.filter({ financeModelId: modelId }), enabled: !!modelId });
+  const { data: overheads = [] } = useQuery({ queryKey: ['overheads', modelId], queryFn: () => db.entities.OverheadAssumptions.filter({ financeModelId: modelId }), enabled: !!modelId });
+  const { data: utilAssumptions } = useQuery({ queryKey: ['utilAssumptions', modelId], queryFn: async () => { const r = await db.entities.UtilityAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
+  const { data: taxAssumptions } = useQuery({ queryKey: ['taxAssumptions', modelId], queryFn: async () => { const r = await db.entities.TaxAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
+  const { data: wcAssumptions } = useQuery({ queryKey: ['wcAssumptions', modelId], queryFn: async () => { const r = await db.entities.WorkingCapitalAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
+  const { data: dcfAssumptions } = useQuery({ queryKey: ['dcfAssumptions', modelId], queryFn: async () => { const r = await db.entities.DCFAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
+  const { data: otherOpex } = useQuery({ queryKey: ['otherOpex', modelId], queryFn: async () => { const r = await db.entities.OtherOpexAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
+  const { data: financingAssumptions } = useQuery({ queryKey: ['financingAssumptions', modelId], queryFn: async () => { const r = await db.entities.FinancingAssumptions.filter({ financeModelId: modelId }); return r[0]; }, enabled: !!modelId });
 
   const onRefresh = () => qc.invalidateQueries(['financeModels', projectId]);
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ActionTrackerHeader from '../components/actiontracker/ActionTrackerHeader';
 import BoardView from '../components/actiontracker/BoardView';
@@ -55,30 +55,30 @@ export default function ActionTracker() {
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
-    queryFn: async () => { const r = await base44.entities.Project.filter({ id: projectId }); return r[0]; },
+    queryFn: async () => { const r = await db.entities.Project.filter({ id: projectId }); return r[0]; },
     enabled: !!projectId,
   });
 
   const { data: items = [] } = useQuery({
     queryKey: ['actionItems', projectId],
-    queryFn: () => base44.entities.ActionItem.filter({ projectId, archived: false }, '-created_date', 200),
+    queryFn: () => db.entities.ActionItem.filter({ projectId, archived: false }, '-created_date', 200),
     enabled: !!projectId,
   });
 
   const { data: buckets = [], refetch: refetchBuckets } = useQuery({
     queryKey: ['actionBuckets', projectId],
-    queryFn: () => base44.entities.ActionBucket.filter({ projectId }, 'sortOrder'),
+    queryFn: () => db.entities.ActionBucket.filter({ projectId }, 'sortOrder'),
     enabled: !!projectId,
   });
 
   const { data: phases = [], refetch: refetchPhases } = useQuery({
     queryKey: ['actionPhases', projectId],
-    queryFn: () => base44.entities.ActionPhase.filter({ projectId }, 'startDate'),
+    queryFn: () => db.entities.ActionPhase.filter({ projectId }, 'startDate'),
     enabled: !!projectId,
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.ActionItem.update(id, data),
+    mutationFn: ({ id, data }) => db.entities.ActionItem.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['actionItems', projectId] })
   });
 
@@ -91,8 +91,8 @@ export default function ActionTracker() {
 
   const handleAutoSetup = async () => {
     await Promise.all([
-      ...DEFAULT_BUCKETS.map(b => base44.entities.ActionBucket.create({ ...b, projectId })),
-      ...DEFAULT_PHASES.map(p => base44.entities.ActionPhase.create({ ...p, projectId })),
+      ...DEFAULT_BUCKETS.map(b => db.entities.ActionBucket.create({ ...b, projectId })),
+      ...DEFAULT_PHASES.map(p => db.entities.ActionPhase.create({ ...p, projectId })),
     ]);
     await Promise.all([refetchBuckets(), refetchPhases()]);
     setShowSetup(false);

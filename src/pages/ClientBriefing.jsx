@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FileText, Download, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ export default function ClientBriefing() {
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const projects = await base44.entities.Project.filter({ id: projectId });
+      const projects = await db.entities.Project.filter({ id: projectId });
       return projects[0];
     },
     enabled: !!projectId
@@ -24,20 +24,20 @@ export default function ClientBriefing() {
 
   const { data: milestones = [] } = useQuery({
     queryKey: ['milestones', projectId],
-    queryFn: () => base44.entities.Milestone.filter({ projectId }),
+    queryFn: () => db.entities.Milestone.filter({ projectId }),
     enabled: !!projectId
   });
 
   const { data: risks = [] } = useQuery({
     queryKey: ['risks', projectId],
-    queryFn: () => base44.entities.Risk.filter({ projectId }),
+    queryFn: () => db.entities.Risk.filter({ projectId }),
     enabled: !!projectId
   });
 
   const { data: latestReport } = useQuery({
     queryKey: ['latest-report', projectId],
     queryFn: async () => {
-      const reports = await base44.entities.WeeklyReport.filter({ projectId }, '-weekEnding', 1);
+      const reports = await db.entities.WeeklyReport.filter({ projectId }, '-weekEnding', 1);
       return reports[0];
     },
     enabled: !!projectId

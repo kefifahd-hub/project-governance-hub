@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Activity, DollarSign, ClipboardCheck, AlertTriangle, FileText, Briefcase, CheckSquare, BarChart3, MapPin, GitPullRequest, ListTodo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ export default function ProjectDashboard() {
   const { data: project, isLoading } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const projects = await base44.entities.Project.filter({ id: projectId });
+      const projects = await db.entities.Project.filter({ id: projectId });
       return projects[0];
     },
     enabled: !!projectId

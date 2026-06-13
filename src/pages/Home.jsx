@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import QualityGateTimeline from '../components/feasibility/QualityGateTimeline';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, DollarSign, TrendingUp, AlertTriangle, Calendar, Activity, Settings2 } from 'lucide-react';
@@ -29,13 +29,13 @@ export default function Home() {
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.filter({ status: 'Active' }, '-created_date')
+    queryFn: () => db.entities.Project.filter({ status: 'Active' }, '-created_date')
   });
 
   const { data: currentProject } = useQuery({
     queryKey: ['project', selectedProjectId],
     queryFn: async () => {
-      const result = await base44.entities.Project.filter({ id: selectedProjectId });
+      const result = await db.entities.Project.filter({ id: selectedProjectId });
       return result[0];
     },
     enabled: !!selectedProjectId
@@ -43,25 +43,25 @@ export default function Home() {
 
   const { data: risks = [] } = useQuery({
     queryKey: ['risks', selectedProjectId],
-    queryFn: () => base44.entities.Risk.filter({ projectId: selectedProjectId }),
+    queryFn: () => db.entities.Risk.filter({ projectId: selectedProjectId }),
     enabled: !!selectedProjectId
   });
 
   const { data: milestones = [] } = useQuery({
     queryKey: ['milestones', selectedProjectId],
-    queryFn: () => base44.entities.Milestone.filter({ projectId: selectedProjectId }),
+    queryFn: () => db.entities.Milestone.filter({ projectId: selectedProjectId }),
     enabled: !!selectedProjectId
   });
 
   const { data: budgetData = [] } = useQuery({
     queryKey: ['budgetData', selectedProjectId],
-    queryFn: () => base44.entities.BudgetTracking.filter({ projectId: selectedProjectId }),
+    queryFn: () => db.entities.BudgetTracking.filter({ projectId: selectedProjectId }),
     enabled: !!selectedProjectId
   });
 
   const { data: financeModels = [] } = useQuery({
     queryKey: ['financeModels', selectedProjectId],
-    queryFn: () => base44.entities.FinanceModel.filter({ projectId: selectedProjectId }),
+    queryFn: () => db.entities.FinanceModel.filter({ projectId: selectedProjectId }),
     enabled: !!selectedProjectId
   });
 
@@ -69,25 +69,25 @@ export default function Home() {
 
   const { data: capexData = [] } = useQuery({
     queryKey: ['capexPlan', financeModelId],
-    queryFn: () => base44.entities.CapexPlan.filter({ financeModelId }),
+    queryFn: () => db.entities.CapexPlan.filter({ financeModelId }),
     enabled: !!financeModelId
   });
 
   const { data: scheduleData = [] } = useQuery({
     queryKey: ['scheduleData', selectedProjectId],
-    queryFn: () => base44.entities.ScheduleActivity.filter({ projectId: selectedProjectId }),
+    queryFn: () => db.entities.ScheduleActivity.filter({ projectId: selectedProjectId }),
     enabled: !!selectedProjectId
   });
 
   const { data: qaRecords = [] } = useQuery({
     queryKey: ['qaRecords', selectedProjectId],
-    queryFn: () => base44.entities.QARecord.filter({ projectId: selectedProjectId }),
+    queryFn: () => db.entities.QARecord.filter({ projectId: selectedProjectId }),
     enabled: !!selectedProjectId
   });
 
   const { data: nonConformities = [] } = useQuery({
     queryKey: ['nonConformities', selectedProjectId],
-    queryFn: () => base44.entities.NonConformity.filter({ projectId: selectedProjectId }),
+    queryFn: () => db.entities.NonConformity.filter({ projectId: selectedProjectId }),
     enabled: !!selectedProjectId
   });
 
@@ -114,7 +114,7 @@ export default function Home() {
     Math.max(1, milestones.filter(m => m.phaseName === currentProject?.currentPhase).length);
 
   const updateProjectMutation = useMutation({
-    mutationFn: (data) => base44.entities.Project.update(selectedProjectId, data),
+    mutationFn: (data) => db.entities.Project.update(selectedProjectId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', selectedProjectId] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -123,7 +123,7 @@ export default function Home() {
   });
 
   const deleteProjectMutation = useMutation({
-    mutationFn: () => base44.entities.Project.delete(selectedProjectId),
+    mutationFn: () => db.entities.Project.delete(selectedProjectId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       setShowEditDialog(false);
@@ -132,7 +132,7 @@ export default function Home() {
   });
 
   const archiveProjectMutation = useMutation({
-    mutationFn: () => base44.entities.Project.update(selectedProjectId, { status: 'On Hold' }),
+    mutationFn: () => db.entities.Project.update(selectedProjectId, { status: 'On Hold' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', selectedProjectId] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });

@@ -1,5 +1,5 @@
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery } from '@tanstack/react-query';
 import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
@@ -43,7 +43,7 @@ export default function ProjectSidebar() {
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
-    queryFn: async () => { const r = await base44.entities.Project.filter({ id: projectId }); return r[0]; },
+    queryFn: async () => { const r = await db.entities.Project.filter({ id: projectId }); return r[0]; },
     enabled: !!projectId,
   });
 

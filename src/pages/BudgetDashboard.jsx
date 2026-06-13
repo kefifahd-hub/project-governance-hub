@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ export default function BudgetDashboard() {
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const projects = await base44.entities.Project.filter({ id: projectId });
+      const projects = await db.entities.Project.filter({ id: projectId });
       return projects[0];
     },
     enabled: !!projectId
@@ -35,7 +35,7 @@ export default function BudgetDashboard() {
 
   const { data: budgetEntries = [] } = useQuery({
     queryKey: ['budget', projectId],
-    queryFn: () => base44.entities.BudgetTracking.filter({ projectId }, '-month'),
+    queryFn: () => db.entities.BudgetTracking.filter({ projectId }, '-month'),
     enabled: !!projectId
   });
 
@@ -47,7 +47,7 @@ export default function BudgetDashboard() {
       if (variancePercent > 10) varianceStatus = 'Over Budget';
       else if (variancePercent < -10) varianceStatus = 'Under Budget';
       
-      return base44.entities.BudgetTracking.create({
+      return db.entities.BudgetTracking.create({
         projectId,
         ...data,
         varianceEurK: variance,

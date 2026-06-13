@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import AgentChatMessages from '@/components/agent/AgentChatMessages';
@@ -18,14 +18,14 @@ export default function PMOAgent() {
   const [isThinking, setIsThinking] = useState(false);
   const [currentProjectId, setCurrentProjectId] = useState(null);
 
-  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => db.auth.me() });
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.filter({ status: 'Active' }, '-created_date'),
+    queryFn: () => db.entities.Project.filter({ status: 'Active' }, '-created_date'),
   });
   const { data: conversations = [], refetch: refetchConvs } = useQuery({
     queryKey: ['agent-conversations'],
-    queryFn: () => base44.entities.AgentConversation.filter({ user_email: user?.email || '' }, '-last_message_at', 30),
+    queryFn: () => db.entities.AgentConversation.filter({ user_email: user?.email || '' }, '-last_message_at', 30),
     enabled: !!user?.email,
   });
 
@@ -68,10 +68,10 @@ export default function PMOAgent() {
       title,
     };
     if (convId) {
-      await base44.entities.AgentConversation.update(convId, data);
+      await db.entities.AgentConversation.update(convId, data);
       return convId;
     } else {
-      const created = await base44.entities.AgentConversation.create(data);
+      const created = await db.entities.AgentConversation.create(data);
       return created.id;
     }
   };
@@ -88,10 +88,10 @@ export default function PMOAgent() {
     let contextData = {};
     try {
       const [actions, risks, crs, milestones] = await Promise.all([
-        base44.entities.ActionItem.filter({ projectId: activeProject?.id }, '-due_date', 10).catch(() => []),
-        base44.entities.Risk.list('-created_date', 5).catch(() => []),
-        base44.entities.ChangeRequest.filter({ projectId: activeProject?.id }, '-created_date', 5).catch(() => []),
-        base44.entities.Milestone.filter({ projectId: activeProject?.id }, '-created_date', 5).catch(() => []),
+        db.entities.ActionItem.filter({ projectId: activeProject?.id }, '-due_date', 10).catch(() => []),
+        db.entities.Risk.list('-created_date', 5).catch(() => []),
+        db.entities.ChangeRequest.filter({ projectId: activeProject?.id }, '-created_date', 5).catch(() => []),
+        db.entities.Milestone.filter({ projectId: activeProject?.id }, '-created_date', 5).catch(() => []),
       ]);
       contextData = { actions, risks, crs, milestones };
     } catch {}
@@ -103,7 +103,7 @@ export default function PMOAgent() {
 
     let aiResponse = '';
     try {
-      const fullResult = await base44.integrations.Core.InvokeLLM({
+      const fullResult = await db.integrations.Core.InvokeLLM({
         prompt: `[SYSTEM INSTRUCTIONS]\n${systemPrompt}\n\n[CONVERSATION]\n${historyForAI}\n\nRespond as PMO Agent now. Be concise, use the project data above, lead with the answer.`,
       });
       aiResponse = typeof fullResult === 'string' ? fullResult : JSON.stringify(fullResult);

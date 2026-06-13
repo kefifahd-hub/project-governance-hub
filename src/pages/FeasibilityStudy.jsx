@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, FileText, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -56,7 +56,7 @@ export default function FeasibilityStudy() {
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const projects = await base44.entities.Project.filter({ id: projectId });
+      const projects = await db.entities.Project.filter({ id: projectId });
       return projects[0];
     },
     enabled: !!projectId,
@@ -64,12 +64,12 @@ export default function FeasibilityStudy() {
 
   const { data: studies = [] } = useQuery({
     queryKey: ['feasibilityStudies', projectId],
-    queryFn: () => base44.entities.FeasibilityStudy.filter({ projectId }, '-created_date'),
+    queryFn: () => db.entities.FeasibilityStudy.filter({ projectId }, '-created_date'),
     enabled: !!projectId,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.FeasibilityStudy.create({ projectId, ...data }),
+    mutationFn: (data) => db.entities.FeasibilityStudy.create({ projectId, ...data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feasibilityStudies', projectId] });
       setShowDialog(false);

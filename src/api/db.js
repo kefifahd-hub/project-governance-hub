@@ -22,15 +22,20 @@ import { supabase, isSupabaseConfigured } from './supabaseClient';
 // and its data has been imported — otherwise reads return empty.
 const ENTITY_SOURCE = {
   GateChecklistState: 'supabase', // new governance table (roadmap D), Supabase-only
-  // Project: 'supabase',   // <- uncomment per entity once schema applied + data migrated
-  // Risk: 'supabase',
-  // Milestone: 'supabase',
-  // QualityGate: 'supabase',
-  // NonConformity: 'supabase',
-  // QARecord: 'supabase',
-  // ChangeRequest: 'supabase',
-  // BudgetTracking: 'supabase',
+  Project: 'supabase',
+  Risk: 'supabase',
+  Milestone: 'supabase',
+  QualityGate: 'supabase',
+  NonConformity: 'supabase',
+  QARecord: 'supabase',
+  ChangeRequest: 'supabase',
+  BudgetTracking: 'supabase',
 };
+
+// Entities that exist ONLY in Supabase (no Base44 equivalent to fall back to).
+// When Supabase isn't configured these still route to supabaseEntity so the
+// guard throws and the caller can use its own fallback (e.g. localStorage).
+const SUPABASE_ONLY = new Set(['GateChecklistState']);
 
 // entity -> Supabase table name (columns match the app's camelCase fields).
 const ENTITY_TABLE = {
@@ -104,7 +109,13 @@ const entities = new Proxy(
   {
     get(_target, name) {
       if (typeof name !== 'string') return undefined;
-      return sourceFor(name) === 'supabase' ? supabaseEntity(name) : base44.entities[name];
+      if (sourceFor(name) !== 'supabase') return base44.entities[name];
+      // Routed to Supabase. When configured, use it. When not yet configured,
+      // migrated entities gracefully fall back to Base44 so the live app keeps
+      // working until VITE_SUPABASE_ANON_KEY is set; Supabase-only entities go
+      // to supabaseEntity (whose guard throws) so their caller can fall back.
+      if (isSupabaseConfigured || SUPABASE_ONLY.has(name)) return supabaseEntity(name);
+      return base44.entities[name];
     },
   }
 );

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, CheckCircle2, XCircle, AlertCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -48,7 +48,7 @@ export default function QAQCDashboard() {
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const projects = await base44.entities.Project.filter({ id: projectId });
+      const projects = await db.entities.Project.filter({ id: projectId });
       return projects[0];
     },
     enabled: !!projectId
@@ -56,18 +56,18 @@ export default function QAQCDashboard() {
 
   const { data: qaRecords = [] } = useQuery({
     queryKey: ['qaRecords', projectId],
-    queryFn: () => base44.entities.QARecord.filter({ projectId }, '-scheduledDate'),
+    queryFn: () => db.entities.QARecord.filter({ projectId }, '-scheduledDate'),
     enabled: !!projectId
   });
 
   const { data: nonConformities = [] } = useQuery({
     queryKey: ['nonConformities', projectId],
-    queryFn: () => base44.entities.NonConformity.filter({ projectId }, '-detectedDate'),
+    queryFn: () => db.entities.NonConformity.filter({ projectId }, '-detectedDate'),
     enabled: !!projectId
   });
 
   const createQAMutation = useMutation({
-    mutationFn: (data) => base44.entities.QARecord.create({ ...data, projectId }),
+    mutationFn: (data) => db.entities.QARecord.create({ ...data, projectId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['qaRecords', projectId] });
       setShowQADialog(false);
@@ -86,7 +86,7 @@ export default function QAQCDashboard() {
   });
 
   const createNCMutation = useMutation({
-    mutationFn: (data) => base44.entities.NonConformity.create({ ...data, projectId }),
+    mutationFn: (data) => db.entities.NonConformity.create({ ...data, projectId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['nonConformities', projectId] });
       setShowNCDialog(false);

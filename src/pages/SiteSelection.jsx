@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/db';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -29,13 +29,13 @@ export default function SiteSelection() {
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
-    queryFn: async () => { const r = await base44.entities.Project.filter({ id: projectId }); return r[0]; },
+    queryFn: async () => { const r = await db.entities.Project.filter({ id: projectId }); return r[0]; },
     enabled: !!projectId
   });
 
   const { data: assessments = [], refetch: refetchAssessments } = useQuery({
     queryKey: ['siteAssessments', projectId],
-    queryFn: () => base44.entities.SiteAssessment.filter({ projectId }),
+    queryFn: () => db.entities.SiteAssessment.filter({ projectId }),
     enabled: !!projectId
   });
 
@@ -45,7 +45,7 @@ export default function SiteSelection() {
 
   const { data: sites = [], refetch: refetchSites } = useQuery({
     queryKey: ['candidateSites', assessmentId],
-    queryFn: () => base44.entities.CandidateSite.filter({ assessmentId }),
+    queryFn: () => db.entities.CandidateSite.filter({ assessmentId }),
     enabled: !!assessmentId,
     onSuccess: (data) => { if (data.length > 0 && !activeSiteId) setActiveSiteId(data[0].id); }
   });
@@ -54,21 +54,21 @@ export default function SiteSelection() {
     queryKey: ['siteCriteria', assessmentId],
     queryFn: async () => {
       if (!sites.length) return [];
-      const allCriteria = await Promise.all(sites.map(s => base44.entities.SiteCriteria.filter({ siteId: s.id })));
+      const allCriteria = await Promise.all(sites.map(s => db.entities.SiteCriteria.filter({ siteId: s.id })));
       return allCriteria.flat();
     },
     enabled: !!assessmentId && sites.length > 0,
   });
 
   const createAssessmentMutation = useMutation({
-    mutationFn: () => base44.entities.SiteAssessment.create({ ...newAssessment, projectId, assessmentDate: new Date().toISOString().split('T')[0], assessmentStatus: 'Draft' }),
+    mutationFn: () => db.entities.SiteAssessment.create({ ...newAssessment, projectId, assessmentDate: new Date().toISOString().split('T')[0], assessmentStatus: 'Draft' }),
     onSuccess: async (created) => {
       await refetchAssessments();
       setSelectedAssessmentId(created.id);
       setShowNewAssessment(false);
       setNewAssessment({ assessmentName: '', assessmentOwner: '' });
       // Create first site
-      const site = await base44.entities.CandidateSite.create({ assessmentId: created.id, siteName: 'Site 1', status: 'Active Candidate' });
+      const site = await db.entities.CandidateSite.create({ assessmentId: created.id, siteName: 'Site 1', status: 'Active Candidate' });
       setActiveSiteId(site.id);
       qc.invalidateQueries(['candidateSites', created.id]);
     }
