@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight } from 'lucide-react';
+import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight, Workflow } from 'lucide-react';
 import { useState } from 'react';
 import { createPageUrl } from '../utils';
 
@@ -192,6 +192,19 @@ export default function ProjectSidebar() {
           >
             <Briefcase className="w-4 h-4 shrink-0" />
             Client Briefing
+          </button>
+
+          {/* Industrialisation Processes framework — always visible reference */}
+          <button
+            onClick={() => navigate(createPageUrl(`IndustrialisationProcesses?id=${projectId}`))}
+            className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all"
+            style={{
+              color: isActivePage('IndustrialisationProcesses') ? '#00A896' : '#94A3B8',
+              background: isActivePage('IndustrialisationProcesses') ? 'rgba(0,168,150,0.1)' : 'transparent',
+            }}
+          >
+            <Workflow className="w-4 h-4 shrink-0" />
+            Industrialisation Processes
           </button>
         </div>
       </div>
