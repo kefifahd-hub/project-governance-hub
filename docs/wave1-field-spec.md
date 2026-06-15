@@ -59,3 +59,37 @@ update `{ isChecked }`.
 Columns: `actionItemId`, `author`, `commentText`, `commentType` (default `Comment`),
 `created_date`. Query order: `created_date`.
 Writes: create `{ actionItemId, author, commentText, commentType: 'Comment' }`.
+
+## RiskRegister (`risk`)
+
+Single-file page (`src/pages/RiskRegister.jsx`); no sub-components.
+
+### Linkage
+- `risk.projectId` = `project.id` (string) — **direct** (RLS scopes by `projectId`).
+
+### `risk` columns (camelCase)
+`projectId`, `riskDescription`, `category`, `probability` (int **1–3**), `impact` (int **1–3**),
+`riskScore` (int, **computed**), `riskLevel` (string, **computed**), `mitigationPlan`, `owner`,
+`targetClosureDate`, `status`.
+
+> ⚠️ Description column is **`riskDescription`** (not `title`/`description`).
+> probability/impact are a **1–3** scale, not 1–5.
+
+### Enums
+- **`category` (6):** `Technical`, `Financial`, `Schedule`, `Regulatory`, `Environmental`, `Safety`.
+- **`status` (4):** `Open`, `In Progress`, `Mitigated`, `Closed` (default **`Open`** on create).
+- **`riskLevel` (4, derived):** `Critical`, `High`, `Medium`, `Low`.
+
+### Computed on create (server-side, not user-entered)
+```
+riskScore = probability * impact            // 1..9
+riskLevel = riskScore >= 6 ? 'Critical'
+          : riskScore >= 4 ? 'High'
+          : riskScore >= 2 ? 'Medium'
+          : 'Low'
+status    = 'Open'
+```
+
+### Create form (`newRisk`) initial state
+`riskDescription:''`, `category:'Technical'`, `probability:2`, `impact:2`, `mitigationPlan:''`,
+`owner:''`, `targetClosureDate:''`.
