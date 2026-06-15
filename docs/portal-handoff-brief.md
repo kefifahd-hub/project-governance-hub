@@ -26,10 +26,18 @@ building schema.
 1. **RLS is too loose.** Current policies effectively let any authenticated user read
    everything. **Tighten RLS** (scope by `organization` / project membership) **before**
    enabling any write path.
-2. **Column casing.** Portal tables are **snake_case** (`project_name`); the legacy app is
-   **camelCase** (`projectName`). The portal data layer must map between them consistently.
-3. **`project_id` foreign keys.** Most entities hang off `project`; confirm FKs + indexes
-   exist before wiring child tables.
+2. **Column casing & linkage — VERIFIED against legacy source (supersedes earlier guess).**
+   The working convention is **camelCase quoted identifiers** (`"projectId"`), and children link
+   by **string id**, not a UUID FK: `child."projectId" === project.id` (the project's Base44
+   string id, stored as `base44_id` in the portal). Confirmed: 418 `projectId` refs vs 0 real
+   `project_id` columns in the legacy app. ⚠️ The earlier "snake_case `project_id`" note was
+   **wrong** — do not scope RLS on `project_id`.
+3. **Not every child links by `projectId` — some are 2-hop.** Org-scoping must follow the real
+   linkage. For the ActionTracker stack:
+   - `action_item`, `action_bucket`, `action_phase` → scope by `"projectId"` (direct).
+   - `action_checklist`, `action_comment` → link by **`"actionItemId"`**, so scope via
+     `"actionItemId" → action_item."projectId" → project.organization` (a subquery, not a join
+     on `projectId`). Verify each child's linkage column before writing its policy.
 4. There's a debug commit in middleware in this repo's history (flagged in the consolidation
    analysis) — clean it out before serious merge work.
 
