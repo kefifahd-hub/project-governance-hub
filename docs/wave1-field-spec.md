@@ -187,7 +187,15 @@ Single-file page (`src/pages/ScheduleMonitoring.jsx`); no sub-components.
 
 ### UI
 Header + Add Activity dialog; status filter (`all` + the 4 statuses); list/table of activities
-showing name, WBS, planned/actual dates, `percentComplete`, status, critical-path flag.
+showing name, WBS, planned/actual dates, `percentComplete` (progress bar), status, critical-path flag.
+
+### Derived metrics (UI rollups — computed from loaded rows, NOT stored)
+Writes store nothing derived; the dashboard computes these client-side from the activity list:
+- `total`, `completed` (status `Completed`), `inProgress`, `notStarted` — status counts.
+- `criticalPath` = count of `isCriticalPath === true`.
+- `avgProgress` = mean of `percentComplete`.
+- **`delayed`** = count of activities where `plannedFinishDate < today && percentComplete < 100`.
+  This same rule highlights a row as overdue/late. Replicate it; it's the only non-trivial derivation.
 
 ## QA/QC Dashboard (`qa_record`, `non_conformity`, `quality_gate`)
 
