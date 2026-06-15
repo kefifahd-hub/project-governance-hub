@@ -136,6 +136,10 @@ Single-file page (`src/pages/BudgetDashboard.jsx`); no sub-components.
 `varianceEurK` (**computed**), `variancePercent` (**computed**), `varianceStatus` (**computed**).
 Query order: `-month` (descending).
 
+> ⚠️ The legacy columns are **`plannedEurK` / `actualEurK`** (verified: 0 refs to
+> `budgetedAmount`/`actualAmount` anywhere in the legacy source — those are NOT legacy fields).
+> Standardize the dashboard inline query + the BudgetDashboard page on `plannedEurK`/`actualEurK`.
+
 ### Enums
 - **`category` (7):** `Engineering`, `Equipment`, `Construction`, `Procurement`, `PMO`,
   `Contingency`, `Other` (default `Engineering`).
