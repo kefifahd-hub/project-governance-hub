@@ -93,3 +93,17 @@ status    = 'Open'
 ### Create form (`newRisk`) initial state
 `riskDescription:''`, `category:'Technical'`, `probability:2`, `impact:2`, `mitigationPlan:''`,
 `owner:''`, `targetClosureDate:''`.
+
+### Page UI structure (single page, card list — no table, no sub-components)
+- **Header:** `Risk Register` h1 + "Add Risk" button opening a dialog.
+- **Add dialog fields (in order):** Risk Description* (textarea) · Category (select) · Owner (input)
+  · Probability (1-3) select · Impact (1-3) select · Mitigation Plan · Target Closure Date.
+  Probability/Impact selects show labels `Low (1)`, `Medium (2)`, `High (3)` (value = int).
+- **Stats cards (4, `grid-cols-2 sm:grid-cols-4`):** Total Risks, Critical (count of
+  `riskLevel==='Critical'`), High, Open. Derived from the loaded rows.
+- **Filters (3, all default `all`):** Status, Category, Level (`riskLevel`). Pure client-side
+  filtering over the fetched list.
+- **List:** `filteredRisks.map(...)` → one card per risk showing `riskScore`, a `riskLevel`
+  badge (color: Critical=red, High=orange, Medium=yellow, Low=green), description, category,
+  owner, status, target date.
+- **Query:** `Risk.filter({ projectId })` (no explicit sort).
