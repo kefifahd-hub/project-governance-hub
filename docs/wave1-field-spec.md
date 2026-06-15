@@ -188,3 +188,42 @@ Single-file page (`src/pages/ScheduleMonitoring.jsx`); no sub-components.
 ### UI
 Header + Add Activity dialog; status filter (`all` + the 4 statuses); list/table of activities
 showing name, WBS, planned/actual dates, `percentComplete`, status, critical-path flag.
+
+## QA/QC Dashboard (`qa_record`, `non_conformity`, `quality_gate`)
+
+Single page `src/pages/QAQCDashboard.jsx` (QA records + non-conformities). The quality-gate
+timeline lives in `src/components/feasibility/QualityGateTimeline.jsx`.
+
+### Linkage (all direct — see universal rule)
+- `qa_record.projectId` = `project.base44_id` (string). Query order: `-scheduledDate`.
+- `non_conformity.projectId` = `project.base44_id`. Query order: `-detectedDate`.
+- `quality_gate.projectId` = `project.base44_id`. Query: `filter({ projectId })`, no sort.
+
+### `qa_record` columns
+`projectId`, `recordType`, `testName`, `equipmentSystem`, `status`, `scheduledDate`, `location`,
+`inspector`, `vendor`, `notes`.
+- **`recordType` (6):** `FAT`, `SAT`, `Inspection`, `Audit`, `Commissioning Test`, `Other`
+  (default `FAT`).
+- **`status` (5):** `Scheduled`, `In Progress`, `Passed`, `Failed`, `Conditional Pass`
+  (default `Scheduled`).
+- Create form (`qaFormData`): `recordType:'FAT'`, `testName:''`, `equipmentSystem:''`,
+  `status:'Scheduled'`, `scheduledDate:''`, `location:''`, `inspector:''`, `vendor:''`, `notes:''`.
+
+### `non_conformity` columns
+`projectId`, `ncNumber`, `description`, `severity`, `status`, `detectedDate`, `detectedBy`,
+`assignedTo`, `targetCloseDate`, `correctiveAction`.
+- **`severity` (3):** `Minor`, `Major`, `Critical` (default `Minor`).
+- **`status` (3):** `Open`, `In Progress`, `Closed` (default `Open`).
+- Create form (`ncFormData`): `ncNumber:''`, `description:''`, `severity:'Minor'`, `status:'Open'`,
+  `detectedDate:''`, `detectedBy:''`, `assignedTo:''`, `targetCloseDate:''`, `correctiveAction:''`.
+
+### `quality_gate` columns
+`projectId`, `gateNumber` (int **0–7**), `status`, `decisionDate`, `decisionAuthority`,
+`reserves`, `reservesDueDate`, `reservesResolved` (bool), `evidenceNotes`, `nextGateCriteria`.
+- **`status` (5):** `Not Reached` (default), `Active`, `Passed`, `Passed with Reserves`,
+  `Not Passed`.
+- **`gateNumber` 0–7** maps to QG0–QG7 (from `src/lib/lifecycle.js` `QUALITY_GATES`):
+  QG0 Opportunity Assessment · QG1 Pre-Feasibility · QG2 FEED Complete · QG3 FID ·
+  QG4 Mech. Completion · QG5 Commissioning · QG6 SOP · QG7 Full Production.
+- **⚠️ Upsert, not plain create:** one row per `(projectId, gateNumber)`. The timeline finds the
+  existing gate and `update`s it, else `create`s — replicate this (don't blindly insert duplicates).
