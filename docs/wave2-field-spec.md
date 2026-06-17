@@ -55,6 +55,12 @@ All user-entered (no computed). Columns/form:
   `Do Not Proceed`.
 - **`approvalStatus` (4):** `Draft` (default), `Under Review`, `Approved`, `Rejected`.
 
+> 📌 **Planned enhancement — add a decision matrix to FeasibilityStudy.** Beyond the single
+> `feasibilityScore` + `recommendation`, introduce a structured, weighted decision matrix (criteria →
+> weight → score → weighted total) that *drives* the recommendation — analogous to the SiteSelection
+> 6-category scoring model. To define when built: the criteria set, weights, scoring scale, and the
+> score→recommendation thresholds. Not in the legacy app; this is a new feature for the portal port.
+
 ## SiteSelection chain (3 entities — weighted scoring model)
 - **`site_assessment`** (direct `projectId`): `projectId`, `assessmentName`, `assessmentOwner`,
   `assessmentDate` (set to `new Date()` on create), `categoryWeights` (**JSON string** of per-category
