@@ -1,0 +1,32 @@
+{
+  "name": "SCurveComment",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "period": {
+      "type": "string",
+      "description": "Period label this comment refers to (e.g. Jan 25)"
+    },
+    "comment": {
+      "type": "string",
+      "description": "Comment text"
+    },
+    "author": {
+      "type": "string",
+      "description": "Author name or email"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date",
+      "description": "Date comment was created"
+    }
+  },
+  "required": [
+    "project",
+    "comment",
+    "author"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "OtherOpexAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "outboundLogisticsPctRevenue": {
+      "type": "number",
+      "default": 1,
+      "description": "Default: 1%"
+    },
+    "royaltyPctRevenue": {
+      "type": "number",
+      "default": 3,
+      "description": "Default: 3%"
+    },
+    "warrantyPctRevenue": {
+      "type": "number",
+      "default": 2,
+      "description": "Default: 2%"
+    },
+    "rdPctRevenue": {
+      "type": "number",
+      "default": 0,
+      "description": "Default: 0% (handled in separate R&D model)"
+    }
+  },
+  "required": [
+    "financeModelId"
+  ]
+}

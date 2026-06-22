@@ -1,0 +1,49 @@
+{
+  "name": "UtilityAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "electricityGwhPerGwh": {
+      "type": "number",
+      "default": 18,
+      "description": "MWh electricity per MWh battery"
+    },
+    "electricityCostEurMwh": {
+      "type": "number",
+      "default": 111.2
+    },
+    "gasGwhPerGwh": {
+      "type": "number",
+      "default": 15
+    },
+    "gasCostEurMwh": {
+      "type": "number",
+      "default": 55
+    },
+    "waterM3PerGwh": {
+      "type": "number",
+      "default": 200
+    },
+    "waterCostEurM3": {
+      "type": "number",
+      "default": 1.15
+    },
+    "waterFixedFeeEurMonth": {
+      "type": "number",
+      "default": 500
+    },
+    "wastewaterM3PerGwh": {
+      "type": "number",
+      "default": 170
+    },
+    "wastewaterCostEurM3": {
+      "type": "number",
+      "default": 1.35
+    }
+  },
+  "required": [
+    "financeModelId"
+  ]
+}

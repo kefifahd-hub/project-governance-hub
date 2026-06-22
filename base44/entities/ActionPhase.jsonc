@@ -1,0 +1,48 @@
+{
+  "name": "ActionPhase",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "phaseName": {
+      "type": "string"
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "endDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "phaseType": {
+      "type": "string",
+      "enum": [
+        "Sprint",
+        "Monthly",
+        "Gate Phase",
+        "Custom"
+      ],
+      "default": "Gate Phase"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Planning",
+        "Active",
+        "Complete"
+      ],
+      "default": "Planning"
+    },
+    "goal": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "projectId",
+    "phaseName",
+    "startDate",
+    "endDate"
+  ]
+}

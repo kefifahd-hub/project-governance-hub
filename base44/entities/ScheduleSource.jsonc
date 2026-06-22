@@ -1,0 +1,97 @@
+{
+  "name": "ScheduleSource",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "sourceName": {
+      "type": "string",
+      "description": "e.g. LDC Construction Schedule"
+    },
+    "sourceType": {
+      "type": "string",
+      "enum": [
+        "Primavera P6",
+        "Microsoft Project"
+      ]
+    },
+    "sourceOwner": {
+      "type": "string"
+    },
+    "fileFormat": {
+      "type": "string",
+      "enum": [
+        "XER",
+        "XML (P6)",
+        "MPP",
+        "XML (MSP)",
+        "CSV",
+        "XLSX"
+      ]
+    },
+    "syncMethod": {
+      "type": "string",
+      "enum": [
+        "Manual Upload",
+        "Scheduled API",
+        "Both"
+      ],
+      "default": "Manual Upload"
+    },
+    "syncFrequency": {
+      "type": "string",
+      "enum": [
+        "On Demand",
+        "Daily",
+        "Weekly (Monday)",
+        "Weekly (Friday)"
+      ],
+      "default": "On Demand"
+    },
+    "lastSyncDate": {
+      "type": "string"
+    },
+    "lastSyncStatus": {
+      "type": "string",
+      "enum": [
+        "Success",
+        "Partial",
+        "Failed",
+        "Never Synced"
+      ],
+      "default": "Never Synced"
+    },
+    "lastSyncFileUrl": {
+      "type": "string"
+    },
+    "wbsPrefix": {
+      "type": "string",
+      "description": "e.g. CON- or PMO-"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "dataDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "baselineCount": {
+      "type": "number",
+      "default": 0
+    },
+    "taskCount": {
+      "type": "number",
+      "default": 0
+    },
+    "apiEndpoint": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "projectId",
+    "sourceName",
+    "sourceType"
+  ]
+}

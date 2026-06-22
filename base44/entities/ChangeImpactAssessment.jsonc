@@ -1,0 +1,175 @@
+{
+  "name": "ChangeImpactAssessment",
+  "type": "object",
+  "properties": {
+    "crId": {
+      "type": "string"
+    },
+    "technicalReviewer": {
+      "type": "string"
+    },
+    "technicalReviewDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "technicalAssessment": {
+      "type": "string"
+    },
+    "technicalFeasibility": {
+      "type": "string",
+      "enum": [
+        "Feasible",
+        "Feasible with conditions",
+        "Not feasible",
+        "Needs further study"
+      ]
+    },
+    "technicalRiskLevel": {
+      "type": "string",
+      "enum": [
+        "No risk",
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "technicalConditions": {
+      "type": "string"
+    },
+    "designReworkRequired": {
+      "type": "boolean",
+      "default": false
+    },
+    "specificationImpact": {
+      "type": "string"
+    },
+    "qualityImpact": {
+      "type": "string",
+      "enum": [
+        "None",
+        "Minor (documentation)",
+        "Moderate (process change)",
+        "Major (requalification required)"
+      ]
+    },
+    "technicalRecommendation": {
+      "type": "string",
+      "enum": [
+        "Proceed",
+        "Proceed with conditions",
+        "Do not proceed",
+        "Needs more study"
+      ]
+    },
+    "technicalSignOff": {
+      "type": "string"
+    },
+    "financeReviewer": {
+      "type": "string"
+    },
+    "financeReviewDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "capexImpactUsd": {
+      "type": "number",
+      "default": 0
+    },
+    "opexImpactAnnualUsd": {
+      "type": "number",
+      "default": 0
+    },
+    "revenueImpactAnnualUsd": {
+      "type": "number",
+      "default": 0
+    },
+    "contingencyDrawUsd": {
+      "type": "number",
+      "default": 0
+    },
+    "accelerationCostUsd": {
+      "type": "number",
+      "default": 0
+    },
+    "costBreakdown": {
+      "type": "string"
+    },
+    "fundingSource": {
+      "type": "string",
+      "enum": [
+        "Existing Budget",
+        "Contingency",
+        "Additional Funding Required",
+        "Savings Offset",
+        "Client Funded"
+      ]
+    },
+    "npvImpactUsd": {
+      "type": "number"
+    },
+    "irrImpactPct": {
+      "type": "number"
+    },
+    "paybackImpactMonths": {
+      "type": "number"
+    },
+    "financeRecommendation": {
+      "type": "string",
+      "enum": [
+        "Acceptable",
+        "Acceptable with offsets",
+        "Not acceptable",
+        "Needs CEO review"
+      ]
+    },
+    "financeSignOff": {
+      "type": "string"
+    },
+    "scheduleReviewer": {
+      "type": "string"
+    },
+    "scheduleReviewDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "scheduleImpactDays": {
+      "type": "number",
+      "default": 0
+    },
+    "criticalPathAffected": {
+      "type": "boolean",
+      "default": false
+    },
+    "milestoneDateChanges": {
+      "type": "string"
+    },
+    "floatConsumedDays": {
+      "type": "number",
+      "default": 0
+    },
+    "accelerationPossible": {
+      "type": "boolean",
+      "default": false
+    },
+    "scheduleDetail": {
+      "type": "string"
+    },
+    "scheduleRecommendation": {
+      "type": "string",
+      "enum": [
+        "No schedule impact",
+        "Acceptable delay",
+        "Recoverable with cost",
+        "Critical delay \u2014 escalate",
+        "Acceleration opportunity"
+      ]
+    },
+    "scheduleSignOff": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "crId"
+  ]
+}

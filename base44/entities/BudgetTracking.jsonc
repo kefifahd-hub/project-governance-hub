@@ -1,0 +1,63 @@
+{
+  "name": "BudgetTracking",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "month": {
+      "type": "string",
+      "format": "date",
+      "description": "Month/Year"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Engineering",
+        "Equipment",
+        "Construction",
+        "Procurement",
+        "PMO",
+        "Contingency",
+        "Other"
+      ],
+      "description": "Budget category"
+    },
+    "plannedEurK": {
+      "type": "number",
+      "description": "Planned amount in EUR thousands"
+    },
+    "actualEurK": {
+      "type": "number",
+      "description": "Actual amount in EUR thousands"
+    },
+    "varianceEurK": {
+      "type": "number",
+      "description": "Variance in EUR thousands (calculated)"
+    },
+    "variancePercent": {
+      "type": "number",
+      "description": "Variance percentage (calculated)"
+    },
+    "varianceStatus": {
+      "type": "string",
+      "enum": [
+        "Over Budget",
+        "On Track",
+        "Under Budget"
+      ],
+      "description": "Variance status (calculated)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "projectId",
+    "month",
+    "category",
+    "plannedEurK"
+  ]
+}

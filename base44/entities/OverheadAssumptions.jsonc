@@ -1,0 +1,38 @@
+{
+  "name": "OverheadAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Operational",
+        "G&A",
+        "Launch"
+      ]
+    },
+    "lineItem": {
+      "type": "string",
+      "description": "e.g., Rent, Property Tax, Insurance"
+    },
+    "costBasis": {
+      "type": "string",
+      "enum": [
+        "Per Quarter (fixed)",
+        "Per GWh (variable)",
+        "% Revenue"
+      ]
+    },
+    "amount": {
+      "type": "number",
+      "description": "Cost per unit of basis (EUR if fixed, EUR/GWh if variable, % if revenue)"
+    }
+  },
+  "required": [
+    "financeModelId",
+    "category",
+    "lineItem"
+  ]
+}

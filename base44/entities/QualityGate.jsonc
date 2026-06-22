@@ -1,0 +1,59 @@
+{
+  "name": "QualityGate",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "gateNumber": {
+      "type": "number",
+      "description": "Gate number 0-7"
+    },
+    "gateName": {
+      "type": "string",
+      "description": "Gate name"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Not Reached",
+        "Active",
+        "Passed",
+        "Passed with Reserves",
+        "Not Passed"
+      ],
+      "default": "Not Reached"
+    },
+    "decisionDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "decisionAuthority": {
+      "type": "string"
+    },
+    "reserves": {
+      "type": "string",
+      "description": "Conditions that must be resolved"
+    },
+    "reservesDueDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "reservesResolved": {
+      "type": "boolean",
+      "default": false
+    },
+    "evidenceNotes": {
+      "type": "string"
+    },
+    "nextGateCriteria": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "projectId",
+    "gateNumber",
+    "gateName"
+  ]
+}

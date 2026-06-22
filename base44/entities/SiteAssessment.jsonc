@@ -1,0 +1,40 @@
+{
+  "name": "SiteAssessment",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "assessmentName": {
+      "type": "string"
+    },
+    "assessmentDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "assessmentStatus": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Under Review",
+        "Finalist Selected",
+        "Complete"
+      ],
+      "default": "Draft"
+    },
+    "assessmentOwner": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "categoryWeights": {
+      "type": "string",
+      "description": "JSON: {ownership, plot, utilities, infrastructure, workforce, incentives}"
+    }
+  },
+  "required": [
+    "projectId",
+    "assessmentName"
+  ]
+}

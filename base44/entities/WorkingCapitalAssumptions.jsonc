@@ -1,0 +1,27 @@
+{
+  "name": "WorkingCapitalAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "arPaymentTermsDays": {
+      "type": "number",
+      "default": 30,
+      "description": "Accounts receivable days (max 90)"
+    },
+    "apPaymentTermsDays": {
+      "type": "number",
+      "default": 45,
+      "description": "Accounts payable days (max 90)"
+    },
+    "inventoryDays": {
+      "type": "number",
+      "default": 69,
+      "description": "Inventory days (42 transit + 7 WH + 20 WIP/FP)"
+    }
+  },
+  "required": [
+    "financeModelId"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "RevenueAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "cellNumber": {
+      "type": "string",
+      "enum": [
+        "Cell 1",
+        "Cell 2",
+        "Cell 3"
+      ]
+    },
+    "quarter": {
+      "type": "string",
+      "description": "e.g., Q4 2028"
+    },
+    "sellingPriceEurKwh": {
+      "type": "number",
+      "description": "EUR/kWh selling price"
+    },
+    "priceChangePct": {
+      "type": "number",
+      "description": "Period-over-period price change %"
+    },
+    "rampPct": {
+      "type": "number",
+      "description": "Production ramp % (0-100)"
+    },
+    "yieldPct": {
+      "type": "number",
+      "description": "Yield for this specific quarter %"
+    }
+  },
+  "required": [
+    "financeModelId",
+    "cellNumber",
+    "quarter"
+  ]
+}

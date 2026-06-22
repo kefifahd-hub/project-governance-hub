@@ -1,0 +1,81 @@
+{
+  "name": "NonConformity",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "qaRecordId": {
+      "type": "string",
+      "description": "Related QA record ID (optional)"
+    },
+    "ncNumber": {
+      "type": "string",
+      "description": "Non-conformity reference number"
+    },
+    "description": {
+      "type": "string",
+      "description": "Non-conformity description"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "Minor",
+        "Major",
+        "Critical"
+      ],
+      "default": "Minor",
+      "description": "Severity level"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Open",
+        "In Progress",
+        "Resolved",
+        "Closed",
+        "Rejected"
+      ],
+      "default": "Open",
+      "description": "Current status"
+    },
+    "detectedDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date detected"
+    },
+    "detectedBy": {
+      "type": "string",
+      "description": "Person who detected the issue"
+    },
+    "assignedTo": {
+      "type": "string",
+      "description": "Person responsible for resolution"
+    },
+    "targetCloseDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Target closure date"
+    },
+    "actualCloseDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Actual closure date"
+    },
+    "correctiveAction": {
+      "type": "string",
+      "description": "Corrective action taken"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "projectId",
+    "ncNumber",
+    "description",
+    "severity"
+  ]
+}

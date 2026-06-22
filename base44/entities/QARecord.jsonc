@@ -1,0 +1,83 @@
+{
+  "name": "QARecord",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "recordType": {
+      "type": "string",
+      "enum": [
+        "FAT",
+        "SAT",
+        "Inspection",
+        "Audit",
+        "Commissioning Test",
+        "Other"
+      ],
+      "description": "Type of QA/QC activity"
+    },
+    "testName": {
+      "type": "string",
+      "description": "Name of test or inspection"
+    },
+    "equipmentSystem": {
+      "type": "string",
+      "description": "Equipment or system being tested"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Scheduled",
+        "In Progress",
+        "Passed",
+        "Failed",
+        "Conditional Pass",
+        "Cancelled"
+      ],
+      "default": "Scheduled",
+      "description": "Current status"
+    },
+    "scheduledDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Scheduled date"
+    },
+    "completedDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Actual completion date"
+    },
+    "location": {
+      "type": "string",
+      "description": "Test location"
+    },
+    "inspector": {
+      "type": "string",
+      "description": "Inspector/responsible person"
+    },
+    "vendor": {
+      "type": "string",
+      "description": "Vendor/contractor"
+    },
+    "ncCount": {
+      "type": "integer",
+      "default": 0,
+      "description": "Number of non-conformities raised"
+    },
+    "findings": {
+      "type": "string",
+      "description": "Test findings and observations"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "projectId",
+    "recordType",
+    "testName"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "SynapseLog",
+  "type": "object",
+  "properties": {
+    "synapse_id": {
+      "type": "string"
+    },
+    "fired_at": {
+      "type": "string"
+    },
+    "trigger_reason": {
+      "type": "string"
+    },
+    "records_processed": {
+      "type": "number",
+      "default": 0
+    },
+    "processing_time_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Success",
+        "Partial",
+        "Failed"
+      ],
+      "default": "Success"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "input_snapshot": {
+      "type": "string",
+      "description": "JSON sample of input data"
+    },
+    "output_snapshot": {
+      "type": "string",
+      "description": "JSON sample of output data"
+    }
+  },
+  "required": [
+    "synapse_id",
+    "fired_at"
+  ]
+}

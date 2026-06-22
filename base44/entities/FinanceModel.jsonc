@@ -1,0 +1,53 @@
+{
+  "name": "FinanceModel",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "modelName": {
+      "type": "string",
+      "description": "e.g., Verkor Base Case R11"
+    },
+    "version": {
+      "type": "string",
+      "description": "e.g., v11"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Under Review",
+        "Approved",
+        "Superseded"
+      ],
+      "default": "Draft"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "USD",
+        "GBP"
+      ],
+      "default": "EUR"
+    },
+    "startQuarter": {
+      "type": "string",
+      "description": "e.g., Q4 2025"
+    },
+    "endYear": {
+      "type": "number",
+      "description": "e.g., 2040"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Version changelog / description"
+    }
+  },
+  "required": [
+    "projectId",
+    "modelName"
+  ]
+}

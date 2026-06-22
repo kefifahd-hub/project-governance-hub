@@ -1,0 +1,154 @@
+{
+  "name": "Synapse",
+  "type": "object",
+  "properties": {
+    "from_neuron_id": {
+      "type": "string"
+    },
+    "to_neuron_id": {
+      "type": "string"
+    },
+    "synapse_name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "synapse_type": {
+      "type": "string",
+      "enum": [
+        "One-Way",
+        "Bidirectional",
+        "Event-Triggered",
+        "Scheduled"
+      ],
+      "default": "One-Way"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_critical": {
+      "type": "boolean",
+      "default": false
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low"
+      ],
+      "default": "Medium"
+    },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Paused",
+        "Error",
+        "Broken"
+      ],
+      "default": "Active"
+    },
+    "last_fired": {
+      "type": "string"
+    },
+    "fire_count_24h": {
+      "type": "number",
+      "default": 0
+    },
+    "error_count": {
+      "type": "number",
+      "default": 0
+    },
+    "trigger_type": {
+      "type": "string",
+      "enum": [
+        "Real-time",
+        "On Event",
+        "Scheduled",
+        "On Demand",
+        "On Record Change"
+      ],
+      "default": "On Event"
+    },
+    "trigger_event": {
+      "type": "string"
+    },
+    "trigger_schedule": {
+      "type": "string"
+    },
+    "trigger_condition": {
+      "type": "string"
+    },
+    "source_entity": {
+      "type": "string"
+    },
+    "source_fields": {
+      "type": "string",
+      "description": "JSON array of field names"
+    },
+    "source_filter": {
+      "type": "string"
+    },
+    "source_sort": {
+      "type": "string"
+    },
+    "source_limit": {
+      "type": "number"
+    },
+    "processing_rules": {
+      "type": "string",
+      "description": "JSON array of processing steps"
+    },
+    "output_format": {
+      "type": "string",
+      "enum": [
+        "Raw",
+        "Aggregated",
+        "Formatted",
+        "Calculated"
+      ],
+      "default": "Raw"
+    },
+    "target_entity": {
+      "type": "string"
+    },
+    "target_fields": {
+      "type": "string",
+      "description": "JSON field mapping"
+    },
+    "target_action": {
+      "type": "string",
+      "enum": [
+        "Update",
+        "Append",
+        "Create",
+        "Merge",
+        "Alert"
+      ],
+      "default": "Update"
+    },
+    "reverse_config": {
+      "type": "string",
+      "description": "JSON config for the reverse direction pipeline (Bidirectional synapses only)"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "notes": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "from_neuron_id",
+    "to_neuron_id",
+    "synapse_name",
+    "synapse_type"
+  ]
+}

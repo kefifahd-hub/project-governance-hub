@@ -1,0 +1,29 @@
+{
+  "name": "LogisticsAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "cellNumber": {
+      "type": "string",
+      "enum": [
+        "Cell 1",
+        "Cell 2",
+        "Cell 3"
+      ]
+    },
+    "inboundLogisticsPct": {
+      "type": "number",
+      "description": "% of purchased parts cost. Default: 4.5"
+    },
+    "inboundDutyPct": {
+      "type": "number",
+      "description": "% of purchased parts cost. Default: 2.5"
+    }
+  },
+  "required": [
+    "financeModelId",
+    "cellNumber"
+  ]
+}

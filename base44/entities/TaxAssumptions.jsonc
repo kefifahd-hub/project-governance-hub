@@ -1,0 +1,21 @@
+{
+  "name": "TaxAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "corporateTaxRatePct": {
+      "type": "number",
+      "default": 25
+    },
+    "lossCarryForward": {
+      "type": "boolean",
+      "default": true,
+      "description": "No tax until cumulative losses fully offset"
+    }
+  },
+  "required": [
+    "financeModelId"
+  ]
+}

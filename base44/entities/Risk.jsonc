@@ -1,0 +1,93 @@
+{
+  "name": "Risk",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "riskDescription": {
+      "type": "string",
+      "description": "Risk description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Technical",
+        "Financial",
+        "Schedule",
+        "Regulatory",
+        "Environmental",
+        "Safety"
+      ],
+      "description": "Risk category"
+    },
+    "probability": {
+      "type": "number",
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "description": "Probability: Low (1), Medium (2), High (3)"
+    },
+    "impact": {
+      "type": "number",
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "description": "Impact: Low (1), Medium (2), High (3)"
+    },
+    "riskScore": {
+      "type": "number",
+      "description": "Risk score (probability \u00d7 impact, calculated)"
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "description": "Risk level based on score"
+    },
+    "mitigationPlan": {
+      "type": "string",
+      "description": "Mitigation plan"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Risk owner"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Open",
+        "In Progress",
+        "Mitigated",
+        "Closed"
+      ],
+      "default": "Open",
+      "description": "Risk status"
+    },
+    "targetClosureDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Target closure date"
+    },
+    "actualClosureDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Actual closure date"
+    }
+  },
+  "required": [
+    "projectId",
+    "riskDescription",
+    "probability",
+    "impact"
+  ]
+}

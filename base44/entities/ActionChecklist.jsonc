@@ -1,0 +1,31 @@
+{
+  "name": "ActionChecklist",
+  "type": "object",
+  "properties": {
+    "actionItemId": {
+      "type": "string"
+    },
+    "checklistText": {
+      "type": "string"
+    },
+    "isChecked": {
+      "type": "boolean",
+      "default": false
+    },
+    "assignee": {
+      "type": "string"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "sortOrder": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "actionItemId",
+    "checklistText"
+  ]
+}

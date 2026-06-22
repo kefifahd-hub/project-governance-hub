@@ -1,0 +1,113 @@
+{
+  "name": "DailySiteReport",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "reportRef": {
+      "type": "string",
+      "description": "e.g. DSR-20260219"
+    },
+    "reportDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "preparedBy": {
+      "type": "string"
+    },
+    "contractorName": {
+      "type": "string"
+    },
+    "contractorRepresentative": {
+      "type": "string"
+    },
+    "contractReference": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Submitted",
+        "Reviewed",
+        "Approved"
+      ],
+      "default": "Draft"
+    },
+    "approvedBy": {
+      "type": "string"
+    },
+    "approvedDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "enabledSections": {
+      "type": "string",
+      "description": "JSON section config"
+    },
+    "weatherSunny": {
+      "type": "boolean"
+    },
+    "weatherCloudy": {
+      "type": "boolean"
+    },
+    "weatherRainy": {
+      "type": "boolean"
+    },
+    "weatherSnow": {
+      "type": "boolean"
+    },
+    "weatherFrost": {
+      "type": "boolean"
+    },
+    "weatherLightning": {
+      "type": "boolean"
+    },
+    "tempMinC": {
+      "type": "number"
+    },
+    "tempMaxC": {
+      "type": "number"
+    },
+    "windSpeedMaxMs": {
+      "type": "number"
+    },
+    "weatherImpactOnWork": {
+      "type": "boolean"
+    },
+    "weatherImpactDescription": {
+      "type": "string"
+    },
+    "manpowerEntries": {
+      "type": "string",
+      "description": "JSON array of manpower rows"
+    },
+    "equipmentEntries": {
+      "type": "string",
+      "description": "JSON array of equipment rows"
+    },
+    "materialDeliveries": {
+      "type": "string",
+      "description": "JSON array of deliveries"
+    },
+    "remarkableEvents": {
+      "type": "string",
+      "description": "JSON array of events"
+    },
+    "additionalNotes": {
+      "type": "string"
+    },
+    "totalWorkers": {
+      "type": "number"
+    },
+    "totalHours": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "projectId",
+    "reportDate",
+    "preparedBy"
+  ]
+}

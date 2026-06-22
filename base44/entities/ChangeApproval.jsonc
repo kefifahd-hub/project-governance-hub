@@ -1,0 +1,48 @@
+{
+  "name": "ChangeApproval",
+  "type": "object",
+  "properties": {
+    "crId": {
+      "type": "string"
+    },
+    "approvalLevel": {
+      "type": "string",
+      "enum": [
+        "Level 1: Project Manager",
+        "Level 2: Project Director",
+        "Level 3: CFO",
+        "Level 4: CEO",
+        "Level 5: Board / Investor"
+      ]
+    },
+    "requiredApprover": {
+      "type": "string"
+    },
+    "approverDecision": {
+      "type": "string",
+      "enum": [
+        "Approved",
+        "Approved with Conditions",
+        "Rejected",
+        "Escalated",
+        "Deferred"
+      ]
+    },
+    "conditions": {
+      "type": "string"
+    },
+    "approverComments": {
+      "type": "string"
+    },
+    "decisionDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "escalationReason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "crId"
+  ]
+}

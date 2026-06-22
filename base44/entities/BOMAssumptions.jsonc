@@ -1,0 +1,57 @@
+{
+  "name": "BOMAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "cellNumber": {
+      "type": "string",
+      "enum": [
+        "Cell 1",
+        "Cell 2",
+        "Cell 3"
+      ]
+    },
+    "totalBomEurKwh": {
+      "type": "number",
+      "description": "Total BOM EUR/kWh, e.g., 24.4756"
+    },
+    "camEurKwh": {
+      "type": "number",
+      "description": "Cathode active material EUR/kWh"
+    },
+    "aamEurKwh": {
+      "type": "number",
+      "description": "Anode active material EUR/kWh"
+    },
+    "electrolyteEurKwh": {
+      "type": "number"
+    },
+    "separatorEurKwh": {
+      "type": "number"
+    },
+    "anodeCurrentCollectorEurKwh": {
+      "type": "number"
+    },
+    "cathodeCurrentCollectorEurKwh": {
+      "type": "number"
+    },
+    "containerEurKwh": {
+      "type": "number",
+      "description": "Cell casing EUR/kWh"
+    },
+    "yieldScrapEurKwh": {
+      "type": "number",
+      "description": "BOM cost of scrapped material EUR/kWh"
+    },
+    "priceChangePctPerQtr": {
+      "type": "number",
+      "description": "BOM cost escalation % per quarter"
+    }
+  },
+  "required": [
+    "financeModelId",
+    "cellNumber"
+  ]
+}

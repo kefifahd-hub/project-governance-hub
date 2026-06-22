@@ -1,0 +1,86 @@
+{
+  "name": "ScheduleDelta",
+  "type": "object",
+  "properties": {
+    "sourceId": {
+      "type": "string"
+    },
+    "projectId": {
+      "type": "string"
+    },
+    "fromVersionId": {
+      "type": "string"
+    },
+    "toVersionId": {
+      "type": "string"
+    },
+    "externalId": {
+      "type": "string"
+    },
+    "taskName": {
+      "type": "string"
+    },
+    "changeType": {
+      "type": "string",
+      "enum": [
+        "Date Shift",
+        "Duration Change",
+        "Progress Update",
+        "Status Change",
+        "New Task",
+        "Deleted Task",
+        "Float Change",
+        "Critical Path Change",
+        "Relationship Change",
+        "Resource Change"
+      ]
+    },
+    "fieldChanged": {
+      "type": "string"
+    },
+    "oldValue": {
+      "type": "string"
+    },
+    "newValue": {
+      "type": "string"
+    },
+    "varianceDays": {
+      "type": "number"
+    },
+    "impactLevel": {
+      "type": "string",
+      "enum": [
+        "Info",
+        "Minor",
+        "Major",
+        "Critical"
+      ],
+      "default": "Info"
+    },
+    "affectsCriticalPath": {
+      "type": "boolean",
+      "default": false
+    },
+    "affectsMilestone": {
+      "type": "boolean",
+      "default": false
+    },
+    "acknowledged": {
+      "type": "boolean",
+      "default": false
+    },
+    "acknowledgedBy": {
+      "type": "string"
+    },
+    "acknowledgedAt": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "sourceId",
+    "projectId",
+    "toVersionId",
+    "externalId",
+    "changeType"
+  ]
+}

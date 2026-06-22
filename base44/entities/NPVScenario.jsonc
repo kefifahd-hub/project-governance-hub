@@ -1,0 +1,63 @@
+{
+  "name": "NPVScenario",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "scenarioName": {
+      "type": "string",
+      "description": "Scenario name (e.g., Base Case, Optimistic, Conservative)"
+    },
+    "capexEurM": {
+      "type": "number",
+      "description": "Capital expenditure in EUR millions"
+    },
+    "annualOpexEurM": {
+      "type": "number",
+      "description": "Annual operating expenses in EUR millions"
+    },
+    "annualRevenueEurM": {
+      "type": "number",
+      "description": "Annual revenue in EUR millions"
+    },
+    "discountRatePercent": {
+      "type": "number",
+      "default": 8.0,
+      "description": "Discount rate percentage"
+    },
+    "projectDurationYears": {
+      "type": "integer",
+      "default": 10,
+      "description": "Project duration in years"
+    },
+    "npvResultEurM": {
+      "type": "number",
+      "description": "NPV result in EUR millions (calculated)"
+    },
+    "paybackPeriodYears": {
+      "type": "number",
+      "description": "Payback period in years (calculated)"
+    },
+    "annualNetCashflowEurM": {
+      "type": "number",
+      "description": "Annual net cash flow in EUR millions (calculated)"
+    },
+    "isViable": {
+      "type": "boolean",
+      "description": "Whether project is viable (NPV > 0)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "projectId",
+    "scenarioName",
+    "capexEurM",
+    "annualOpexEurM",
+    "annualRevenueEurM"
+  ]
+}

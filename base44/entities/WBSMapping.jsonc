@@ -1,0 +1,61 @@
+{
+  "name": "WBSMapping",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "sourceId": {
+      "type": "string"
+    },
+    "externalWbsCode": {
+      "type": "string"
+    },
+    "externalWbsName": {
+      "type": "string"
+    },
+    "unifiedWbsCode": {
+      "type": "string"
+    },
+    "unifiedWbsName": {
+      "type": "string"
+    },
+    "workstream": {
+      "type": "string",
+      "enum": [
+        "NMC Cylindrical",
+        "Na Electrode",
+        "NMC Flexible",
+        "Common/Shared",
+        "Building/LDC",
+        "PMO"
+      ]
+    },
+    "qualityGate": {
+      "type": "string",
+      "enum": [
+        "QG0",
+        "QG1",
+        "QG2",
+        "QG3",
+        "QG4",
+        "QG5",
+        "QG6"
+      ]
+    },
+    "isMapped": {
+      "type": "boolean",
+      "default": false
+    },
+    "autoMapped": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "projectId",
+    "sourceId",
+    "externalWbsCode",
+    "unifiedWbsCode"
+  ]
+}

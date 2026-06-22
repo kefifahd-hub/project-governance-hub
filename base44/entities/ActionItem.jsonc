@@ -1,0 +1,141 @@
+{
+  "name": "ActionItem",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "itemKey": {
+      "type": "string",
+      "description": "Auto-generated key e.g. YE-001"
+    },
+    "itemType": {
+      "type": "string",
+      "enum": [
+        "Action",
+        "Issue",
+        "Decision",
+        "RFI",
+        "Punch List",
+        "Risk Action",
+        "Deliverable"
+      ],
+      "default": "Action"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "default": "To Do"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "P1 - Critical",
+        "P2 - High",
+        "P3 - Medium",
+        "P4 - Low"
+      ],
+      "default": "P3 - Medium"
+    },
+    "assignee": {
+      "type": "string"
+    },
+    "reporter": {
+      "type": "string"
+    },
+    "coAssignees": {
+      "type": "string",
+      "description": "Comma-separated list"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "completedDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "estimatedHours": {
+      "type": "number"
+    },
+    "actualHours": {
+      "type": "number"
+    },
+    "bucket": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string"
+    },
+    "parentId": {
+      "type": "string",
+      "description": "Parent ActionItem ID for sub-tasks"
+    },
+    "labels": {
+      "type": "string",
+      "description": "Comma-separated labels"
+    },
+    "progressPct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0
+    },
+    "blocked": {
+      "type": "boolean",
+      "default": false
+    },
+    "blockedReason": {
+      "type": "string"
+    },
+    "wbsReference": {
+      "type": "string"
+    },
+    "milestoneId": {
+      "type": "string"
+    },
+    "changeRequestId": {
+      "type": "string"
+    },
+    "riskId": {
+      "type": "string"
+    },
+    "qualityGate": {
+      "type": "string"
+    },
+    "resolution": {
+      "type": "string",
+      "enum": [
+        "",
+        "Done",
+        "Won't Do",
+        "Duplicate",
+        "Superseded",
+        "Deferred"
+      ]
+    },
+    "resolutionComment": {
+      "type": "string"
+    },
+    "archived": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "projectId",
+    "title",
+    "itemType",
+    "assignee"
+  ]
+}

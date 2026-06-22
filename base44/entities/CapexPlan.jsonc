@@ -1,0 +1,89 @@
+{
+  "name": "CapexPlan",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Buildings",
+        "Equipment",
+        "Land"
+      ]
+    },
+    "subCategory": {
+      "type": "string",
+      "enum": [
+        "Pre-FEED",
+        "FEED",
+        "Permit Application",
+        "Infrastructure & Landscape",
+        "Network Connection",
+        "CSA",
+        "MEP",
+        "Clean & Dry Room",
+        "Fire Systems",
+        "PMO & Project Management",
+        "Manufacturing Lines",
+        "Utility Equipment",
+        "Capital Spares",
+        "Site",
+        "Other"
+      ],
+      "description": "Building trade or equipment category"
+    },
+    "costType": {
+      "type": "string",
+      "enum": [
+        "Engineering",
+        "Construction",
+        "Equipment",
+        "Land",
+        "Commissioning",
+        "PMO",
+        "Contingency",
+        "Escalation"
+      ]
+    },
+    "procurementStrategy": {
+      "type": "string",
+      "enum": [
+        "Design-Bid-Build",
+        "EPCM",
+        "EPC (Lump Sum)",
+        "Construction Management",
+        "Owner-Led"
+      ],
+      "description": "Procurement strategy driving PMO cost basis"
+    },
+    "pmoRatePct": {
+      "type": "number",
+      "description": "PMO & external PM cost as % of total project cost (typically 5-7%)"
+    },
+    "quarter": {
+      "type": "string",
+      "description": "Quarter for this CAPEX spend"
+    },
+    "amountMEur": {
+      "type": "number",
+      "description": "Spend in this quarter (\u20acM)"
+    },
+    "escalationPct": {
+      "type": "number",
+      "default": 3,
+      "description": "Default 3% annual inflation on construction costs"
+    },
+    "contingencyPct": {
+      "type": "number",
+      "default": 20,
+      "description": "Default 20% of base CAPEX"
+    }
+  },
+  "required": [
+    "financeModelId",
+    "category",
+    "quarter"
+  ]
+}

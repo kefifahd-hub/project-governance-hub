@@ -1,0 +1,48 @@
+{
+  "name": "ProcessingRule",
+  "type": "object",
+  "properties": {
+    "synapse_id": {
+      "type": "string"
+    },
+    "step_order": {
+      "type": "number",
+      "default": 1
+    },
+    "rule_type": {
+      "type": "string",
+      "enum": [
+        "Formula",
+        "Filter",
+        "Aggregate",
+        "Transform",
+        "Enrich",
+        "Validate",
+        "Format",
+        "Conditional",
+        "Lookup",
+        "Alert"
+      ]
+    },
+    "rule_name": {
+      "type": "string"
+    },
+    "rule_config": {
+      "type": "string",
+      "description": "JSON configuration for this rule type"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "synapse_id",
+    "step_order",
+    "rule_type",
+    "rule_name"
+  ]
+}

@@ -156,8 +156,19 @@ export default function ProjectDashboard() {
 
   if (!project) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
-        <p style={{ color: '#94A3B8' }}>Project not found</p>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
+        <div className="text-center max-w-md">
+          <p className="text-lg font-semibold mb-2" style={{ color: '#CADCFC' }}>No project selected</p>
+          <p className="text-sm mb-4" style={{ color: '#94A3B8' }}>
+            {projectId ? 'Project not found.' : 'Please select a project from the Projects dropdown in the top bar, or create a new one.'}
+          </p>
+          <Button
+            onClick={() => navigate(createPageUrl('Home'))}
+            style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}
+          >
+            Go to Projects
+          </Button>
+        </div>
       </div>
     );
   }
@@ -180,8 +191,10 @@ export default function ProjectDashboard() {
 
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>{project.name}</h1>
-              <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>{project.description}</p>
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>{project.projectName}</h1>
+              <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>
+                {project.notes || `${project.clientName ? project.clientName + ' · ' : ''}${project.projectType || ''}`}
+              </p>
               <div className="flex items-center gap-4 mt-4">
                 <div className="text-sm">
                   <span style={{ color: '#94A3B8' }}>Owner: </span>

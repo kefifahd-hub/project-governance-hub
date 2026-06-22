@@ -1,0 +1,120 @@
+{
+  "name": "ScheduleTask",
+  "type": "object",
+  "properties": {
+    "versionId": {
+      "type": "string"
+    },
+    "sourceId": {
+      "type": "string"
+    },
+    "projectId": {
+      "type": "string"
+    },
+    "externalId": {
+      "type": "string"
+    },
+    "externalWbs": {
+      "type": "string"
+    },
+    "unifiedWbs": {
+      "type": "string"
+    },
+    "taskName": {
+      "type": "string"
+    },
+    "taskType": {
+      "type": "string",
+      "enum": [
+        "Task",
+        "Milestone",
+        "Summary",
+        "LOE",
+        "WBS Summary"
+      ],
+      "default": "Task"
+    },
+    "wbsLevel": {
+      "type": "number"
+    },
+    "parentExternalId": {
+      "type": "string"
+    },
+    "plannedStart": {
+      "type": "string",
+      "format": "date"
+    },
+    "plannedFinish": {
+      "type": "string",
+      "format": "date"
+    },
+    "actualStart": {
+      "type": "string",
+      "format": "date"
+    },
+    "actualFinish": {
+      "type": "string",
+      "format": "date"
+    },
+    "baselineStart": {
+      "type": "string",
+      "format": "date"
+    },
+    "baselineFinish": {
+      "type": "string",
+      "format": "date"
+    },
+    "durationDays": {
+      "type": "number"
+    },
+    "remainingDuration": {
+      "type": "number"
+    },
+    "percentComplete": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "totalFloat": {
+      "type": "number"
+    },
+    "freeFloat": {
+      "type": "number"
+    },
+    "isCritical": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Not Started",
+        "In Progress",
+        "Complete",
+        "Suspended"
+      ],
+      "default": "Not Started"
+    },
+    "predecessors": {
+      "type": "string",
+      "description": "JSON array of {id, type, lag}"
+    },
+    "resourceNames": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "isMapped": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "versionId",
+    "sourceId",
+    "projectId",
+    "externalId",
+    "taskName"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "CandidateSite",
+  "type": "object",
+  "properties": {
+    "assessmentId": {
+      "type": "string"
+    },
+    "siteName": {
+      "type": "string"
+    },
+    "siteAddress": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active Candidate",
+        "Shortlisted",
+        "Finalist",
+        "Selected",
+        "Rejected"
+      ],
+      "default": "Active Candidate"
+    }
+  },
+  "required": [
+    "assessmentId",
+    "siteName"
+  ]
+}

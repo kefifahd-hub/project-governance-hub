@@ -1,0 +1,31 @@
+{
+  "name": "PlatformRole",
+  "type": "object",
+  "properties": {
+    "role_name": {
+      "type": "string"
+    },
+    "role_type": {
+      "type": "string",
+      "enum": [
+        "Internal",
+        "External"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "module_permissions": {
+      "type": "string",
+      "description": "JSON array of permission objects"
+    },
+    "is_system_role": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "role_name",
+    "role_type"
+  ]
+}

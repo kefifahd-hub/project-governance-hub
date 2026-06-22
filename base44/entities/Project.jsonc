@@ -1,0 +1,84 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "projectName": {
+      "type": "string",
+      "description": "Project name"
+    },
+    "clientName": {
+      "type": "string",
+      "description": "Client name"
+    },
+    "projectType": {
+      "type": "string",
+      "enum": [
+        "Battery Gigafactory",
+        "Data Center",
+        "Other"
+      ],
+      "description": "Type of project"
+    },
+    "totalBudgetEurM": {
+      "type": "number",
+      "description": "Total budget in EUR millions"
+    },
+    "currentPhase": {
+      "type": "string",
+      "enum": [
+        "Feasibility",
+        "Pre-FEED",
+        "FEED",
+        "Investment Decision",
+        "Project Setup",
+        "Detailed Engineering",
+        "Procurement",
+        "Construction",
+        "Commissioning",
+        "SOP"
+      ],
+      "description": "Current project phase"
+    },
+    "healthScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Overall project health score (0-100)"
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Project start date"
+    },
+    "targetCompletion": {
+      "type": "string",
+      "format": "date",
+      "description": "Target completion date"
+    },
+    "projectOwner": {
+      "type": "string",
+      "description": "Project owner name"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "On Hold",
+        "Completed",
+        "Cancelled"
+      ],
+      "default": "Active",
+      "description": "Project status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "projectName",
+    "clientName",
+    "projectType",
+    "currentPhase"
+  ]
+}

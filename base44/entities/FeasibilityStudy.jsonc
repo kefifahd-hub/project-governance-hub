@@ -1,0 +1,145 @@
+{
+  "name": "FeasibilityStudy",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "studyName": {
+      "type": "string"
+    },
+    "studyDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "studyMaturity": {
+      "type": "string",
+      "enum": [
+        "Preliminary",
+        "Detailed",
+        "Executive"
+      ],
+      "default": "Preliminary"
+    },
+    "studyVersion": {
+      "type": "string"
+    },
+    "studyOwner": {
+      "type": "string"
+    },
+    "executiveSummary": {
+      "type": "string"
+    },
+    "linkedSiteId": {
+      "type": "string",
+      "description": "Linked CandidateSite ID"
+    },
+    "linkedFinanceModelId": {
+      "type": "string",
+      "description": "Linked FinanceModel ID"
+    },
+    "tab1Data": {
+      "type": "string",
+      "description": "JSON - Project Overview data"
+    },
+    "tab2Data": {
+      "type": "string",
+      "description": "JSON - Market Assessment data"
+    },
+    "tab3Data": {
+      "type": "string",
+      "description": "JSON - Site & Location assessment"
+    },
+    "tab4Data": {
+      "type": "string",
+      "description": "JSON - Product & Capacity data"
+    },
+    "tab5Data": {
+      "type": "string",
+      "description": "JSON - Technical Assessment data"
+    },
+    "tab6Data": {
+      "type": "string",
+      "description": "JSON - Financial Assessment (manual mode)"
+    },
+    "tab7Data": {
+      "type": "string",
+      "description": "JSON - Headcount & Labour data"
+    },
+    "tab8Data": {
+      "type": "string",
+      "description": "JSON - Execution Plan data"
+    },
+    "tab9Data": {
+      "type": "string",
+      "description": "JSON - Risk Assessment data"
+    },
+    "tab10Data": {
+      "type": "string",
+      "description": "JSON - Compliance & Sustainability"
+    },
+    "tab11Data": {
+      "type": "string",
+      "description": "JSON - Go/No-Go Decision data"
+    },
+    "capexEurM": {
+      "type": "number"
+    },
+    "annualOpexEurM": {
+      "type": "number"
+    },
+    "annualRevenueEurM": {
+      "type": "number"
+    },
+    "discountRate": {
+      "type": "number",
+      "default": 8.0
+    },
+    "projectLifeYears": {
+      "type": "integer",
+      "default": 15
+    },
+    "npvEurM": {
+      "type": "number"
+    },
+    "irrPercent": {
+      "type": "number"
+    },
+    "paybackYears": {
+      "type": "number"
+    },
+    "feasibilityScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": [
+        "Proceed",
+        "Proceed with Conditions",
+        "Further Study Required",
+        "Do Not Proceed"
+      ]
+    },
+    "conditionsRemarks": {
+      "type": "string"
+    },
+    "approvalStatus": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Under Review",
+        "Approved",
+        "Rejected"
+      ],
+      "default": "Draft"
+    }
+  },
+  "required": [
+    "projectId",
+    "studyName",
+    "studyDate"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "org_id": {
+      "type": "string"
+    },
+    "org_name": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "Login",
+        "Logout",
+        "View",
+        "Create",
+        "Update",
+        "Delete",
+        "Export",
+        "Download",
+        "Search",
+        "Invite",
+        "Role Change",
+        "Deactivate"
+      ]
+    },
+    "module": {
+      "type": "string"
+    },
+    "record_type": {
+      "type": "string"
+    },
+    "record_id": {
+      "type": "string"
+    },
+    "record_name": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "timestamp",
+    "action"
+  ]
+}

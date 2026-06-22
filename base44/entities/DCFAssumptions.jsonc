@@ -1,0 +1,25 @@
+{
+  "name": "DCFAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "valuationYear": {
+      "type": "number",
+      "default": 2026
+    },
+    "discountRatePct": {
+      "type": "number",
+      "default": 18,
+      "description": "WACC / discount rate %"
+    },
+    "terminalGrowthRatePct": {
+      "type": "number",
+      "default": 1.5
+    }
+  },
+  "required": [
+    "financeModelId"
+  ]
+}

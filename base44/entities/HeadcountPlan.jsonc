@@ -1,0 +1,68 @@
+{
+  "name": "HeadcountPlan",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Direct",
+        "Semi-Direct",
+        "Indirect Operational",
+        "G&A",
+        "Launch"
+      ]
+    },
+    "department": {
+      "type": "string",
+      "description": "e.g., Electrode, Cell Formation, QA"
+    },
+    "roleTitle": {
+      "type": "string",
+      "description": "e.g., Electrode Mfg Staff"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "Staff",
+        "Lead",
+        "Supervisor",
+        "Manager",
+        "Director"
+      ]
+    },
+    "baseSalaryEurPa": {
+      "type": "number",
+      "description": "Dec 2025 annual salary EUR"
+    },
+    "shiftAllowancePct": {
+      "type": "number",
+      "description": "e.g., 20 for production roles"
+    },
+    "socialPensionPct": {
+      "type": "number",
+      "description": "e.g., 23.6",
+      "default": 23.6
+    },
+    "annualWageInflationPct": {
+      "type": "number",
+      "description": "e.g., 2.5",
+      "default": 2.5
+    },
+    "quarter": {
+      "type": "string",
+      "description": "Quarter for this headcount entry"
+    },
+    "headcountFte": {
+      "type": "number",
+      "description": "FTE for this quarter"
+    }
+  },
+  "required": [
+    "financeModelId",
+    "roleTitle",
+    "quarter"
+  ]
+}

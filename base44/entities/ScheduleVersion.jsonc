@@ -1,0 +1,91 @@
+{
+  "name": "ScheduleVersion",
+  "type": "object",
+  "properties": {
+    "sourceId": {
+      "type": "string"
+    },
+    "projectId": {
+      "type": "string"
+    },
+    "versionNumber": {
+      "type": "string",
+      "description": "e.g. V001"
+    },
+    "importDate": {
+      "type": "string"
+    },
+    "dataDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "fileUrl": {
+      "type": "string"
+    },
+    "fileName": {
+      "type": "string"
+    },
+    "taskCount": {
+      "type": "number"
+    },
+    "milestoneCount": {
+      "type": "number"
+    },
+    "wbsLevels": {
+      "type": "number"
+    },
+    "projectStart": {
+      "type": "string",
+      "format": "date"
+    },
+    "projectFinish": {
+      "type": "string",
+      "format": "date"
+    },
+    "criticalPathLength": {
+      "type": "number"
+    },
+    "totalFloatMin": {
+      "type": "number"
+    },
+    "percentComplete": {
+      "type": "number"
+    },
+    "importStatus": {
+      "type": "string",
+      "enum": [
+        "Complete",
+        "Partial (warnings)",
+        "Failed"
+      ],
+      "default": "Complete"
+    },
+    "importLog": {
+      "type": "string"
+    },
+    "isCurrent": {
+      "type": "boolean",
+      "default": false
+    },
+    "isBaseline": {
+      "type": "boolean",
+      "default": false
+    },
+    "baselineLabel": {
+      "type": "string"
+    },
+    "deltaCount": {
+      "type": "number",
+      "default": 0
+    },
+    "criticalDeltaCount": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "sourceId",
+    "projectId",
+    "importDate"
+  ]
+}

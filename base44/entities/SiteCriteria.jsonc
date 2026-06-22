@@ -1,0 +1,48 @@
+{
+  "name": "SiteCriteria",
+  "type": "object",
+  "properties": {
+    "siteId": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "criterionKey": {
+      "type": "string"
+    },
+    "criterionLabel": {
+      "type": "string"
+    },
+    "requirement": {
+      "type": "string"
+    },
+    "response": {
+      "type": "string"
+    },
+    "meetsRequirement": {
+      "type": "string",
+      "enum": [
+        "Yes",
+        "Partial",
+        "No",
+        "N/A",
+        "TBD"
+      ],
+      "default": "TBD"
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "remarks": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "siteId",
+    "criterionKey",
+    "category"
+  ]
+}

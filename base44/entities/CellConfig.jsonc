@@ -1,0 +1,72 @@
+{
+  "name": "CellConfig",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "cellNumber": {
+      "type": "string",
+      "enum": [
+        "Cell 1",
+        "Cell 2",
+        "Cell 3"
+      ]
+    },
+    "cellName": {
+      "type": "string",
+      "description": "e.g., LMO (LMOLCSQ176A)"
+    },
+    "chemistry": {
+      "type": "string",
+      "enum": [
+        "LMO",
+        "LMNO",
+        "NMC",
+        "LFP",
+        "NCA",
+        "Sodium-Ion",
+        "Solid-State"
+      ]
+    },
+    "cellEnergyWh": {
+      "type": "number",
+      "description": "Wh per cell, e.g., 670"
+    },
+    "energyDensityWhKg": {
+      "type": "number",
+      "description": "Wh/kg, e.g., 176.8"
+    },
+    "ppm": {
+      "type": "number",
+      "description": "Parts per minute, e.g., 18"
+    },
+    "plannedOperatingHoursQtr": {
+      "type": "number",
+      "description": "Hours/quarter, e.g., 1769.25"
+    },
+    "availability": {
+      "type": "number",
+      "description": "Percent, e.g., 81"
+    },
+    "initialYield": {
+      "type": "number",
+      "description": "Percent, e.g., 95.12"
+    },
+    "matureYield": {
+      "type": "number",
+      "description": "Percent, e.g., 96"
+    },
+    "yieldMaturityYear": {
+      "type": "number"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "financeModelId",
+    "cellNumber"
+  ]
+}

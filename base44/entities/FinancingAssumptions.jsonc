@@ -1,0 +1,45 @@
+{
+  "name": "FinancingAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "ltDebtTotalMEur": {
+      "type": "number",
+      "default": 150,
+      "description": "Long-term debt total \u20acM"
+    },
+    "ltInterestRatePct": {
+      "type": "number",
+      "default": 8,
+      "description": "LT interest rate %"
+    },
+    "ltDrawdownPeriodQtrs": {
+      "type": "number",
+      "default": 15,
+      "description": "Number of quarters to draw down debt"
+    },
+    "ltRepaymentPeriodQtrs": {
+      "type": "number",
+      "default": 24,
+      "description": "Number of quarters to repay"
+    },
+    "wcInterestRatePct": {
+      "type": "number",
+      "default": 8,
+      "description": "Working capital interest rate %"
+    },
+    "wcPctFundedByDebt": {
+      "type": "number",
+      "default": 100
+    },
+    "equityInjections": {
+      "type": "string",
+      "description": "JSON array of {quarter, amount} pairs"
+    }
+  },
+  "required": [
+    "financeModelId"
+  ]
+}

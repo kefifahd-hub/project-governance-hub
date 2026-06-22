@@ -1,0 +1,33 @@
+{
+  "name": "SynapseVersion",
+  "type": "object",
+  "properties": {
+    "synapse_id": {
+      "type": "string"
+    },
+    "version_number": {
+      "type": "number"
+    },
+    "changed_at": {
+      "type": "string"
+    },
+    "changed_by": {
+      "type": "string"
+    },
+    "change_description": {
+      "type": "string"
+    },
+    "previous_config": {
+      "type": "string",
+      "description": "Full JSON config before change"
+    },
+    "new_config": {
+      "type": "string",
+      "description": "Full JSON config after change"
+    }
+  },
+  "required": [
+    "synapse_id",
+    "version_number"
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "name": "WeeklyReport",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "reportNumber": {
+      "type": "string",
+      "description": "e.g. WR-001"
+    },
+    "calendarWeek": {
+      "type": "number"
+    },
+    "year": {
+      "type": "number"
+    },
+    "reportingPeriodStart": {
+      "type": "string",
+      "format": "date"
+    },
+    "reportingPeriodEnd": {
+      "type": "string",
+      "format": "date"
+    },
+    "reportDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "preparedBy": {
+      "type": "string"
+    },
+    "reviewedBy": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Under Review",
+        "Published"
+      ],
+      "default": "Draft"
+    },
+    "executiveSummary": {
+      "type": "string"
+    },
+    "highlights": {
+      "type": "string"
+    },
+    "concerns": {
+      "type": "string"
+    },
+    "nextWeekFocus": {
+      "type": "string"
+    },
+    "overallRag": {
+      "type": "string",
+      "enum": [
+        "Green",
+        "Amber",
+        "Red"
+      ]
+    },
+    "scheduleRag": {
+      "type": "string",
+      "enum": [
+        "Green",
+        "Amber",
+        "Red"
+      ]
+    },
+    "costRag": {
+      "type": "string",
+      "enum": [
+        "Green",
+        "Amber",
+        "Red"
+      ]
+    },
+    "riskRag": {
+      "type": "string",
+      "enum": [
+        "Green",
+        "Amber",
+        "Red"
+      ]
+    },
+    "qualityRag": {
+      "type": "string",
+      "enum": [
+        "Green",
+        "Amber",
+        "Red"
+      ]
+    },
+    "enabledSections": {
+      "type": "string",
+      "description": "JSON array of section IDs and order"
+    },
+    "publishedAt": {
+      "type": "string"
+    },
+    "pdfExportUrl": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "projectId",
+    "calendarWeek",
+    "year",
+    "reportingPeriodStart",
+    "reportingPeriodEnd"
+  ]
+}

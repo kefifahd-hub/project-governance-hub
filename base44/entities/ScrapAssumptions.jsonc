@@ -1,0 +1,25 @@
+{
+  "name": "ScrapAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "cellNumber": {
+      "type": "string",
+      "enum": [
+        "Cell 1",
+        "Cell 2",
+        "Cell 3"
+      ]
+    },
+    "scrapLossPctOfBom": {
+      "type": "number",
+      "description": "Scrap loss % of BOM cost, e.g., 5.675 at SOP"
+    }
+  },
+  "required": [
+    "financeModelId",
+    "cellNumber"
+  ]
+}

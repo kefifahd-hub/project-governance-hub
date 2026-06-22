@@ -1,0 +1,55 @@
+{
+  "name": "Organization",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Organization name e.g. Project YE PMO"
+    },
+    "org_type": {
+      "type": "string",
+      "enum": [
+        "Internal",
+        "Investor",
+        "Engineering Consultant",
+        "Legal Advisor",
+        "Other"
+      ],
+      "description": "Organization type"
+    },
+    "logo": {
+      "type": "string",
+      "description": "Logo image URL"
+    },
+    "primary_contact_name": {
+      "type": "string"
+    },
+    "primary_contact_email": {
+      "type": "string"
+    },
+    "contract_reference": {
+      "type": "string",
+      "description": "NDA or contract number"
+    },
+    "access_start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "access_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Empty = indefinite"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "org_type"
+  ]
+}

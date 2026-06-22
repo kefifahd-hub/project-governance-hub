@@ -1,0 +1,27 @@
+{
+  "name": "ActionBucket",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "bucketName": {
+      "type": "string"
+    },
+    "bucketColor": {
+      "type": "string",
+      "default": "#6366f1"
+    },
+    "sortOrder": {
+      "type": "number",
+      "default": 0
+    },
+    "owner": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "projectId",
+    "bucketName"
+  ]
+}

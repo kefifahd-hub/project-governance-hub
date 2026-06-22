@@ -1,0 +1,34 @@
+{
+  "name": "ActionComment",
+  "type": "object",
+  "properties": {
+    "actionItemId": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "commentText": {
+      "type": "string"
+    },
+    "commentType": {
+      "type": "string",
+      "enum": [
+        "Comment",
+        "Status Change",
+        "Field Change",
+        "Attachment",
+        "Link Added"
+      ],
+      "default": "Comment"
+    },
+    "attachmentUrl": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "actionItemId",
+    "author",
+    "commentText"
+  ]
+}

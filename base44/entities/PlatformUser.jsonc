@@ -1,0 +1,60 @@
+{
+  "name": "PlatformUser",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Reference to Organization"
+    },
+    "email": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "role_id": {
+      "type": "string",
+      "description": "Reference to PlatformRole"
+    },
+    "role_name": {
+      "type": "string",
+      "description": "Cached role name"
+    },
+    "org_name": {
+      "type": "string",
+      "description": "Cached org name"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "invited_by": {
+      "type": "string"
+    },
+    "invited_at": {
+      "type": "string"
+    },
+    "last_login": {
+      "type": "string"
+    },
+    "avatar": {
+      "type": "string"
+    },
+    "access_end_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "email",
+    "full_name",
+    "org_id",
+    "role_id"
+  ]
+}

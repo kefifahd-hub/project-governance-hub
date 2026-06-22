@@ -1,0 +1,33 @@
+{
+  "name": "GrantAssumptions",
+  "type": "object",
+  "properties": {
+    "financeModelId": {
+      "type": "string"
+    },
+    "grantName": {
+      "type": "string",
+      "description": "e.g., Subsidy 1, IPCEI Grant"
+    },
+    "cashReceiptMEur": {
+      "type": "number",
+      "description": "Total grant amount \u20acM"
+    },
+    "receiptQuarter": {
+      "type": "string",
+      "description": "When cash is received, e.g., Q1 2027"
+    },
+    "amortizationStartQuarter": {
+      "type": "string",
+      "description": "When P&L recognition starts, e.g., Q4 2028"
+    },
+    "amortizationYears": {
+      "type": "number",
+      "default": 10
+    }
+  },
+  "required": [
+    "financeModelId",
+    "grantName"
+  ]
+}

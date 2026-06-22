@@ -1,0 +1,120 @@
+{
+  "name": "ChangeRequest",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "crNumber": {
+      "type": "string",
+      "description": "Auto-generated CR number e.g. CR-001"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Scope",
+        "Design / Technical",
+        "Cost / Budget",
+        "Schedule",
+        "Procurement",
+        "Quality",
+        "Regulatory / Compliance",
+        "Other"
+      ]
+    },
+    "subCategory": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low"
+      ]
+    },
+    "changeType": {
+      "type": "string",
+      "enum": [
+        "Addition",
+        "Modification",
+        "Deletion",
+        "Substitution"
+      ]
+    },
+    "origin": {
+      "type": "string",
+      "enum": [
+        "Client Request",
+        "Design Development",
+        "Site Condition",
+        "Regulatory Requirement",
+        "Value Engineering",
+        "Risk Mitigation",
+        "Supplier / Vendor",
+        "Internal Improvement",
+        "Force Majeure"
+      ]
+    },
+    "raisedBy": {
+      "type": "string"
+    },
+    "raisedDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "requiredByDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Submitted",
+        "In Technical Review",
+        "Technical Review Complete",
+        "In Finance Review",
+        "Finance Review Complete",
+        "In Schedule Review",
+        "Schedule Review Complete",
+        "Pending Approval",
+        "Approved",
+        "Approved with Conditions",
+        "Rejected",
+        "On Hold",
+        "Withdrawn",
+        "Implementation In Progress",
+        "Implemented",
+        "Closed"
+      ],
+      "default": "Draft"
+    },
+    "affectedModules": {
+      "type": "string",
+      "description": "Comma-separated list of affected modules"
+    },
+    "affectedWbs": {
+      "type": "string"
+    },
+    "linkedRiskId": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "projectId",
+    "title",
+    "category",
+    "priority"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "name": "WeeklyReportSectionConfig",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "sectionId": {
+      "type": "string"
+    },
+    "sectionLabel": {
+      "type": "string"
+    },
+    "sectionIcon": {
+      "type": "string"
+    },
+    "dataSource": {
+      "type": "string"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "sortOrder": {
+      "type": "number",
+      "default": 0
+    },
+    "locked": {
+      "type": "boolean",
+      "default": false
+    },
+    "isCustom": {
+      "type": "boolean",
+      "default": false
+    },
+    "customContentTemplate": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "projectId",
+    "sectionId",
+    "sectionLabel"
+  ]
+}

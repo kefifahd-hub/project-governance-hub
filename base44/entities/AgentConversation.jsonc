@@ -1,0 +1,37 @@
+{
+  "name": "AgentConversation",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "messages": {
+      "type": "string",
+      "description": "JSON array of message objects"
+    },
+    "last_message_at": {
+      "type": "string"
+    },
+    "message_count": {
+      "type": "number",
+      "default": 0
+    },
+    "is_archived": {
+      "type": "boolean",
+      "default": false
+    },
+    "context_snapshot": {
+      "type": "string",
+      "description": "JSON snapshot of project context at conversation start"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}

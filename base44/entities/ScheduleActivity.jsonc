@@ -1,0 +1,115 @@
+{
+  "name": "ScheduleActivity",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "activityId": {
+      "type": "string",
+      "description": "Activity ID from P6/MS Project"
+    },
+    "activityName": {
+      "type": "string",
+      "description": "Activity name"
+    },
+    "wbsCode": {
+      "type": "string",
+      "description": "Work Breakdown Structure code"
+    },
+    "plannedStartDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "plannedFinishDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "actualStartDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "actualFinishDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "forecastFinishDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "percentComplete": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Not Started",
+        "In Progress",
+        "Completed",
+        "On Hold"
+      ],
+      "default": "Not Started"
+    },
+    "isCriticalPath": {
+      "type": "boolean",
+      "default": false
+    },
+    "totalFloat": {
+      "type": "number",
+      "description": "Total float in days"
+    },
+    "duration": {
+      "type": "number",
+      "description": "Planned duration in days"
+    },
+    "remainingDuration": {
+      "type": "number",
+      "description": "Remaining duration in days"
+    },
+    "contractors": {
+      "type": "string",
+      "description": "Contractors/resources assigned"
+    },
+    "predecessors": {
+      "type": "string",
+      "description": "Predecessor activity IDs"
+    },
+    "successors": {
+      "type": "string",
+      "description": "Successor activity IDs"
+    },
+    "responsible": {
+      "type": "string",
+      "description": "Responsible person/team"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "uploadVersion": {
+      "type": "number",
+      "description": "Upload version number (increments with each import)",
+      "default": 1
+    },
+    "uploadDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date this version was uploaded"
+    },
+    "building": {
+      "type": "string",
+      "description": "Building or area"
+    },
+    "workType": {
+      "type": "string",
+      "description": "Type of work / trade"
+    }
+  },
+  "required": [
+    "projectId",
+    "activityName"
+  ]
+}

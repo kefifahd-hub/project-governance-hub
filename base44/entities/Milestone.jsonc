@@ -1,0 +1,71 @@
+{
+  "name": "Milestone",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "phaseName": {
+      "type": "string",
+      "enum": [
+        "Feasibility",
+        "Pre-FEED",
+        "FEED",
+        "Investment Decision",
+        "Project Setup",
+        "Detailed Engineering",
+        "Procurement",
+        "Construction",
+        "Commissioning",
+        "SOP"
+      ],
+      "description": "Phase name"
+    },
+    "completionPercent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Completion percentage (0-100)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Complete",
+        "Active",
+        "Pending",
+        "Blocked"
+      ],
+      "default": "Pending",
+      "description": "Milestone status"
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Due date"
+    },
+    "actualCompletionDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Actual completion date"
+    },
+    "deliverables": {
+      "type": "string",
+      "description": "List of expected deliverables"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "projectId",
+    "phaseName",
+    "completionPercent"
+  ]
+}

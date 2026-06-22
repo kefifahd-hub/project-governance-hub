@@ -1,0 +1,74 @@
+{
+  "name": "Neuron",
+  "type": "object",
+  "properties": {
+    "module_key": {
+      "type": "string",
+      "description": "System key e.g. site_selection"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "short_code": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Core",
+        "Integration",
+        "Governance",
+        "Output",
+        "Intelligence"
+      ]
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "position_x": {
+      "type": "number",
+      "default": 0.5
+    },
+    "position_y": {
+      "type": "number",
+      "default": 0.5
+    },
+    "data_schema": {
+      "type": "string",
+      "description": "JSON schema of available fields"
+    },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "Healthy",
+        "Degraded",
+        "Error",
+        "Offline"
+      ],
+      "default": "Healthy"
+    },
+    "last_pulse": {
+      "type": "string"
+    },
+    "pulse_count_24h": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "module_key",
+    "display_name",
+    "short_code",
+    "category"
+  ]
+}
