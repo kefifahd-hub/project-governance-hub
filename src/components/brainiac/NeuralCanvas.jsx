@@ -50,6 +50,8 @@ export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, sele
   const [hovered, setHovered] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
   const lastClickRef = useRef({ id: null, time: 0 });
+  const longPressTimer = useRef(null);
+  const touchStartRef = useRef({ x: 0, y: 0 });
 
   const getPos = useCallback((neuron, w, h) => ({
     x: neuron.position_x * w,
@@ -345,6 +347,49 @@ export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, sele
     canvasRef.current.style.cursor = hit ? 'pointer' : 'default';
   };
 
+  // Long-press support for touch devices — opens the same context menu as right-click
+  const handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    const clientX = touch.clientX;
+    const clientY = touch.clientY;
+    longPressTimer.current = setTimeout(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const hit = hitTest(clientX, clientY, canvas);
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const canvasX = ((clientX - rect.left) * scaleX) / canvas.width;
+      const canvasY = ((clientY - rect.top) * scaleY) / canvas.height;
+      // Position menu so it doesn't go off-screen on mobile
+      const menuX = Math.min(clientX, window.innerWidth - 200);
+      const menuY = Math.min(clientY, window.innerHeight - 200);
+      setContextMenu({ x: menuX, y: menuY, type: hit?.type || 'canvas', id: hit?.id, canvasX, canvasY });
+      // Prevent the subsequent click from firing
+      if (navigator.vibrate) navigator.vibrate(30);
+    }, 500);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!longPressTimer.current) return;
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - touchStartRef.current.x);
+    const dy = Math.abs(touch.clientY - touchStartRef.current.y);
+    if (dx > 10 || dy > 10) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
   const handleDeleteNeuron = async (id) => {
     if (!window.confirm('Delete this neuron? This cannot be undone.')) return;
     await base44.entities.Neuron.delete(id);
@@ -382,7 +427,10 @@ export default function NeuralCanvas({ neurons, synapses, selectedNeuronId, sele
         onContextMenu={handleContextMenu}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setHovered(null)}
-        style={{ width: '100%', height: '100%', display: 'block', borderRadius: '0.5rem' }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ width: '100%', height: '100%', display: 'block', borderRadius: '0.5rem', touchAction: 'pan-y' }}
       />
       <ContextMenu
         menu={contextMenu}

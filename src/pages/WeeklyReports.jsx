@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import PullToRefresh from '../components/PullToRefresh';
 import { createPageUrl } from '../utils';
 
 export default function WeeklyReports() {
@@ -105,57 +106,63 @@ export default function WeeklyReports() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="space-y-6">
-          {reports.map((report) => (
-            <Card key={report.id} style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5" style={{ color: '#028090' }} />
-                    <CardTitle style={{ color: '#CADCFC' }}>
-                      Week Ending {new Date(report.weekEnding).toLocaleDateString()}
-                    </CardTitle>
+        <PullToRefresh
+          onRefresh={async () => {
+            await queryClient.invalidateQueries({ queryKey: ['reports', projectId] });
+          }}
+        >
+          <div className="space-y-6">
+            {reports.map((report) => (
+              <Card key={report.id} style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="w-5 h-5" style={{ color: '#028090' }} />
+                      <CardTitle style={{ color: '#CADCFC' }}>
+                        Week Ending {new Date(report.weekEnding).toLocaleDateString()}
+                      </CardTitle>
+                    </div>
+                    <div className={`w-3 h-3 rounded-full ${getStatusColor(report.overallStatus)}`} />
                   </div>
-                  <div className={`w-3 h-3 rounded-full ${getStatusColor(report.overallStatus)}`} />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {toArray(report.highlights).length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#CADCFC' }}>✅ Highlights</h3>
-                    <ul className="list-disc list-inside space-y-1" style={{ color: '#94A3B8' }}>
-                      {toArray(report.highlights).map((h, i) => <li key={i}>{h}</li>)}
-                    </ul>
-                  </div>
-                )}
-                {toArray(report.concerns).length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#CADCFC' }}>⚠️ Concerns</h3>
-                    <ul className="list-disc list-inside space-y-1" style={{ color: '#94A3B8' }}>
-                      {toArray(report.concerns).map((c, i) => <li key={i}>{c}</li>)}
-                    </ul>
-                  </div>
-                )}
-                {toArray(report.nextWeek).length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#CADCFC' }}>📋 Next Week</h3>
-                    <ul className="list-disc list-inside space-y-1" style={{ color: '#94A3B8' }}>
-                      {toArray(report.nextWeek).map((n, i) => <li key={i}>{n}</li>)}
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-          {reports.length === 0 && (
-            <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-              <CardContent className="p-12 text-center">
-                <FileText className="w-12 h-12 mx-auto mb-4" style={{ color: '#94A3B8' }} />
-                <p style={{ color: '#94A3B8' }}>No weekly reports yet. Create your first report to track progress.</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {toArray(report.highlights).length > 0 && (
+                    <div>
+                      <h3 className="font-semibold mb-2" style={{ color: '#CADCFC' }}>✅ Highlights</h3>
+                      <ul className="list-disc list-inside space-y-1" style={{ color: '#94A3B8' }}>
+                        {toArray(report.highlights).map((h, i) => <li key={i}>{h}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {toArray(report.concerns).length > 0 && (
+                    <div>
+                      <h3 className="font-semibold mb-2" style={{ color: '#CADCFC' }}>⚠️ Concerns</h3>
+                      <ul className="list-disc list-inside space-y-1" style={{ color: '#94A3B8' }}>
+                        {toArray(report.concerns).map((c, i) => <li key={i}>{c}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {toArray(report.nextWeek).length > 0 && (
+                    <div>
+                      <h3 className="font-semibold mb-2" style={{ color: '#CADCFC' }}>📋 Next Week</h3>
+                      <ul className="list-disc list-inside space-y-1" style={{ color: '#94A3B8' }}>
+                        {toArray(report.nextWeek).map((n, i) => <li key={i}>{n}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+            {reports.length === 0 && (
+              <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
+                <CardContent className="p-12 text-center">
+                  <FileText className="w-12 h-12 mx-auto mb-4" style={{ color: '#94A3B8' }} />
+                  <p style={{ color: '#94A3B8' }}>No weekly reports yet. Create your first report to track progress.</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </PullToRefresh>
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>

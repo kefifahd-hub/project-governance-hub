@@ -3,10 +3,13 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { base44 } from '@/api/base44Client';
 import { pagesConfig } from '@/pages.config';
+import { useScrollMemory } from '@/hooks/useScrollMemory';
 
 export default function NavigationTracker() {
     const location = useLocation();
     const { isAuthenticated } = useAuth();
+    // Preserve independent scroll position per route (each tab remembers its scroll)
+    useScrollMemory();
     const { Pages, mainPage } = pagesConfig;
     const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 

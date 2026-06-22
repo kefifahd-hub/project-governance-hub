@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import PullToRefresh from '../components/PullToRefresh';
 import ActionTrackerHeader from '../components/actiontracker/ActionTrackerHeader';
 import BoardView from '../components/actiontracker/BoardView';
 import ListView from '../components/actiontracker/ListView';
@@ -186,20 +187,30 @@ export default function ActionTracker() {
       />
 
       {/* View content */}
-      <div className="flex-1 overflow-auto">
-        {view === 'board' && (
-          <BoardView items={filtered} buckets={buckets} onItemClick={setSelectedItem} onNewItem={handleNewItem} />
-        )}
-        {view === 'list' && (
-          <ListView items={filtered} onItemClick={setSelectedItem} onNewItem={handleNewItem} />
-        )}
-        {view === 'mytasks' && (
-          <MyTasksView items={filtered} currentUser={currentUser} onItemClick={setSelectedItem} projectId={projectId} />
-        )}
-        {view === 'dashboard' && (
-          <DashboardView items={filtered} buckets={buckets} phases={phases} />
-        )}
-      </div>
+      <PullToRefresh
+        onRefresh={async () => {
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['actionItems', projectId] }),
+            queryClient.invalidateQueries({ queryKey: ['actionBuckets', projectId] }),
+            queryClient.invalidateQueries({ queryKey: ['actionPhases', projectId] }),
+          ]);
+        }}
+      >
+        <div className="flex-1 overflow-auto">
+          {view === 'board' && (
+            <BoardView items={filtered} buckets={buckets} onItemClick={setSelectedItem} onNewItem={handleNewItem} />
+          )}
+          {view === 'list' && (
+            <ListView items={filtered} onItemClick={setSelectedItem} onNewItem={handleNewItem} />
+          )}
+          {view === 'mytasks' && (
+            <MyTasksView items={filtered} currentUser={currentUser} onItemClick={setSelectedItem} projectId={projectId} />
+          )}
+          {view === 'dashboard' && (
+            <DashboardView items={filtered} buckets={buckets} phases={phases} />
+          )}
+        </div>
+      </PullToRefresh>
 
       {/* Detail panel */}
       {selectedItem && (

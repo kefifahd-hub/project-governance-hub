@@ -151,6 +151,71 @@
   }
 }
 
+/* Pull-to-refresh spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive tables — automatically switch to card list on small screens */
+@media (max-width: 767px) {
+  table {
+    /* Hide table headers on mobile — cards don't need column headers */
+  }
+
+  /* Transform table rows into stacked card-like blocks */
+  .responsive-table thead {
+    display: none;
+  }
+
+  .responsive-table,
+  .responsive-table tbody,
+  .responsive-table tr,
+  .responsive-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .responsive-table tr {
+    margin-bottom: 0.75rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 0.5rem 0.75rem;
+    background: hsl(var(--card));
+  }
+
+  .responsive-table td {
+    padding: 0.4rem 0;
+    border: none;
+    text-align: right;
+    min-height: 1.5rem;
+  }
+
+  /* Show the data-label as a label prefix on the left */
+  .responsive-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    float: left;
+    margin-right: 1rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* If no data-label, just stack content vertically */
+  .responsive-table td:not([data-label])::before {
+    content: '';
+    display: none;
+  }
+
+  /* Keep table-like for tables explicitly marked as always-table */
+  .always-table,
+  .always-table thead,
+  .always-table tbody,
+  .always-table tr,
+  .always-table th,
+  .always-table td {
+    display: revert;
+  }
+}
+
 /* Page transition animations */
 @keyframes page-slide-in {
   from { opacity: 0; transform: translateX(8px); }
