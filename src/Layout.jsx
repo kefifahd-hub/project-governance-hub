@@ -88,7 +88,7 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Top Navigation Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(15, 23, 42, 0.98)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }}>
+      <div className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(15, 23, 42, 0.98)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)', paddingTop: 'var(--safe-area-top)', height: 'calc(3.5rem + var(--safe-area-top))' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to={createPageUrl('Home')} className="font-bold text-lg" style={{ color: '#CADCFC' }}>
             PMO Platform
@@ -169,7 +169,7 @@ export default function Layout({ children, currentPageName }) {
       </div>
       
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 right-0 left-0 z-50" style={{ background: 'rgba(15, 23, 42, 0.98)', borderTop: '1px solid rgba(202, 220, 252, 0.1)' }}>
+      <div className="fixed bottom-0 right-0 left-0 z-50" style={{ background: 'rgba(15, 23, 42, 0.98)', borderTop: '1px solid rgba(202, 220, 252, 0.1)', paddingBottom: 'var(--safe-area-bottom)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-around py-2 sm:py-3">
             {navItems.map((item) => {
