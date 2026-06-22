@@ -80,7 +80,20 @@ export default function ActionTracker() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.ActionItem.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['actionItems', projectId] })
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['actionItems', projectId] });
+      const previousItems = queryClient.getQueryData(['actionItems', projectId]);
+      queryClient.setQueryData(['actionItems', projectId], (old = []) =>
+        old.map(item => item.id === id ? { ...item, ...data } : item)
+      );
+      return { previousItems };
+    },
+    onError: (err, vars, context) => {
+      if (context?.previousItems) queryClient.setQueryData(['actionItems', projectId], context.previousItems);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['actionItems', projectId] });
+    }
   });
 
   // Auto-setup buckets & phases if none exist

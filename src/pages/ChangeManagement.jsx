@@ -57,19 +57,48 @@ export default function ChangeManagement() {
       const crNumber = `CR-${String(count).padStart(3, '0')}`;
       return base44.entities.ChangeRequest.create({ ...data, crNumber });
     },
+    onMutate: async (data) => {
+      const count = changes.length + 1;
+      const crNumber = `CR-${String(count).padStart(3, '0')}`;
+      const tempId = `temp-${Date.now()}`;
+      await queryClient.cancelQueries({ queryKey: ['changeRequests', projectId] });
+      const previous = queryClient.getQueryData(['changeRequests', projectId]);
+      queryClient.setQueryData(['changeRequests', projectId], (old = []) => [
+        { ...data, crNumber, id: tempId, projectId, created_date: new Date().toISOString() },
+        ...old,
+      ]);
+      return { previous };
+    },
+    onError: (err, vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['changeRequests', projectId], context.previous);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['changeRequests', projectId] });
       setView('log');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['changeRequests', projectId] });
     },
   });
 
   const updateCRMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.ChangeRequest.update(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['changeRequests', projectId] });
+      const previous = queryClient.getQueryData(['changeRequests', projectId]);
+      queryClient.setQueryData(['changeRequests', projectId], (old = []) =>
+        old.map(cr => cr.id === id ? { ...cr, ...data } : cr)
+      );
+      return { previous };
+    },
+    onError: (err, vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['changeRequests', projectId], context.previous);
+    },
     onSuccess: (_, vars) => {
-      queryClient.invalidateQueries({ queryKey: ['changeRequests', projectId] });
-      // refresh selected
       setSelectedCR(prev => ({ ...prev, ...vars.data }));
       setView('detail');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['changeRequests', projectId] });
     },
   });
 
@@ -79,7 +108,22 @@ export default function ChangeManagement() {
       if (existing) return base44.entities.ChangeImpactAssessment.update(existing.id, data);
       return base44.entities.ChangeImpactAssessment.create(data);
     },
-    onSuccess: () => {
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['changeImpacts', projectId] });
+      const previous = queryClient.getQueryData(['changeImpacts', projectId]);
+      const existing = impacts.find(i => i.crId === data.crId);
+      queryClient.setQueryData(['changeImpacts', projectId], (old = []) => {
+        if (existing) {
+          return old.map(i => i.id === existing.id ? { ...i, ...data } : i);
+        }
+        return [{ ...data, id: `temp-${Date.now()}` }, ...old];
+      });
+      return { previous };
+    },
+    onError: (err, vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['changeImpacts', projectId], context.previous);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['changeImpacts', projectId] });
     },
   });

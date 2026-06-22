@@ -216,6 +216,39 @@
   }
 }
 
+/* Mobile bottom-sheet styling for Select component */
+@media (max-width: 767px) {
+  .mobile-select-content {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-height: 70vh !important;
+    border-radius: 10px 10px 0 0 !important;
+  }
+}
+
+/* iOS HIG: minimum 44x44px touch targets for interactive elements on mobile */
+@media (max-width: 767px) {
+  table button,
+  .responsive-table button,
+  [role="listitem"] button,
+  .action-icon-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Ensure icon-only buttons are centered with adequate padding */
+  .action-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 /* Page transition animations */
 @keyframes page-slide-in {
   from { opacity: 0; transform: translateX(8px); }

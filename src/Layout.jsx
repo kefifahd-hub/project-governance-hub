@@ -7,6 +7,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useIsMobile } from '@/hooks/use-mobile';
+import MobileNavMenu from './components/MobileNavMenu';
 
 export default function Layout({ children, currentPageName }) {
   const authed = true;
@@ -40,6 +42,7 @@ export default function Layout({ children, currentPageName }) {
 
 
   
+  const isMobile = useIsMobile();
   const showSidebar = !['NewProject', 'Settings'].includes(currentPageName) && !!projectId;
   const tools = [
     { name: 'Action Tracker', page: 'ActionTracker' },
@@ -95,6 +98,10 @@ export default function Layout({ children, currentPageName }) {
           </Link>
           
           <div className="flex items-center gap-2">
+            {isMobile ? (
+              <MobileNavMenu projects={projects} currentProject={currentProject} projectId={projectId} tools={tools} />
+            ) : (
+              <>
             {/* Projects Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -148,6 +155,8 @@ export default function Layout({ children, currentPageName }) {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+            )}
+              </>
             )}
 
             {/* Settings Link */}

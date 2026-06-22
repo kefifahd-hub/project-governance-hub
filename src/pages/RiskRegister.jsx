@@ -65,8 +65,25 @@ export default function RiskRegister() {
         status: 'Open'
       });
     },
+    onMutate: async (data) => {
+      const riskScore = data.probability * data.impact;
+      let riskLevel = 'Low';
+      if (riskScore >= 6) riskLevel = 'Critical';
+      else if (riskScore >= 4) riskLevel = 'High';
+      else if (riskScore >= 2) riskLevel = 'Medium';
+      const tempId = `temp-${Date.now()}`;
+      await queryClient.cancelQueries({ queryKey: ['risks', projectId] });
+      const previous = queryClient.getQueryData(['risks', projectId]);
+      queryClient.setQueryData(['risks', projectId], (old = []) => [
+        { ...data, projectId, riskScore, riskLevel, status: 'Open', id: tempId, created_date: new Date().toISOString() },
+        ...old,
+      ]);
+      return { previous };
+    },
+    onError: (err, vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['risks', projectId], context.previous);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['risks', projectId] });
       setShowAddDialog(false);
       setNewRisk({
         riskDescription: '',
@@ -77,6 +94,9 @@ export default function RiskRegister() {
         owner: '',
         targetClosureDate: ''
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['risks', projectId] });
     }
   });
 
