@@ -1,0 +1,54 @@
+{
+  "name": "WbsElement",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "wbsCode": {
+      "type": "string",
+      "description": "WBS code e.g. 1.2.3"
+    },
+    "name": {
+      "type": "string",
+      "description": "Element name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description"
+    },
+    "elementType": {
+      "type": "string",
+      "enum": [
+        "Phase",
+        "Deliverable",
+        "Work Package"
+      ],
+      "default": "Work Package"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Not Started",
+        "In Progress",
+        "Complete"
+      ],
+      "default": "Not Started"
+    },
+    "budgetEurK": {
+      "type": "number",
+      "description": "Budget in EUR thousands",
+      "default": 0
+    }
+  },
+  "required": [
+    "projectId",
+    "wbsCode",
+    "name"
+  ]
+}

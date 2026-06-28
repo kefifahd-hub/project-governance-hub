@@ -60,7 +60,16 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Users & Access', page: 'UserAccess' },
     { name: 'Change Management', page: 'ChangeManagement' },
     { name: 'Reports', page: 'Reports' },
-    { name: 'Client Briefing', page: 'ClientBriefing' }
+    { name: 'Client Briefing', page: 'ClientBriefing' },
+    { name: 'Project Charter', page: 'ProjectCharter' },
+    { name: 'Stakeholder Register', page: 'StakeholderRegister' },
+    { name: 'WBS', page: 'WBS' },
+    { name: 'RAID Log', page: 'RaidLog' },
+    { name: 'Communications Plan', page: 'CommunicationPlan' },
+    { name: 'RACI Matrix', page: 'RaciMatrix' },
+    { name: 'Requirements', page: 'Requirements' },
+    { name: 'Quality Gates', page: 'QualityGates' },
+    { name: 'Change Workflow', page: 'ChangeWorkflow' }
   ];
   
   const navItems = [

@@ -1,0 +1,42 @@
+{
+  "name": "RaciAssignment",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "activity": {
+      "type": "string",
+      "description": "Activity or deliverable"
+    },
+    "wbsCode": {
+      "type": "string",
+      "description": "Optional WBS code reference"
+    },
+    "roleName": {
+      "type": "string",
+      "description": "Role or person name"
+    },
+    "responsibility": {
+      "type": "string",
+      "enum": [
+        "R",
+        "A",
+        "C",
+        "I"
+      ],
+      "default": "C"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "projectId",
+    "activity",
+    "roleName",
+    "responsibility"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "ChangeWorkflow",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "stages": {
+      "type": "string",
+      "description": "JSON array of stage nodes"
+    },
+    "connections": {
+      "type": "string",
+      "description": "JSON array of connection edges"
+    }
+  },
+  "required": [
+    "projectId"
+  ]
+}

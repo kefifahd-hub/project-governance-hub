@@ -1,0 +1,66 @@
+{
+  "name": "RaidItem",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "itemType": {
+      "type": "string",
+      "enum": [
+        "Assumption",
+        "Issue",
+        "Dependency"
+      ],
+      "default": "Issue"
+    },
+    "title": {
+      "type": "string",
+      "description": "Item title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description"
+    },
+    "impact": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low"
+      ],
+      "default": "Medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Open",
+        "In Progress",
+        "Closed"
+      ],
+      "default": "Open"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "resolution": {
+      "type": "string",
+      "description": "Resolution details"
+    },
+    "linkedRiskId": {
+      "type": "string",
+      "description": "Linked Risk record ID"
+    }
+  },
+  "required": [
+    "projectId",
+    "title",
+    "itemType"
+  ]
+}

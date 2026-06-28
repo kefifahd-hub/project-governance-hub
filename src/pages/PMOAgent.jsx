@@ -87,13 +87,20 @@ export default function PMOAgent() {
     // Gather live project context
     let contextData = {};
     try {
-      const [actions, risks, crs, milestones] = await Promise.all([
+      const [actions, risks, crs, milestones, charter, stakeholders, raidItems, requirements, wbsElements, neurons, synapses] = await Promise.all([
         base44.entities.ActionItem.filter({ projectId: activeProject?.id }, '-due_date', 10).catch(() => []),
         base44.entities.Risk.list('-created_date', 5).catch(() => []),
         base44.entities.ChangeRequest.filter({ projectId: activeProject?.id }, '-created_date', 5).catch(() => []),
         base44.entities.Milestone.filter({ projectId: activeProject?.id }, '-created_date', 5).catch(() => []),
+        base44.entities.ProjectCharter.filter({ projectId: activeProject?.id }).then(r => r[0] || null).catch(() => null),
+        base44.entities.Stakeholder.filter({ projectId: activeProject?.id }).catch(() => []),
+        base44.entities.RaidItem.filter({ projectId: activeProject?.id }).catch(() => []),
+        base44.entities.Requirement.filter({ projectId: activeProject?.id }).catch(() => []),
+        base44.entities.WbsElement.filter({ projectId: activeProject?.id }).catch(() => []),
+        base44.entities.Neuron.list().catch(() => []),
+        base44.entities.Synapse.list().catch(() => []),
       ]);
-      contextData = { actions, risks, crs, milestones };
+      contextData = { actions, risks, crs, milestones, charter, stakeholders, raidItems, requirements, wbsElements, neurons, synapses };
     } catch {}
 
     const systemPrompt = buildSystemPrompt(user, activeProject, contextData);

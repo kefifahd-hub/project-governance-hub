@@ -29,8 +29,21 @@
       "type": "string",
       "format": "date"
     },
+    "owner": {
+      "type": "string",
+      "description": "Gate owner / decision maker"
+    },
     "decisionAuthority": {
-      "type": "string"
+      "type": "string",
+      "description": "Decision authority"
+    },
+    "decisionNotes": {
+      "type": "string",
+      "description": "Decision notes"
+    },
+    "checklist": {
+      "type": "string",
+      "description": "JSON array of {id, text, checked}"
     },
     "reserves": {
       "type": "string",

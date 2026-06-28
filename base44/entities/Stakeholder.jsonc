@@ -1,0 +1,86 @@
+{
+  "name": "Stakeholder",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "stakeholderName": {
+      "type": "string",
+      "description": "Stakeholder name"
+    },
+    "role": {
+      "type": "string",
+      "description": "Role / title"
+    },
+    "company": {
+      "type": "string",
+      "description": "Company / organization"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Internal",
+        "External"
+      ],
+      "default": "Internal"
+    },
+    "influence": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low"
+      ],
+      "default": "Medium"
+    },
+    "interest": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low"
+      ],
+      "default": "Medium"
+    },
+    "engagementCurrent": {
+      "type": "string",
+      "enum": [
+        "Unaware",
+        "Resistant",
+        "Neutral",
+        "Supportive",
+        "Leading"
+      ],
+      "default": "Neutral"
+    },
+    "engagementDesired": {
+      "type": "string",
+      "enum": [
+        "Unaware",
+        "Resistant",
+        "Neutral",
+        "Supportive",
+        "Leading"
+      ],
+      "default": "Supportive"
+    },
+    "engagementStrategy": {
+      "type": "string",
+      "description": "Engagement strategy"
+    },
+    "contact": {
+      "type": "string",
+      "description": "Contact info"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "projectId",
+    "stakeholderName"
+  ]
+}

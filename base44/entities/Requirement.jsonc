@@ -1,0 +1,66 @@
+{
+  "name": "Requirement",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "reqCode": {
+      "type": "string",
+      "description": "Requirement code e.g. REQ-001"
+    },
+    "description": {
+      "type": "string",
+      "description": "Requirement description"
+    },
+    "reqType": {
+      "type": "string",
+      "enum": [
+        "Functional",
+        "Non-functional",
+        "Business",
+        "Technical",
+        "Regulatory"
+      ],
+      "default": "Functional"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "Must",
+        "Should",
+        "Could",
+        "Won't"
+      ],
+      "default": "Should"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source of requirement"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Proposed",
+        "Approved",
+        "Implemented",
+        "Verified",
+        "Deferred"
+      ],
+      "default": "Proposed"
+    },
+    "acceptanceCriteria": {
+      "type": "string",
+      "description": "Acceptance criteria"
+    },
+    "wbsCode": {
+      "type": "string",
+      "description": "WBS code traceability"
+    }
+  },
+  "required": [
+    "projectId",
+    "description"
+  ]
+}

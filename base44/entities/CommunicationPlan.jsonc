@@ -1,0 +1,63 @@
+{
+  "name": "CommunicationPlan",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "audience": {
+      "type": "string",
+      "description": "Target audience"
+    },
+    "information": {
+      "type": "string",
+      "description": "Information to communicate"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Purpose"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "Daily",
+        "Weekly",
+        "Bi-weekly",
+        "Monthly",
+        "Quarterly",
+        "Milestone",
+        "Ad-hoc"
+      ],
+      "default": "Weekly"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "Email",
+        "Meeting",
+        "Report",
+        "Dashboard",
+        "Call",
+        "Workshop"
+      ],
+      "default": "Email"
+    },
+    "format": {
+      "type": "string",
+      "description": "Format"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "projectId",
+    "audience"
+  ]
+}

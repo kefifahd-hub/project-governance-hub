@@ -1,0 +1,85 @@
+{
+  "name": "ProjectCharter",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Project purpose"
+    },
+    "objectives": {
+      "type": "string",
+      "description": "Project objectives"
+    },
+    "successCriteria": {
+      "type": "string",
+      "description": "Success criteria"
+    },
+    "scopeIncluded": {
+      "type": "string",
+      "description": "In-scope items"
+    },
+    "scopeExcluded": {
+      "type": "string",
+      "description": "Out-of-scope items"
+    },
+    "deliverables": {
+      "type": "string",
+      "description": "Key deliverables"
+    },
+    "milestonesSummary": {
+      "type": "string",
+      "description": "High-level milestones"
+    },
+    "estimatedBudgetEurM": {
+      "type": "number",
+      "description": "Estimated budget in EUR millions"
+    },
+    "assumptions": {
+      "type": "string",
+      "description": "Key assumptions"
+    },
+    "constraints": {
+      "type": "string",
+      "description": "Key constraints"
+    },
+    "risksSummary": {
+      "type": "string",
+      "description": "High-level risks summary"
+    },
+    "sponsor": {
+      "type": "string",
+      "description": "Project sponsor"
+    },
+    "projectManager": {
+      "type": "string",
+      "description": "Project manager"
+    },
+    "stakeholdersSummary": {
+      "type": "string",
+      "description": "Key stakeholders summary"
+    },
+    "approvalStatus": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Approved"
+      ],
+      "default": "Draft"
+    },
+    "approvedBy": {
+      "type": "string",
+      "description": "Approved by"
+    },
+    "approvalDate": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "projectId"
+  ]
+}

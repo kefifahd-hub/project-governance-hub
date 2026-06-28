@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight } from 'lucide-react';
+import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight, FileCheck, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow } from 'lucide-react';
 import { useState } from 'react';
 import { createPageUrl } from '../utils';
 
@@ -21,31 +21,54 @@ const PHASE_TOOLS = {
 
 const SCHEDULE_PAGES = ['ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard'];
 
-const ALL_TOOLS = [
-  { page: 'ActionTracker',      label: 'Action Tracker',       icon: ListTodo },
-  { page: 'SiteSelection',      label: 'Site Selection',       icon: MapPin },
-  { page: 'FeasibilityStudy',   label: 'Feasibility Study',    icon: FileText },
-  { page: 'NPVCalculator',      label: 'NPV Calculator',       icon: Calculator },
-  { page: 'FinanceModel',       label: 'Finance Model',        icon: DollarSign },
-  { page: 'FEEDTracker',        label: 'FEED Tracker',         icon: ClipboardCheck },
-  { page: 'RiskRegister',       label: 'Risk Register',        icon: AlertTriangle },
-  { page: 'BudgetDashboard',    label: 'Budget Tracking',      icon: PiggyBank },
-  { page: 'Schedule',           label: 'Schedule',             icon: Calendar, group: true,
+const TOOL_CATEGORIES = [
+  { label: 'Initiation & Governance', tools: [
+    { page: 'ProjectCharter',      label: 'Project Charter',       icon: FileCheck },
+    { page: 'StakeholderRegister', label: 'Stakeholder Register',  icon: Users },
+    { page: 'Requirements',        label: 'Requirements',          icon: ClipboardList },
+    { page: 'WBS',                 label: 'WBS',                   icon: Network },
+    { page: 'RaciMatrix',          label: 'RACI Matrix',           icon: Grid3x3 },
+    { page: 'CommunicationPlan',   label: 'Communications Plan',   icon: Mail },
+    { page: 'RaidLog',             label: 'RAID Log',              icon: Flag },
+    { page: 'QualityGates',        label: 'Quality Gates',         icon: GitBranch },
+  ]},
+  { label: 'Planning & Business Case', tools: [
+    { page: 'FeasibilityStudy',   label: 'Feasibility Study',    icon: FileText },
+    { page: 'SiteSelection',      label: 'Site Selection',       icon: MapPin },
+    { page: 'FEEDTracker',        label: 'FEED Tracker',         icon: ClipboardCheck },
+    { page: 'FinanceModel',       label: 'Finance Model',        icon: DollarSign },
+    { page: 'NPVCalculator',      label: 'NPV Calculator',       icon: Calculator },
+  ]},
+  { label: 'Execution & Monitoring', tools: [
+    { page: 'ActionTracker',      label: 'Action Tracker',       icon: ListTodo },
+    { page: 'RiskRegister',       label: 'Risk Register',        icon: AlertTriangle },
+    { page: 'BudgetDashboard',    label: 'Budget Tracking',      icon: PiggyBank },
+    { page: 'QAQCDashboard',      label: 'QA/QC',                icon: CheckSquare },
+    { page: 'ChangeManagement',   label: 'Change Management',    icon: GitPullRequest },
+    { page: 'ChangeWorkflow',      label: 'Change Workflow',      icon: Workflow },
+  ]},
+  { label: 'Reporting', tools: [
+    { page: 'WeeklyReports',      label: 'Weekly Reports',       icon: FileBarChart },
+    { page: 'Reports',            label: 'Reports',              icon: Newspaper },
+  ]},
+  { label: 'Administration', tools: [
+    { page: 'UserAccess',         label: 'Users & Access',       icon: Users },
+  ]},
+];
+
+// Flatten for phase-matching compatibility
+const ALL_TOOLS = TOOL_CATEGORIES.flatMap(cat => cat.tools).concat([
+  { page: 'Schedule', label: 'Schedule', icon: Calendar, group: true,
     children: [
       { page: 'ScheduleMonitoring', label: 'Monitoring',   icon: BarChart3 },
       { page: 'ScheduleSync',       label: 'Sync',         icon: RefreshCcw },
       { page: 'ScheduleDashboard',  label: 'Dashboard',    icon: BarChart2 },
     ]
   },
-  { page: 'WeeklyReports',      label: 'Weekly Reports',       icon: FileBarChart },
-  { page: 'QAQCDashboard',      label: 'QA/QC',                icon: CheckSquare },
-  { page: 'ChangeManagement',   label: 'Change Management',    icon: GitPullRequest },
-  { page: 'UserAccess',         label: 'Users & Access',       icon: Users },
-  { page: 'Reports',            label: 'Reports',              icon: Newspaper },
-];
+]);
 
-// Always visible regardless of phase
-const ALWAYS_TOOLS = ['ClientBriefing'];
+// Always visible regardless of phase — governance tools are fundamental and available in every phase
+const ALWAYS_TOOLS = ['ClientBriefing', 'ProjectCharter', 'StakeholderRegister', 'Requirements', 'WBS', 'RaciMatrix', 'CommunicationPlan', 'RaidLog', 'QualityGates', 'ChangeWorkflow'];
 
 export default function ProjectSidebar() {
   const navigate = useNavigate();
@@ -103,6 +126,7 @@ export default function ProjectSidebar() {
 
           {/* All tools */}
           {ALL_TOOLS.map(tool => {
+            const alwaysEnabled = ALWAYS_TOOLS.includes(tool.page);
             const Icon = tool.icon;
 
             // Schedule group
@@ -158,7 +182,7 @@ export default function ProjectSidebar() {
             }
 
             // Regular tool
-            const enabled = phaseTools.some(t => t.page === tool.page);
+            const enabled = phaseTools.some(t => t.page === tool.page) || alwaysEnabled;
             const active = enabled && isActivePage(tool.page);
             return (
               <button

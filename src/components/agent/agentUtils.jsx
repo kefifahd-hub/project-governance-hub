@@ -50,6 +50,30 @@ export function buildSystemPrompt(user, project, contextData = {}) {
     ? contextData.milestones.map(m => `  - ${m.milestoneName || m.title || 'Milestone'} | Due: ${m.targetDate || 'TBD'} | Status: ${m.status || 'Active'}`).join('\n')
     : '  (no milestones loaded)';
 
+  const charterSummary = contextData.charter
+    ? `  Status: ${contextData.charter.approvalStatus} | Sponsor: ${contextData.charter.sponsor || 'TBD'} | PM: ${contextData.charter.projectManager || 'TBD'}\n  Purpose: ${(contextData.charter.purpose || 'Not defined').slice(0, 200)}`
+    : '  (no charter created)';
+
+  const stakeholderSummary = contextData.stakeholders?.length
+    ? contextData.stakeholders.map(s => `  - ${s.stakeholderName} | ${s.role || ''} | Influence: ${s.influence} | Interest: ${s.interest} | Engagement: ${s.engagementCurrent}→${s.engagementDesired}`).join('\n')
+    : '  (no stakeholders loaded)';
+
+  const raidSummary = contextData.raidItems?.length
+    ? contextData.raidItems.map(r => `  - [${r.itemType}] ${r.title} | Impact: ${r.impact} | Status: ${r.status}`).join('\n')
+    : '  (no RAID items loaded)';
+
+  const reqSummary = contextData.requirements?.length
+    ? contextData.requirements.slice(0, 10).map(r => `  - [${r.reqCode || 'REQ'}] ${r.priority} | ${r.reqType} | ${r.status} | ${(r.description || '').slice(0, 80)}`).join('\n')
+    : '  (no requirements loaded)';
+
+  const wbsSummary = contextData.wbsElements?.length
+    ? contextData.wbsElements.slice(0, 10).map(w => `  - ${w.wbsCode} ${w.name} | ${w.elementType} | ${w.status} | Budget: €${w.budgetEurK || 0}K`).join('\n')
+    : '  (no WBS elements loaded)';
+
+  const brainiacGraph = contextData.neurons?.length
+    ? `  Neurons (${contextData.neurons.length}):\n${contextData.neurons.map(n => `    - ${n.display_name} [${n.short_code}] | ${n.category} | Health: ${n.health_status}`).join('\n')}\n  Synapses (${contextData.synapses?.length || 0}):\n${(contextData.synapses || []).slice(0, 15).map(s => `    - ${s.synapse_name} | ${s.synapse_type} | ${s.health_status}`).join('\n')}`
+    : '  (Brainiac graph not loaded)';
+
   return `${DEFAULT_SYSTEM_PROMPT}
 
 ## CURRENT CONTEXT
@@ -71,8 +95,26 @@ ${crSummary}
 ### Upcoming Milestones:
 ${milestoneSummary}
 
+### Project Charter:
+${charterSummary}
+
+### Stakeholders:
+${stakeholderSummary}
+
+### RAID Log (Assumptions, Issues, Dependencies):
+${raidSummary}
+
+### Requirements (top 10):
+${reqSummary}
+
+### WBS Elements (top 10):
+${wbsSummary}
+
+### Brainiac Neural Graph (module map + connections):
+${brainiacGraph}
+
 ---
-Address the user as ${firstName}. Be direct, use the data above.`;
+Address the user as ${firstName}. Be direct, use the data above. You can trace cross-module impacts using the Brainiac graph above.`;
 }
 
 function getCalendarWeek() {

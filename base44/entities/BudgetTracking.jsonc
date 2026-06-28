@@ -24,6 +24,10 @@
       ],
       "description": "Budget category"
     },
+    "wbsCode": {
+      "type": "string",
+      "description": "Optional WBS code reference"
+    },
     "plannedEurK": {
       "type": "number",
       "description": "Planned amount in EUR thousands"

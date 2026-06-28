@@ -70,6 +70,15 @@ import SiteSelection from './pages/SiteSelection';
 import UserAccess from './pages/UserAccess';
 import WeeklyReports from './pages/WeeklyReports';
 import ScheduleDashboard from './pages/ScheduleDashboard';
+import ProjectCharter from './pages/ProjectCharter';
+import StakeholderRegister from './pages/StakeholderRegister';
+import WBS from './pages/WBS';
+import RaidLog from './pages/RaidLog';
+import CommunicationPlan from './pages/CommunicationPlan';
+import RaciMatrix from './pages/RaciMatrix';
+import QualityGates from './pages/QualityGates';
+import ChangeWorkflow from './pages/ChangeWorkflow';
+import Requirements from './pages/Requirements';
 import __Layout from './Layout.jsx';
 
 
@@ -97,6 +106,15 @@ export const PAGES = {
     "UserAccess": UserAccess,
     "WeeklyReports": WeeklyReports,
     "ScheduleDashboard": ScheduleDashboard,
+    "ProjectCharter": ProjectCharter,
+    "StakeholderRegister": StakeholderRegister,
+    "WBS": WBS,
+    "RaidLog": RaidLog,
+    "CommunicationPlan": CommunicationPlan,
+    "RaciMatrix": RaciMatrix,
+    "QualityGates": QualityGates,
+    "ChangeWorkflow": ChangeWorkflow,
+    "Requirements": Requirements,
 }
 
 export const pagesConfig = {
