@@ -56,6 +56,7 @@ import FEEDTracker from './pages/FEEDTracker';
 import FeasibilityStudy from './pages/FeasibilityStudy';
 import FinanceModel from './pages/FinanceModel';
 import Home from './pages/Home';
+import IndustrialisationProcesses from './pages/IndustrialisationProcesses';
 import NPVCalculator from './pages/NPVCalculator';
 import NewProject from './pages/NewProject';
 import PMOAgent from './pages/PMOAgent';
@@ -83,6 +84,7 @@ export const PAGES = {
     "FeasibilityStudy": FeasibilityStudy,
     "FinanceModel": FinanceModel,
     "Home": Home,
+    "IndustrialisationProcesses": IndustrialisationProcesses,
     "NPVCalculator": NPVCalculator,
     "NewProject": NewProject,
     "PMOAgent": PMOAgent,

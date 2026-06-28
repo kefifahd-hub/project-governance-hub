@@ -1,0 +1,163 @@
+// Battery Industrialisation Processes framework (formerly "2.0").
+// Workstreams 2.1–2.9 with sub-processes, quality-gate alignment, input/output
+// handoffs and links to the platform's existing modules. Sourced from the
+// governance knowledge base ("Integrated Process Map — Inputs, Outputs and Gap Register").
+// [doc] = handoff evidenced in an ingested document; [inferred] = logical link
+// awaiting confirmation (typically from an unread Visio flowchart).
+
+export const FRAMEWORK_NAME = 'Battery Industrialisation Processes';
+
+export const WORKSTREAMS = [
+  {
+    code: '2.1',
+    key: 'capacity_planning',
+    name: 'Capacity Planning',
+    kind: 'value-chain',
+    gate: 'QG0',
+    summary: 'Validate demand and capacity, allocate production, and approve the capacity blueprint that triggers a project.',
+    subProcesses: ['MTP analysis', 'Demand vs capacity check', 'Allocation study & industrialization plan', 'Capacity blueprint approval (GMC)'],
+    inputs: ['Mid-term demand plan', 'Plant capacity data'],
+    outputs: ['Approved capacity blueprint (project trigger)'],
+    feeds: ['2.2'],
+    modules: ['FinanceModel', 'FeasibilityStudy'],
+    kpis: ['Zero nomination failure due to capacity'],
+  },
+  {
+    code: '2.2',
+    key: 'project_management',
+    name: 'Project Management',
+    kind: 'value-chain',
+    gate: 'QG0/QG1',
+    summary: 'Define the project: feasibility, charter, execution plan, financial baseline and master schedule, with risk and change management.',
+    subProcesses: ['Feasibility study (3 phases)', 'Project startup & charter', 'Project execution plan (PEP)', 'Financial plan (Capex+Opex)', 'Master summary schedule L1', 'Risk management plan', 'Change management'],
+    inputs: ['Approved capacity blueprint'],
+    outputs: ['Charter', 'PEP', 'Financial baseline', 'Master schedule L1'],
+    feeds: ['2.3'],
+    modules: ['FeasibilityStudy', 'FinanceModel', 'ScheduleMonitoring', 'RiskRegister', 'ChangeManagement', 'QualityGates'],
+    kpis: ['On-time delivery rate', 'OEM nomination', 'Land LOI', '100% budget signature'],
+  },
+  {
+    code: '2.3',
+    key: 'design_inputs',
+    name: 'Design Inputs',
+    kind: 'value-chain',
+    gate: 'QG2',
+    summary: 'The pivot of the framework: build plant design inputs across versions V0–V3 (TUM, room book, layout) with confidence levels and staged sign-off.',
+    subProcesses: ['Design-input time/version plan', 'Content management V0–V3', 'TUM / room book / layout per department', 'Confidence-level management'],
+    inputs: ['Product plan', 'Equipment plan', 'Construction plan'],
+    outputs: ['V1 → basic design', 'V2/V3 → detailed design & hook-up', 'TUM → equipment install & BIM coordination'],
+    feeds: ['2.4', '2.5', '2.6'],
+    modules: ['FeasibilityStudy'],
+    kpis: ['Design-input plan achievement', 'Change-amount per version'],
+  },
+  {
+    code: '2.4',
+    key: 'manufacturing_process',
+    name: 'Manufacturing Process',
+    kind: 'execution',
+    gate: 'QG5',
+    summary: 'Engineer the production process: Bill of Process, PFD, PFMEA, control plans, work instructions, error-proofing, and line qualification.',
+    subProcesses: ['Manufacturability evaluation', 'Bill of Process (BOP)', 'PFD', 'PFMEA', 'Control plan', 'WI/OI', 'Error-proofing', 'DOE', 'Line qualification', 'Contamination control', 'Lessons learned'],
+    inputs: ['Design inputs (2.3)', 'Equipment SAT results (2.5)'],
+    outputs: ['Qualified production line', 'Trial production release'],
+    feeds: [],
+    modules: ['QAQCDashboard'],
+    kpis: ['Line qualification pass rate ≥90%', 'Manufacturability effectiveness ≥70%'],
+  },
+  {
+    code: '2.5',
+    key: 'equipment_development',
+    name: 'Equipment Development',
+    kind: 'execution',
+    gate: 'QG2/QG4',
+    summary: 'Specify, source, supervise, accept and commission production equipment, from CTQ inputs through FAT/SAT.',
+    subProcesses: ['Kick-off & input', 'CTQ key characteristics', 'KT supplier scoring', 'Final design review', 'On-site supervision', 'FAT', 'Install & commissioning', 'SAT', 'Tooling development'],
+    inputs: ['Design inputs (2.3)', 'Equipment development plan (2.2)'],
+    outputs: ['Commissioned equipment (SAT passed)'],
+    feeds: ['2.4', '2.7'],
+    modules: ['ActionTracker', 'QualityGates'],
+    kpis: ['SAT: 95% problems closed, CMK 1.33, OEE 60%', '45/60-day commissioning'],
+  },
+  {
+    code: '2.6',
+    key: 'construction_planning',
+    name: 'Construction Planning',
+    kind: 'execution',
+    gate: 'QG3/QG4',
+    summary: 'Govern plant construction: general rule (25 modules), design and cost management, document control and process quality audits.',
+    subProcesses: ['Battery plant general rule', 'Design management', 'Cost management', 'Document control', 'Process quality audit', 'Lessons learned'],
+    inputs: ['Design inputs (2.3)'],
+    outputs: ['Constructed facility'],
+    feeds: ['2.7'],
+    modules: ['ScheduleDashboard', 'BudgetDashboard', 'QAQCDashboard', 'DailySiteReport'],
+    kpis: ['Monthly cost report per WBS', 'Audit scores EP1–EP7'],
+  },
+  {
+    code: '2.7',
+    key: 'construction_delivery',
+    name: 'Construction Process & Delivery',
+    kind: 'execution',
+    gate: 'QG4/QG5',
+    summary: 'Factory acceptance and handover, including rectification and settlement, using the FR-01..FR-09 forms.',
+    subProcesses: ['Factory acceptance', 'Handover (FR-01..FR-09)', '30-day rectification', 'Settlement'],
+    inputs: ['Constructed facility (2.6)', 'Commissioning results (2.5)'],
+    outputs: ['Accepted & handed-over facility'],
+    feeds: [],
+    modules: ['QAQCDashboard', 'WeeklyReports'],
+    kpis: ['30-day rectification closure'],
+  },
+  {
+    code: '2.8',
+    key: 'industry_digital',
+    name: 'Industry Digital',
+    kind: 'enabler',
+    gate: '—',
+    summary: 'Cross-cutting digital systems deployed along the timeline: SPC, QMS, IMS, EDI, HR, OA, 2PP and shopfloor screens.',
+    subProcesses: ['IT infrastructure', 'SPC', 'QMS', 'IMS', 'EDI', 'HR system', 'OA', '2PP platform', 'Screen management'],
+    inputs: ['Project timeline'],
+    outputs: ['Operational digital backbone'],
+    feeds: ['2.4'],
+    modules: ['ScheduleSync', 'PMOAgent'],
+    kpis: ['Deployment completion rate', 'User satisfaction'],
+  },
+  {
+    code: '2.9',
+    key: 'performance_center',
+    name: 'Project Performance Center',
+    kind: 'enabler',
+    gate: '—',
+    summary: 'Cross-cutting oversight: master-schedule cold-eye review, risk and financial flowchart ownership.',
+    subProcesses: ['Master schedule L1 cold-eye review', 'Risk management oversight', 'Financial plan oversight'],
+    inputs: ['Master schedule L1 (2.2)'],
+    outputs: ['Independent schedule/risk/financial review'],
+    feeds: ['2.2'],
+    modules: ['ScheduleDashboard', 'Reports'],
+    kpis: ['Schedule development cycle-time'],
+  },
+];
+
+// Quality-gate overlay (QG0–QG8) on the value chain.
+export const GATES = [
+  { id: 'QG0', name: 'Project Proposal' },
+  { id: 'QG1', name: 'Project Planning' },
+  { id: 'QG2', name: 'Equipment & Building PO' },
+  { id: 'QG3', name: 'Detailed Design / Construction' },
+  { id: 'QG4', name: 'Installation / Commissioning' },
+  { id: 'QG5', name: 'Qualification' },
+  { id: 'QG6', name: 'C & D-Sample' },
+  { id: 'QG7', name: 'SOP' },
+  { id: 'QG8', name: 'Project Handover' },
+];
+
+export const KIND_STYLE = {
+  'value-chain': { label: 'Value chain', color: '#00A896' },
+  'execution': { label: 'Execution', color: '#3b82f6' },
+  'enabler': { label: 'Cross-cutting enabler', color: '#a78bfa' },
+};
+
+// Open items from the brain's gap register (G1–G8), surfaced for transparency.
+export const KNOWN_GAPS = [
+  'Cross-process flowcharts (Risk Mgmt 2.2.10, Integrated Master Schedule 2.2.11, Financial Plan 2.2.8) are unread Visio files — export to PDF and re-ingest to confirm inferred links.',
+  'No product-rework procedure exists in source (2.4.11 folder is a misfiled duplicate).',
+  'QG0–QG8 gate checklist templates referenced but not yet supplied.',
+];
