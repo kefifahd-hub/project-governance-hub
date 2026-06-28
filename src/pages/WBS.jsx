@@ -128,7 +128,7 @@ export default function WBS() {
                     {rollup.actualCost > 0 && <span className="text-teal-400">Act: {rollup.actualCost.toFixed(0)}K</span>}
                     {rollup.activityCount > 0 && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{rollup.activityCount} ({rollup.avgComplete.toFixed(0)}%)</span>}
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button onClick={() => openEdit(w)} className="p-1.5 rounded hover:bg-slate-700 action-icon-btn" style={{ color: '#94A3B8' }}><Pencil className="w-3.5 h-3.5" /></button>
                     <button onClick={() => deleteMutation.mutate(w.id)} className="p-1.5 rounded hover:bg-red-500/20 action-icon-btn" style={{ color: '#94A3B8' }}><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
@@ -157,12 +157,12 @@ export default function WBS() {
         <DialogContent className="max-w-xl" style={{ background: 'rgba(15,23,42,0.98)', borderColor: 'rgba(202,220,252,0.2)' }}>
           <DialogHeader><DialogTitle style={{ color: '#CADCFC' }}>{editing ? 'Edit WBS Element' : 'New WBS Element'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label style={{ color: '#94A3B8' }}>WBS Code *</Label><Input value={form.wbsCode || ''} onChange={e => update('wbsCode', e.target.value)} placeholder="1.2.3" className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
               <div><Label style={{ color: '#94A3B8' }}>Name *</Label><Input value={form.name || ''} onChange={e => update('name', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
             </div>
             <div><Label style={{ color: '#94A3B8' }}>Description</Label><Textarea value={form.description || ''} onChange={e => update('description', e.target.value)} rows={2} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div><Label style={{ color: '#94A3B8' }}>Type</Label><Select value={form.elementType || 'Work Package'} onValueChange={v => update('elementType', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['Phase','Deliverable','Work Package'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
               <div><Label style={{ color: '#94A3B8' }}>Status</Label><Select value={form.status || 'Not Started'} onValueChange={v => update('status', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['Not Started','In Progress','Complete'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
               <div><Label style={{ color: '#94A3B8' }}>Budget (€K)</Label><Input type="number" value={form.budgetEurK || 0} onChange={e => update('budgetEurK', parseFloat(e.target.value) || 0)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>

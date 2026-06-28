@@ -92,10 +92,10 @@ export default function ProjectCharter() {
   return (
     <div className="min-h-screen pb-20" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       <div className="shadow-sm sticky top-14 z-30" style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <Button variant="ghost" onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))} style={{ color: '#CADCFC' }}>
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back
+              <ArrowLeft className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Back</span>
             </Button>
             <div className="flex items-center gap-2">
               <div className="bg-indigo-500 p-2 rounded-lg text-white"><FileCheck className="w-5 h-5" /></div>
@@ -105,15 +105,15 @@ export default function ProjectCharter() {
           </div>
           <div className="flex items-center gap-2">
             <Button onClick={() => saveMutation.mutate(effectiveForm)} disabled={saveMutation.isPending || !formData} style={{ background: '#00A896', color: '#F8FAFC' }}>
-              <Save className="w-4 h-4 mr-1" /> Save
+              <Save className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">Save</span>
             </Button>
             {!isApproved ? (
               <Button onClick={() => approveMutation.mutate()} disabled={approveMutation.isPending} style={{ background: '#16a34a', color: '#F8FAFC' }}>
-                <CheckCircle2 className="w-4 h-4 mr-1" /> Approve
+                <CheckCircle2 className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">Approve</span>
               </Button>
             ) : (
               <Button onClick={() => revertMutation.mutate()} disabled={revertMutation.isPending} variant="outline">
-                <RotateCcw className="w-4 h-4 mr-1" /> Revert
+                <RotateCcw className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">Revert</span>
               </Button>
             )}
           </div>

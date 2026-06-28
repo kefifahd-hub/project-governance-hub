@@ -131,7 +131,7 @@ export default function ChangeWorkflow() {
         </div>
       </div>
 
-      <div className="flex" style={{ height: 'calc(100vh - 180px)' }}>
+      <div className="flex flex-col sm:flex-row h-[400px] sm:h-[calc(100vh-180px)]">
         {/* Canvas */}
         <div className="flex-1 overflow-auto" style={{ background: 'rgba(15,23,42,0.5)' }}>
           <div ref={canvasRef} className="relative" style={{ width: '1500px', height: '600px', backgroundImage: 'radial-gradient(rgba(202,220,252,0.07) 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
@@ -182,7 +182,7 @@ export default function ChangeWorkflow() {
           const stage = stages.find(s => s.id === selectedStage);
           if (!stage) return null;
           return (
-            <div className="w-80 border-l overflow-y-auto" style={{ background: 'rgba(15,23,42,0.95)', borderColor: 'rgba(202,220,252,0.1)' }}>
+            <div className="w-full sm:w-80 border-t sm:border-t-0 sm:border-l overflow-y-auto" style={{ background: 'rgba(15,23,42,0.95)', borderColor: 'rgba(202,220,252,0.1)' }}>
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold" style={{ color: '#CADCFC' }}>{stage.name}</h3>

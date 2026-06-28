@@ -72,7 +72,7 @@ export default function CommunicationPlan() {
               <CardContent className="pt-4">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold" style={{ color: '#CADCFC' }}>{c.audience}</h3>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button onClick={() => openEdit(c)} className="p-1.5 rounded hover:bg-slate-700 action-icon-btn" style={{ color: '#94A3B8' }}><Pencil className="w-3.5 h-3.5" /></button>
                     <button onClick={() => deleteMutation.mutate(c.id)} className="p-1.5 rounded hover:bg-red-500/20 action-icon-btn" style={{ color: '#94A3B8' }}><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
@@ -99,7 +99,7 @@ export default function CommunicationPlan() {
             <div><Label style={{ color: '#94A3B8' }}>Audience *</Label><Input value={form.audience || ''} onChange={e => update('audience', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
             <div><Label style={{ color: '#94A3B8' }}>Information</Label><Textarea value={form.information || ''} onChange={e => update('information', e.target.value)} rows={2} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
             <div><Label style={{ color: '#94A3B8' }}>Purpose</Label><Input value={form.purpose || ''} onChange={e => update('purpose', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div><Label style={{ color: '#94A3B8' }}>Frequency</Label><Select value={form.frequency || 'Weekly'} onValueChange={v => update('frequency', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{FREQ_OPTIONS.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
               <div><Label style={{ color: '#94A3B8' }}>Channel</Label><Select value={form.channel || 'Email'} onValueChange={v => update('channel', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{CHANNEL_OPTIONS.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
               <div><Label style={{ color: '#94A3B8' }}>Owner</Label><Input value={form.owner || ''} onChange={e => update('owner', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>

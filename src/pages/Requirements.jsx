@@ -68,7 +68,7 @@ export default function Requirements() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4">
           {['all','Must','Should','Could',"Won't"].map(p => (
             <button key={p} onClick={() => setPriorityFilter(p)} className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all" style={{ background: priorityFilter === p ? 'rgba(0,168,150,0.2)' : 'rgba(30,39,97,0.5)', color: priorityFilter === p ? '#00A896' : '#94A3B8', border: `1px solid ${priorityFilter === p ? 'rgba(0,168,150,0.3)' : 'rgba(202,220,252,0.1)'}` }}>{p === 'all' ? 'All' : p}</button>
           ))}
@@ -83,7 +83,7 @@ export default function Requirements() {
                     {r.reqCode && <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-700/50 text-slate-300">{r.reqCode}</span>}
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${PRIORITY_COLORS[r.priority] || PRIORITY_COLORS['Should']}`}>{r.priority}</span>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button onClick={() => openEdit(r)} className="p-1.5 rounded hover:bg-slate-700 action-icon-btn" style={{ color: '#94A3B8' }}><Pencil className="w-3.5 h-3.5" /></button>
                     <button onClick={() => deleteMutation.mutate(r.id)} className="p-1.5 rounded hover:bg-red-500/20 action-icon-btn" style={{ color: '#94A3B8' }}><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
@@ -106,12 +106,12 @@ export default function Requirements() {
         <DialogContent className="max-w-2xl" style={{ background: 'rgba(15,23,42,0.98)', borderColor: 'rgba(202,220,252,0.2)' }}>
           <DialogHeader><DialogTitle style={{ color: '#CADCFC' }}>{editing ? 'Edit Requirement' : 'New Requirement'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label style={{ color: '#94A3B8' }}>Code</Label><Input value={form.reqCode || ''} onChange={e => update('reqCode', e.target.value)} placeholder="REQ-001" className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
               <div><Label style={{ color: '#94A3B8' }}>Source</Label><Input value={form.source || ''} onChange={e => update('source', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
             </div>
             <div><Label style={{ color: '#94A3B8' }}>Description *</Label><Textarea value={form.description || ''} onChange={e => update('description', e.target.value)} rows={2} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div><Label style={{ color: '#94A3B8' }}>Type</Label><Select value={form.reqType || 'Functional'} onValueChange={v => update('reqType', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['Functional','Non-functional','Business','Technical','Regulatory'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
               <div><Label style={{ color: '#94A3B8' }}>Priority</Label><Select value={form.priority || 'Should'} onValueChange={v => update('priority', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['Must','Should','Could',"Won't"].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
               <div><Label style={{ color: '#94A3B8' }}>Status</Label><Select value={form.status || 'Proposed'} onValueChange={v => update('status', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['Proposed','Approved','Implemented','Verified','Deferred'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>

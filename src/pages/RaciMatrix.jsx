@@ -101,7 +101,7 @@ export default function RaciMatrix() {
                           <span className={`w-5 h-5 rounded flex items-center justify-center text-xs font-bold ${style.bg} ${style.text}`}>{r.responsibility}</span>
                           <span className="text-sm" style={{ color: '#CADCFC' }}>{r.roleName}</span>
                           {r.wbsCode && <span className="text-xs px-1 rounded bg-indigo-500/15 text-indigo-300">{r.wbsCode}</span>}
-                          <button onClick={() => deleteMutation.mutate(r.id)} className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-500/20 transition-all" style={{ color: '#64748b' }}><Trash2 className="w-3 h-3" /></button>
+                          <button onClick={() => deleteMutation.mutate(r.id)} className="sm:opacity-0 sm:group-hover:opacity-100 p-0.5 rounded hover:bg-red-500/20 transition-all" style={{ color: '#64748b' }}><Trash2 className="w-3 h-3" /></button>
                         </div>
                       );
                     })}
@@ -120,7 +120,7 @@ export default function RaciMatrix() {
           <DialogHeader><DialogTitle style={{ color: '#CADCFC' }}>Add RACI Assignment</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div><Label style={{ color: '#94A3B8' }}>Activity *</Label><Input value={form.activity || ''} onChange={e => update('activity', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label style={{ color: '#94A3B8' }}>Role / Name *</Label><Input value={form.roleName || ''} onChange={e => update('roleName', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
               <div><Label style={{ color: '#94A3B8' }}>Responsibility</Label><Select value={form.responsibility || 'C'} onValueChange={v => update('responsibility', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['R','A','C','I'].map(v => <SelectItem key={v} value={v}>{v} — {RACI_STYLES[v].label}</SelectItem>)}</SelectContent></Select></div>
             </div>

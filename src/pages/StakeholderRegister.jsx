@@ -93,7 +93,7 @@ export default function StakeholderRegister() {
                       <h3 className="font-semibold" style={{ color: '#CADCFC' }}>{s.stakeholderName}</h3>
                       <p className="text-xs" style={{ color: '#94A3B8' }}>{s.role || '—'}{s.company ? ` · ${s.company}` : ''}</p>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <button onClick={() => openEdit(s)} className="p-1.5 rounded hover:bg-slate-700 action-icon-btn" style={{ color: '#94A3B8' }}><Pencil className="w-3.5 h-3.5" /></button>
                       <button onClick={() => deleteMutation.mutate(s.id)} className="p-1.5 rounded hover:bg-red-500/20 action-icon-btn" style={{ color: '#94A3B8' }}><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
@@ -117,8 +117,8 @@ export default function StakeholderRegister() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl" style={{ background: 'rgba(15,23,42,0.98)', borderColor: 'rgba(202,220,252,0.2)' }}>
           <DialogHeader><DialogTitle style={{ color: '#CADCFC' }}>{editing ? 'Edit Stakeholder' : 'New Stakeholder'}</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2"><Label style={{ color: '#94A3B8' }}>Name *</Label><Input value={form.stakeholderName || ''} onChange={e => update('stakeholderName', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="sm:col-span-2"><Label style={{ color: '#94A3B8' }}>Name *</Label><Input value={form.stakeholderName || ''} onChange={e => update('stakeholderName', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
             <div><Label style={{ color: '#94A3B8' }}>Role</Label><Input value={form.role || ''} onChange={e => update('role', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
             <div><Label style={{ color: '#94A3B8' }}>Company</Label><Input value={form.company || ''} onChange={e => update('company', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
             <div><Label style={{ color: '#94A3B8' }}>Category</Label><Select value={form.category || 'Internal'} onValueChange={v => update('category', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['Internal','External'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>

@@ -93,7 +93,7 @@ export default function RaidLog() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4">
           {['all','Assumption','Issue','Dependency'].map(t => (
             <button key={t} onClick={() => setTypeFilter(t)} className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all" style={{ background: typeFilter === t ? 'rgba(0,168,150,0.2)' : 'rgba(30,39,97,0.5)', color: typeFilter === t ? '#00A896' : '#94A3B8', border: `1px solid ${typeFilter === t ? 'rgba(0,168,150,0.3)' : 'rgba(202,220,252,0.1)'}` }}>{t === 'all' ? 'All' : t + 's'}</button>
           ))}
@@ -110,7 +110,7 @@ export default function RaidLog() {
                       <div className={`p-1.5 rounded-lg ${TYPE_COLORS[r.itemType] || TYPE_COLORS['Issue']}`}><TIcon className="w-3.5 h-3.5" /></div>
                       <h3 className="font-semibold" style={{ color: '#CADCFC' }}>{r.title}</h3>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <button onClick={() => openEdit(r)} className="p-1.5 rounded hover:bg-slate-700 action-icon-btn" style={{ color: '#94A3B8' }}><Pencil className="w-3.5 h-3.5" /></button>
                       <button onClick={() => deleteMutation.mutate(r.id)} className="p-1.5 rounded hover:bg-red-500/20 action-icon-btn" style={{ color: '#94A3B8' }}><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
@@ -141,12 +141,12 @@ export default function RaidLog() {
         <DialogContent className="max-w-2xl" style={{ background: 'rgba(15,23,42,0.98)', borderColor: 'rgba(202,220,252,0.2)' }}>
           <DialogHeader><DialogTitle style={{ color: '#CADCFC' }}>{editing ? 'Edit Item' : 'New RAID Item'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label style={{ color: '#94A3B8' }}>Type</Label><Select value={form.itemType || 'Issue'} onValueChange={v => update('itemType', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['Assumption','Issue','Dependency'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
               <div><Label style={{ color: '#94A3B8' }}>Title *</Label><Input value={form.title || ''} onChange={e => update('title', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
             </div>
             <div><Label style={{ color: '#94A3B8' }}>Description</Label><Textarea value={form.description || ''} onChange={e => update('description', e.target.value)} rows={2} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div><Label style={{ color: '#94A3B8' }}>Impact</Label><Select value={form.impact || 'Medium'} onValueChange={v => update('impact', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['High','Medium','Low'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
               <div><Label style={{ color: '#94A3B8' }}>Status</Label><Select value={form.status || 'Open'} onValueChange={v => update('status', v)}><SelectTrigger className="bg-slate-900/50 border-slate-700 text-slate-100"><SelectValue /></SelectTrigger><SelectContent>{['Open','In Progress','Closed'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
               <div><Label style={{ color: '#94A3B8' }}>Owner</Label><Input value={form.owner || ''} onChange={e => update('owner', e.target.value)} className="bg-slate-900/50 border-slate-700 text-slate-100" /></div>
