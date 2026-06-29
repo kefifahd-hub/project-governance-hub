@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { createPageUrl } from '../utils';
+import OptimizeWithAI from '../components/governance/OptimizeWithAI';
 
 const PRIORITY_COLORS = { 'Must': 'bg-red-500/20 text-red-400', 'Should': 'bg-amber-500/20 text-amber-400', 'Could': 'bg-blue-500/20 text-blue-400', "Won't": 'bg-slate-500/20 text-slate-400' };
 const STATUS_COLORS = { 'Proposed': 'bg-slate-500/20 text-slate-300', 'Approved': 'bg-blue-500/20 text-blue-400', 'Implemented': 'bg-teal-500/20 text-teal-400', 'Verified': 'bg-green-500/20 text-green-400', 'Deferred': 'bg-amber-500/20 text-amber-400' };
@@ -63,7 +64,10 @@ export default function Requirements() {
               <h1 className="text-xl font-bold" style={{ color: '#CADCFC' }}>Requirements</h1>
             </div>
           </div>
-          <Button onClick={openNew} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          <div className="flex items-center gap-2">
+            <OptimizeWithAI documentType="requirements" projectId={projectId} currentData={requirements} onApplied={() => qc.invalidateQueries({ queryKey: ['requirements', projectId] })} />
+            <Button onClick={openNew} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          </div>
         </div>
       </div>
 

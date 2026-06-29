@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { createPageUrl } from '../utils';
+import OptimizeWithAI from '../components/governance/OptimizeWithAI';
 
 const ENGAGEMENT_LEVELS = ['Unaware', 'Resistant', 'Neutral', 'Supportive', 'Leading'];
 
@@ -70,7 +71,15 @@ export default function StakeholderRegister() {
               <h1 className="text-xl font-bold" style={{ color: '#CADCFC' }}>Stakeholder Register</h1>
             </div>
           </div>
-          <Button onClick={openNew} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          <div className="flex items-center gap-2">
+            <OptimizeWithAI
+              documentType="stakeholders"
+              projectId={projectId}
+              currentData={stakeholders}
+              onApplied={() => qc.invalidateQueries({ queryKey: ['stakeholders', projectId] })}
+            />
+            <Button onClick={openNew} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          </div>
         </div>
       </div>
 

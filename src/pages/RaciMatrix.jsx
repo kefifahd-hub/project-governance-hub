@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { createPageUrl } from '../utils';
+import OptimizeWithAI from '../components/governance/OptimizeWithAI';
 
 const RACI_STYLES = {
   'R': { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Responsible' },
@@ -65,7 +66,10 @@ export default function RaciMatrix() {
               <h1 className="text-xl font-bold" style={{ color: '#CADCFC' }}>RACI Matrix</h1>
             </div>
           </div>
-          <Button onClick={() => { setForm({ responsibility: 'C' }); setDialogOpen(true); }} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          <div className="flex items-center gap-2">
+            <OptimizeWithAI documentType="raci" projectId={projectId} currentData={assignments} onApplied={() => qc.invalidateQueries({ queryKey: ['raciAssignments', projectId] })} />
+            <Button onClick={() => { setForm({ responsibility: 'C' }); setDialogOpen(true); }} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          </div>
         </div>
       </div>
 

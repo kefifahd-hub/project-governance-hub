@@ -69,7 +69,8 @@ export default function Layout({ children, currentPageName }) {
     { name: 'RACI Matrix', page: 'RaciMatrix' },
     { name: 'Requirements', page: 'Requirements' },
     { name: 'Quality Gates', page: 'QualityGates' },
-    { name: 'Change Workflow', page: 'ChangeWorkflow' }
+    { name: 'Change Workflow', page: 'ChangeWorkflow' },
+    { name: 'AI Governance Wizard', page: 'GovernanceWizard' }
   ];
   
   const navItems = [

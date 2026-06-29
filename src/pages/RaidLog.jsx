@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { createPageUrl } from '../utils';
+import OptimizeWithAI from '../components/governance/OptimizeWithAI';
 
 const TYPE_ICONS = { 'Assumption': Flag, 'Issue': AlertTriangle, 'Dependency': Link2 };
 const TYPE_COLORS = { 'Assumption': 'bg-blue-500/15 text-blue-400', 'Issue': 'bg-red-500/15 text-red-400', 'Dependency': 'bg-purple-500/15 text-purple-400' };
@@ -88,7 +89,10 @@ export default function RaidLog() {
               <h1 className="text-xl font-bold" style={{ color: '#CADCFC' }}>RAID Log</h1>
             </div>
           </div>
-          <Button onClick={openNew} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          <div className="flex items-center gap-2">
+            <OptimizeWithAI documentType="raid" projectId={projectId} currentData={raidItems} onApplied={() => qc.invalidateQueries({ queryKey: ['raidItems', projectId] })} />
+            <Button onClick={openNew} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          </div>
         </div>
       </div>
 

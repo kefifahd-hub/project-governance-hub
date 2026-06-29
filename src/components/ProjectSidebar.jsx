@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight, FileCheck, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow } from 'lucide-react';
+import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight, FileCheck, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import { createPageUrl } from '../utils';
 
@@ -119,6 +119,20 @@ export default function ProjectSidebar() {
           >
             <LayoutDashboard className="w-4 h-4 shrink-0" />
             Dashboard
+          </button>
+
+          {/* AI Governance Wizard */}
+          <button
+            onClick={() => navigate(createPageUrl(`GovernanceWizard?id=${projectId}`))}
+            className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-all mb-2"
+            style={{
+              color: '#a78bfa',
+              background: isActivePage('GovernanceWizard') ? 'rgba(167,139,250,0.15)' : 'rgba(124,58,237,0.1)',
+              border: '1px solid rgba(167,139,250,0.2)',
+            }}
+          >
+            <Wand2 className="w-4 h-4 shrink-0" />
+            AI Governance Wizard
           </button>
 
           {/* Divider */}

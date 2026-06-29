@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { createPageUrl } from '../utils';
+import OptimizeWithAI from '../components/governance/OptimizeWithAI';
 
 export default function ProjectCharter() {
   const navigate = useNavigate();
@@ -104,6 +105,12 @@ export default function ProjectCharter() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <OptimizeWithAI
+              documentType="charter"
+              projectId={projectId}
+              currentData={effectiveForm}
+              onApplied={(optimizedFields) => setFormData(prev => ({ ...(prev || charter || {}), ...optimizedFields }))}
+            />
             <Button onClick={() => saveMutation.mutate(effectiveForm)} disabled={saveMutation.isPending || !formData} style={{ background: '#00A896', color: '#F8FAFC' }}>
               <Save className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">Save</span>
             </Button>

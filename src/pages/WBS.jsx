@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { createPageUrl } from '../utils';
+import OptimizeWithAI from '../components/governance/OptimizeWithAI';
 
 const STATUS_COLORS = { 'Not Started': 'bg-slate-500/20 text-slate-400', 'In Progress': 'bg-blue-500/20 text-blue-400', 'Complete': 'bg-green-500/20 text-green-400' };
 const TYPE_COLORS = { 'Phase': 'bg-indigo-500/15 text-indigo-300', 'Deliverable': 'bg-purple-500/15 text-purple-300', 'Work Package': 'bg-teal-500/15 text-teal-300' };
@@ -96,7 +97,10 @@ export default function WBS() {
               <h1 className="text-xl font-bold" style={{ color: '#CADCFC' }}>WBS</h1>
             </div>
           </div>
-          <Button onClick={openNew} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          <div className="flex items-center gap-2">
+            <OptimizeWithAI documentType="wbs" projectId={projectId} currentData={wbsElements} onApplied={() => qc.invalidateQueries({ queryKey: ['wbsElements', projectId] })} />
+            <Button onClick={openNew} style={{ background: '#00A896', color: '#F8FAFC' }}><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          </div>
         </div>
       </div>
 

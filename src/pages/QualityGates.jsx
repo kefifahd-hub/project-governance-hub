@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { createPageUrl } from '../utils';
+import OptimizeWithAI from '../components/governance/OptimizeWithAI';
 
 const GATE_DEFS = [
   { number: 0, name: 'QG0 — Opportunity', checklist: ['Business case defined', 'Market demand validated', 'High-level budget range identified', 'Strategic alignment confirmed'] },
@@ -102,12 +103,15 @@ export default function QualityGates() {
   return (
     <div className="min-h-screen pb-20" style={{ background: 'linear-gradient(135deg, #1E2761 0%, #0F172A 100%)' }}>
       <div className="shadow-sm sticky top-14 z-30" style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)' }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
-          <Button variant="ghost" onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))} style={{ color: '#CADCFC' }}><ArrowLeft className="w-4 h-4 mr-2" /> Back</Button>
-          <div className="flex items-center gap-2">
-            <div className="bg-green-600 p-2 rounded-lg text-white"><GitBranch className="w-5 h-5" /></div>
-            <h1 className="text-xl font-bold" style={{ color: '#CADCFC' }}>Quality Gates</h1>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" onClick={() => navigate(createPageUrl(`Home?id=${projectId}`))} style={{ color: '#CADCFC' }}><ArrowLeft className="w-4 h-4 mr-2" /> Back</Button>
+            <div className="flex items-center gap-2">
+              <div className="bg-green-600 p-2 rounded-lg text-white"><GitBranch className="w-5 h-5" /></div>
+              <h1 className="text-xl font-bold" style={{ color: '#CADCFC' }}>Quality Gates</h1>
+            </div>
           </div>
+          <OptimizeWithAI documentType="qualityGates" projectId={projectId} currentData={gates} onApplied={() => qc.invalidateQueries({ queryKey: ['qualityGates', projectId] })} />
         </div>
       </div>
 
