@@ -70,6 +70,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Requirements', page: 'Requirements' },
     { name: 'Quality Gates', page: 'QualityGates' },
     { name: 'Change Workflow', page: 'ChangeWorkflow' },
+    { name: 'Workflow Builder', page: 'WorkflowBuilder' },
     { name: 'AI Governance Wizard', page: 'GovernanceWizard' }
   ];
   

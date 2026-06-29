@@ -46,6 +46,7 @@ const TOOL_CATEGORIES = [
     { page: 'QAQCDashboard',      label: 'QA/QC',                icon: CheckSquare },
     { page: 'ChangeManagement',   label: 'Change Management',    icon: GitPullRequest },
     { page: 'ChangeWorkflow',      label: 'Change Workflow',      icon: Workflow },
+    { page: 'WorkflowBuilder',     label: 'Workflow Builder',     icon: Workflow },
   ]},
   { label: 'Reporting', tools: [
     { page: 'WeeklyReports',      label: 'Weekly Reports',       icon: FileBarChart },
@@ -68,7 +69,7 @@ const ALL_TOOLS = TOOL_CATEGORIES.flatMap(cat => cat.tools).concat([
 ]);
 
 // Always visible regardless of phase — governance tools are fundamental and available in every phase
-const ALWAYS_TOOLS = ['ClientBriefing', 'ProjectCharter', 'StakeholderRegister', 'Requirements', 'WBS', 'RaciMatrix', 'CommunicationPlan', 'RaidLog', 'QualityGates', 'ChangeWorkflow'];
+const ALWAYS_TOOLS = ['ClientBriefing', 'ProjectCharter', 'StakeholderRegister', 'Requirements', 'WBS', 'RaciMatrix', 'CommunicationPlan', 'RaidLog', 'QualityGates', 'ChangeWorkflow', 'WorkflowBuilder'];
 
 export default function ProjectSidebar() {
   const navigate = useNavigate();

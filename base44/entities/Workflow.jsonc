@@ -1,0 +1,48 @@
+{
+  "name": "Workflow",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "Workflow name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Workflow description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Handover",
+        "Document Creation",
+        "Design Review",
+        "Approval Process",
+        "Custom"
+      ],
+      "default": "Custom",
+      "description": "Workflow category / template type"
+    },
+    "nodes": {
+      "type": "string",
+      "description": "JSON array of workflow nodes {id, type, label, assignee, description, durationDays, condition}"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Active",
+        "Archived"
+      ],
+      "default": "Draft"
+    }
+  },
+  "required": [
+    "projectId",
+    "name",
+    "category"
+  ]
+}

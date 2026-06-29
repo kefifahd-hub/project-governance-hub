@@ -6,6 +6,7 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import GovernanceWizard from './pages/GovernanceWizard';
+import WorkflowBuilder from './pages/WorkflowBuilder';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { useEffect } from 'react';
@@ -82,6 +83,13 @@ const AnimatedRoutes = () => {
           <LayoutWrapper currentPageName="GovernanceWizard">
             <PageTransition k="GovernanceWizard">
               <GovernanceWizard />
+            </PageTransition>
+          </LayoutWrapper>
+        } />
+        <Route path="/WorkflowBuilder" element={
+          <LayoutWrapper currentPageName="WorkflowBuilder">
+            <PageTransition k="WorkflowBuilder">
+              <WorkflowBuilder />
             </PageTransition>
           </LayoutWrapper>
         } />
