@@ -353,6 +353,120 @@ Return:
       }
     }
 
+    // ── GENERATE FROM STORY MODE ──
+    // Creates a new Project + all governance docs from a free-text project story
+    if (mode === 'generateFromStory') {
+      const story = body.story || '';
+      if (!story.trim()) return Response.json({ error: 'Story text is required' }, { status: 400 });
+
+      // Step 1: Extract project metadata from the story
+      const extractResult = await base44.integrations.Core.InvokeLLM({
+        prompt: `${SYSTEM_PROMPT}
+
+From the following project description, extract structured project metadata.
+If a field isn't mentioned, infer a sensible default for the project type.
+
+Project description:
+${story}`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            projectName: { type: 'string', description: 'A concise, professional project name' },
+            clientName: { type: 'string', description: 'Client or parent organization name (infer if not stated)' },
+            projectType: { type: 'string', enum: ['Battery Gigafactory', 'Data Center', 'Other'] },
+            totalBudgetEurM: { type: 'number', description: 'Total budget in EUR millions (estimate if not stated)' },
+            currentPhase: { type: 'string', enum: ['Feasibility', 'Pre-FEED', 'FEED', 'Investment Decision', 'Project Setup', 'Detailed Engineering', 'Procurement', 'Construction', 'Commissioning', 'SOP'] },
+            startDate: { type: 'string', description: 'ISO date or empty' },
+            targetCompletion: { type: 'string', description: 'ISO date or empty' },
+            projectOwner: { type: 'string', description: 'Project owner / director name (infer a realistic persona if not stated)' },
+            notes: { type: 'string', description: 'Key details from the story' },
+          },
+          required: ['projectName', 'clientName', 'projectType', 'totalBudgetEurM', 'currentPhase', 'projectOwner', 'notes'],
+        },
+      });
+
+      // Step 2: Create the Project entity
+      const project = await base44.asServiceRole.entities.Project.create({
+        projectName: extractResult.projectName,
+        clientName: extractResult.clientName,
+        projectType: extractResult.projectType,
+        totalBudgetEurM: extractResult.totalBudgetEurM,
+        currentPhase: extractResult.currentPhase,
+        startDate: extractResult.startDate || undefined,
+        targetCompletion: extractResult.targetCompletion || undefined,
+        projectOwner: extractResult.projectOwner,
+        status: 'Active',
+        healthScore: 75,
+        notes: extractResult.notes,
+      });
+
+      const newProjectId = project.id;
+
+      // Step 3: Generate all governance documents (reuse generate logic)
+      const fullContext = `Project from database: ${JSON.stringify(project)}
+User's project story:
+${story}`;
+
+      const genResult = await base44.integrations.Core.InvokeLLM({
+        prompt: `${SYSTEM_PROMPT}
+
+Based on the project context below, generate a complete set of governance documents. Return structured JSON.
+Generate realistic, professional content appropriate for the project type.
+- Charter: comprehensive single document with all fields filled
+- Stakeholders: 5-8 stakeholders with realistic names, roles, companies, influence/interest levels, engagement strategies
+- WBS: 6-10 elements with proper hierarchical codes (1, 1.1, 1.2, 2, 2.1, etc.), types, owners, budgets
+- RACI: 8-15 assignments mapping roles to activities with R/A/C/I responsibility
+- Communication: 5-8 plan entries with audience, info, frequency, channel
+- RAID: 5-10 items (mix of assumptions, issues, dependencies) with impact, status, owner
+- Quality Gates: 6-8 gates (Gate 0 through Gate 7) with names, owners, criteria
+- Requirements: 5-10 requirements with codes (REQ-001, etc.), types, priorities, acceptance criteria
+
+Project Context:
+${fullContext}`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            charter: { type: 'object', properties: { purpose: { type: 'string' }, objectives: { type: 'string' }, successCriteria: { type: 'string' }, scopeIncluded: { type: 'string' }, scopeExcluded: { type: 'string' }, deliverables: { type: 'string' }, milestonesSummary: { type: 'string' }, estimatedBudgetEurM: { type: 'number' }, assumptions: { type: 'string' }, constraints: { type: 'string' }, risksSummary: { type: 'string' }, sponsor: { type: 'string' }, projectManager: { type: 'string' }, stakeholdersSummary: { type: 'string' } } },
+            stakeholders: { type: 'array', items: { type: 'object', properties: { stakeholderName: { type: 'string' }, role: { type: 'string' }, company: { type: 'string' }, category: { type: 'string', enum: ['Internal', 'External'] }, influence: { type: 'string', enum: ['High', 'Medium', 'Low'] }, interest: { type: 'string', enum: ['High', 'Medium', 'Low'] }, engagementCurrent: { type: 'string', enum: ['Unaware', 'Resistant', 'Neutral', 'Supportive', 'Leading'] }, engagementDesired: { type: 'string', enum: ['Unaware', 'Resistant', 'Neutral', 'Supportive', 'Leading'] }, engagementStrategy: { type: 'string' }, contact: { type: 'string' } } } },
+            wbs: { type: 'array', items: { type: 'object', properties: { wbsCode: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, elementType: { type: 'string', enum: ['Phase', 'Deliverable', 'Work Package'] }, owner: { type: 'string' }, status: { type: 'string', enum: ['Not Started', 'In Progress', 'Complete'] }, budgetEurK: { type: 'number' } } } },
+            raci: { type: 'array', items: { type: 'object', properties: { activity: { type: 'string' }, wbsCode: { type: 'string' }, roleName: { type: 'string' }, responsibility: { type: 'string', enum: ['R', 'A', 'C', 'I'] }, notes: { type: 'string' } } } },
+            communication: { type: 'array', items: { type: 'object', properties: { audience: { type: 'string' }, information: { type: 'string' }, purpose: { type: 'string' }, frequency: { type: 'string', enum: ['Daily', 'Weekly', 'Bi-weekly', 'Monthly', 'Quarterly', 'Milestone', 'Ad-hoc'] }, channel: { type: 'string', enum: ['Email', 'Meeting', 'Report', 'Dashboard', 'Call', 'Workshop'] }, format: { type: 'string' }, owner: { type: 'string' } } } },
+            raid: { type: 'array', items: { type: 'object', properties: { itemType: { type: 'string', enum: ['Assumption', 'Issue', 'Dependency'] }, title: { type: 'string' }, description: { type: 'string' }, impact: { type: 'string', enum: ['High', 'Medium', 'Low'] }, status: { type: 'string', enum: ['Open', 'In Progress', 'Closed'] }, owner: { type: 'string' }, dueDate: { type: 'string' }, resolution: { type: 'string' } } } },
+            qualityGates: { type: 'array', items: { type: 'object', properties: { gateNumber: { type: 'number' }, gateName: { type: 'string' }, owner: { type: 'string' }, decisionAuthority: { type: 'string' }, decisionNotes: { type: 'string' }, nextGateCriteria: { type: 'string' } } } },
+            requirements: { type: 'array', items: { type: 'object', properties: { reqCode: { type: 'string' }, description: { type: 'string' }, reqType: { type: 'string', enum: ['Functional', 'Non-functional', 'Business', 'Technical', 'Regulatory'] }, priority: { type: 'string', enum: ['Must', 'Should', 'Could', "Won't"] }, source: { type: 'string' }, status: { type: 'string', enum: ['Proposed', 'Approved', 'Implemented', 'Verified', 'Deferred'] }, acceptanceCriteria: { type: 'string' } } } },
+          },
+          required: ['charter', 'stakeholders', 'wbs', 'raci', 'communication', 'raid', 'qualityGates', 'requirements'],
+        },
+      });
+
+      // Persist all documents
+      const created = {};
+      if (genResult.charter) created.charter = await base44.asServiceRole.entities.ProjectCharter.create({ ...genResult.charter, projectId: newProjectId, approvalStatus: 'Draft' });
+      if (genResult.stakeholders?.length) created.stakeholders = await base44.asServiceRole.entities.Stakeholder.bulkCreate(genResult.stakeholders.map(s => ({ ...s, projectId: newProjectId })));
+      if (genResult.wbs?.length) created.wbs = await base44.asServiceRole.entities.WbsElement.bulkCreate(genResult.wbs.map(w => ({ ...w, projectId: newProjectId })));
+      if (genResult.raci?.length) created.raci = await base44.asServiceRole.entities.RaciAssignment.bulkCreate(genResult.raci.map(r => ({ ...r, projectId: newProjectId })));
+      if (genResult.communication?.length) created.communication = await base44.asServiceRole.entities.CommunicationPlan.bulkCreate(genResult.communication.map(c => ({ ...c, projectId: newProjectId })));
+      if (genResult.raid?.length) created.raid = await base44.asServiceRole.entities.RaidItem.bulkCreate(genResult.raid.map(r => ({ ...r, projectId: newProjectId })));
+      if (genResult.qualityGates?.length) created.qualityGates = await base44.asServiceRole.entities.QualityGate.bulkCreate(genResult.qualityGates.map(q => ({ ...q, projectId: newProjectId, status: 'Not Reached' })));
+      if (genResult.requirements?.length) created.requirements = await base44.asServiceRole.entities.Requirement.bulkCreate(genResult.requirements.map(r => ({ ...r, projectId: newProjectId })));
+
+      return Response.json({
+        success: true,
+        projectId: newProjectId,
+        projectName: project.projectName,
+        summary: {
+          charter: created.charter ? 1 : 0,
+          stakeholders: created.stakeholders?.length || 0,
+          wbs: created.wbs?.length || 0,
+          raci: created.raci?.length || 0,
+          communication: created.communication?.length || 0,
+          raid: created.raid?.length || 0,
+          qualityGates: created.qualityGates?.length || 0,
+          requirements: created.requirements?.length || 0,
+        },
+      });
+    }
+
     return Response.json({ error: 'Invalid mode' }, { status: 400 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

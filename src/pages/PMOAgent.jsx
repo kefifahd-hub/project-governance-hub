@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import AgentChatMessages from '@/components/agent/AgentChatMessages';
 import AgentInputBar from '@/components/agent/AgentInputBar';
 import AgentSidebar from '@/components/agent/AgentSidebar';
-import { buildSystemPrompt } from '@/components/agent/agentUtils';
+import { buildSystemPrompt, detectGenerateIntent } from '@/components/agent/agentUtils';
 import { MessageSquare, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -83,6 +83,56 @@ export default function PMOAgent() {
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
     setIsThinking(true);
+
+    // Check if the user wants to generate a new project from a story
+    const intent = detectGenerateIntent(text);
+    if (intent.isGenerate && intent.story.length > 20) {
+      let genResponse = '';
+      try {
+        const result = await base44.functions.invoke('governanceAI', {
+          mode: 'generateFromStory',
+          story: intent.story,
+        });
+        const data = result.data;
+        if (data.success) {
+          const s = data.summary;
+          genResponse = `✅ **Project created successfully!**
+
+**${data.projectName}** is now set up with a complete governance framework:
+
+| Document | Items Generated |
+|---|---|
+| 📋 Project Charter | ${s.charter} |
+| 👥 Stakeholder Register | ${s.stakeholders} |
+| 🌳 WBS | ${s.wbs} |
+| 🔲 RACI Matrix | ${s.raci} |
+| 📧 Communication Plan | ${s.communication} |
+| 🚩 RAID Log | ${s.raid} |
+| 🛡️ Quality Gates | ${s.qualityGates} |
+| 📝 Requirements | ${s.requirements} |
+
+All documents are ready for your review. You can refine each one by visiting the governance pages and clicking "Optimize with AI" — or just tell me what you'd like to adjust and I can help refine the content here.
+
+What would you like to fine-tune first?`;
+          // Invalidate projects query so the new project appears
+          qc.invalidateQueries({ queryKey: ['projects'] });
+        } else {
+          genResponse = `I couldn't generate the project: ${data.error || 'Unknown error'}. Could you provide more details about the project?`;
+        }
+      } catch (err) {
+        genResponse = `I ran into an issue generating the project: ${err.message}. Please try again with more details.`;
+      }
+
+      const assistantMsg = { role: 'assistant', content: genResponse, timestamp: new Date().toISOString() };
+      const finalMessages = [...nextMessages, assistantMsg];
+      setMessages(finalMessages);
+      setIsThinking(false);
+
+      const savedId = await saveConversation(finalMessages, activeConvId);
+      if (!activeConvId) setSearchParams({ conv: savedId });
+      refetchConvs();
+      return;
+    }
 
     // Gather live project context
     let contextData = {};

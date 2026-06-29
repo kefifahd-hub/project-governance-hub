@@ -26,7 +26,15 @@ When the user types a command starting with /, interpret it:
 /overdue — list all overdue items from the context
 /briefing — give a morning briefing with today's priorities
 /gate [number] — gate readiness check
+/generate [project story] — create a new project with full governance docs from a description
 /help — list all commands
+
+## PROJECT GENERATION CAPABILITY
+When the user asks you to "generate a new project", "create a project", "set up governance", or provides a detailed project story/description and wants you to build out the governance framework, you MUST:
+1. Acknowledge their request and tell them you'll generate the full governance suite
+2. The system will automatically detect this intent and create the project + all governance documents (Charter, Stakeholders, WBS, RACI, Communication Plan, RAID Log, Quality Gates, Requirements)
+3. After generation, summarize what was created and suggest they review each document
+Never ask the user to go to another page — handle it right here in the conversation.
 `;
 
 export function buildSystemPrompt(user, project, contextData = {}) {
@@ -133,6 +141,7 @@ export const SLASH_COMMANDS = [
   { cmd: '/overdue', label: '/overdue', hint: 'List all overdue items' },
   { cmd: '/briefing', label: '/briefing', hint: 'Morning briefing' },
   { cmd: '/gate', label: '/gate [number]', hint: 'Gate readiness check' },
+  { cmd: '/generate', label: '/generate [story]', hint: 'Create project + governance from story' },
   { cmd: '/help', label: '/help', hint: 'Show all commands' },
 ];
 
@@ -143,4 +152,28 @@ export const SMART_SUGGESTIONS = [
   "Any risks I should know about?",
   "Show me open change requests",
   "How are we tracking against milestones?",
+  "Generate a new project with governance docs",
 ];
+
+const GENERATE_KEYWORDS = [
+  'generate a new project', 'create a new project', 'set up a project', 'setup a project',
+  'create a project', 'new project', 'generate project', 'set up governance',
+  'create governance', 'generate governance', 'build a project', 'start a new project',
+];
+
+export function detectGenerateIntent(text) {
+  const lower = text.toLowerCase().trim();
+  if (lower.startsWith('/generate')) {
+    return { isGenerate: true, story: lower.replace(/^\/generate\s*/, '') };
+  }
+  for (const kw of GENERATE_KEYWORDS) {
+    if (lower.includes(kw)) {
+      return { isGenerate: true, story: text };
+    }
+  }
+  // Long detailed project description (100+ chars) that reads like a project brief
+  if (text.length > 200 && (lower.includes('project') || lower.includes('build') || lower.includes('factory') || lower.includes('facility'))) {
+    return { isGenerate: true, story: text };
+  }
+  return { isGenerate: false, story: '' };
+}
