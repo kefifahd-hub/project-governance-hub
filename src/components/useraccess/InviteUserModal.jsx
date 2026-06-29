@@ -7,8 +7,9 @@ import { base44 } from '@/api/base44Client';
 import { CheckCircle, XCircle } from 'lucide-react';
 
 export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess }) {
-  const [form, setForm] = useState({ full_name: '', email: '', job_title: '', org_id: '', role_id: '' });
+  const [form, setForm] = useState({ full_name: '', email: '', job_title: '', org_id: '', role_id: '', platform_role: 'user' });
   const [loading, setLoading] = useState(false);
+  const [inviteError, setInviteError] = useState(null);
 
   const selectedRole = roles.find(r => r.id === form.role_id);
   let permissions = [];
@@ -19,16 +20,27 @@ export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess 
   const handleSubmit = async () => {
     if (!form.full_name || !form.email || !form.org_id || !form.role_id) return;
     setLoading(true);
+    setInviteError(null);
     const org = orgs.find(o => o.id === form.org_id);
+    try {
+      await base44.users.inviteUser(form.email, form.platform_role);
+    } catch (e) {
+      setInviteError(e.message || 'Failed to send invitation email');
+    }
     await base44.entities.PlatformUser.create({
-      ...form,
+      full_name: form.full_name,
+      email: form.email,
+      job_title: form.job_title,
+      org_id: form.org_id,
+      role_id: form.role_id,
+      platform_role: form.platform_role,
       org_name: org?.name || '',
       role_name: selectedRole?.role_name || '',
       is_active: true,
       invited_at: new Date().toISOString(),
     });
     setLoading(false);
-    setForm({ full_name: '', email: '', job_title: '', org_id: '', role_id: '' });
+    setForm({ full_name: '', email: '', job_title: '', org_id: '', role_id: '', platform_role: 'user' });
     onSuccess();
     onClose();
   };
@@ -80,6 +92,25 @@ export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess 
               </SelectContent>
             </Select>
           </div>
+
+          <div>
+            <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Platform Access Level *</label>
+            <Select value={form.platform_role} onValueChange={v => setForm(f => ({ ...f, platform_role: v }))}>
+              <SelectTrigger style={{ background: 'rgba(30,41,59,0.8)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
+                <SelectItem value="admin" style={{ color: '#CADCFC' }}>Admin — full access, can manage users</SelectItem>
+                <SelectItem value="user" style={{ color: '#CADCFC' }}>User — app access only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {inviteError && (
+            <div className="text-xs p-2 rounded" style={{ color: '#fca5a5', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+              Invitation email could not be sent: {inviteError}. The user record was still created.
+            </div>
+          )}
 
           {selectedRole && visibleModules.length > 0 && (
             <div className="rounded-lg p-3 space-y-2" style={{ background: 'rgba(0,168,150,0.07)', border: '1px solid rgba(0,168,150,0.2)' }}>

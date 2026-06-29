@@ -49,6 +49,15 @@
     "access_end_date": {
       "type": "string",
       "format": "date"
+    },
+    "platform_role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "default": "user",
+      "description": "Platform-level access role (admin = can manage users, user = app access only)"
     }
   },
   "required": [

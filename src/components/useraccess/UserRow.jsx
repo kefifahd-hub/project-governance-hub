@@ -34,6 +34,11 @@ export default function UserRow({ user, onEdit, onToggleActive }) {
       <span className={`text-xs px-2 py-0.5 rounded-full border hidden md:inline-flex ${ROLE_COLORS[user.role_name] || 'bg-slate-500/20 text-slate-300 border-slate-500/30'}`}>
         {user.role_name}
       </span>
+      {user.platform_role === 'admin' && (
+        <span className="text-xs px-2 py-0.5 rounded-full border bg-purple-500/20 text-purple-300 border-purple-500/30 inline-flex items-center gap-1">
+          <ShieldCheck className="w-3 h-3" /> Admin
+        </span>
+      )}
       <span className={`text-xs px-2 py-0.5 rounded-full border ${user.is_active ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>
         {user.is_active ? 'Active' : 'Inactive'}
       </span>
