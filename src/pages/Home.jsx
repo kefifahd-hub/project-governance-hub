@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { createPageUrl } from '../utils';
 import PlatformWelcome from '../components/PlatformWelcome';
+import PMTriangleBanner from '../components/PMTriangleBanner';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -191,6 +192,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Project Triangle Banner */}
+      {selectedProjectId && <PMTriangleBanner />}
 
       {/* Quality Gate Timeline */}
       {selectedProjectId && <QualityGateTimeline projectId={selectedProjectId} />}
