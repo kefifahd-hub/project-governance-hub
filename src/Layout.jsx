@@ -69,6 +69,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'RACI Matrix', page: 'RaciMatrix' },
     { name: 'Requirements', page: 'Requirements' },
     { name: 'Quality Gates', page: 'QualityGates' },
+    { name: 'SWOT Analysis', page: 'SwotAnalysis' },
     { name: 'Change Workflow', page: 'ChangeWorkflow' },
     { name: 'Workflow Builder', page: 'WorkflowBuilder' },
     { name: 'AI Governance Wizard', page: 'GovernanceWizard' }

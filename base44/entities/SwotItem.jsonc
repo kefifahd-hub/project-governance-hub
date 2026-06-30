@@ -1,0 +1,59 @@
+{
+  "name": "SwotItem",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Strength",
+        "Weakness",
+        "Opportunity",
+        "Threat"
+      ],
+      "description": "SWOT quadrant"
+    },
+    "title": {
+      "type": "string",
+      "description": "Item title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low"
+      ],
+      "default": "Medium"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Open",
+        "In Progress",
+        "Closed"
+      ],
+      "default": "Open"
+    },
+    "action": {
+      "type": "string",
+      "description": "Mitigation / action plan"
+    }
+  },
+  "required": [
+    "projectId",
+    "category",
+    "title"
+  ]
+}

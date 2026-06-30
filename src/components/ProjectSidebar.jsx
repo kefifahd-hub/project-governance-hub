@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight, FileCheck, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow, Wand2 } from 'lucide-react';
+import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight, FileCheck, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow, Wand2, Sun } from 'lucide-react';
 import { useState } from 'react';
 import { createPageUrl } from '../utils';
 
@@ -31,6 +31,7 @@ const TOOL_CATEGORIES = [
     { page: 'CommunicationPlan',   label: 'Communications Plan',   icon: Mail },
     { page: 'RaidLog',             label: 'RAID Log',              icon: Flag },
     { page: 'QualityGates',        label: 'Quality Gates',         icon: GitBranch },
+    { page: 'SwotAnalysis',        label: 'SWOT Analysis',         icon: Sun },
   ]},
   { label: 'Planning & Business Case', tools: [
     { page: 'FeasibilityStudy',   label: 'Feasibility Study',    icon: FileText },
@@ -69,7 +70,7 @@ const ALL_TOOLS = TOOL_CATEGORIES.flatMap(cat => cat.tools).concat([
 ]);
 
 // Always visible regardless of phase — governance tools are fundamental and available in every phase
-const ALWAYS_TOOLS = ['ClientBriefing', 'ProjectCharter', 'StakeholderRegister', 'Requirements', 'WBS', 'RaciMatrix', 'CommunicationPlan', 'RaidLog', 'QualityGates', 'ChangeWorkflow', 'WorkflowBuilder'];
+const ALWAYS_TOOLS = ['ClientBriefing', 'ProjectCharter', 'StakeholderRegister', 'Requirements', 'WBS', 'RaciMatrix', 'CommunicationPlan', 'RaidLog', 'QualityGates', 'SwotAnalysis', 'ChangeWorkflow', 'WorkflowBuilder'];
 
 export default function ProjectSidebar() {
   const navigate = useNavigate();
