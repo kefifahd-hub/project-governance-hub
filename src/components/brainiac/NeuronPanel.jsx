@@ -51,6 +51,9 @@ export default function NeuronPanel({ neuron, synapses, neurons, onSynapseClick,
           <span>⚡ {neuron.pulse_count_24h || 0}/day</span>
         </div>
         {neuron.description && <div className="mt-2 text-xs" style={{ color: '#64748b' }}>{neuron.description}</div>}
+        <div className="mt-1 text-[10px] italic" style={{ color: '#475569' }}>
+          The amber number badge on each node shows its pulse count — how many times it fired (sent/received events) in the last 24h.
+        </div>
       </div>
 
       {/* Inputs */}
