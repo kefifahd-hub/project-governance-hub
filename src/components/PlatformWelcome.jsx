@@ -91,7 +91,7 @@ export default function PlatformWelcome({ projects = [] }) {
           transform: loaded ? "translateY(0)" : "translateY(-20px)",
           transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 32 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 32 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
                 <div style={{
@@ -127,15 +127,20 @@ export default function PlatformWelcome({ projects = [] }) {
               </p>
             </div>
 
-            {/* Quick stats */}
-            <div style={{ display: "flex", gap: 24, marginTop: 8, flexWrap: "wrap" }}>
-              {PLATFORM_STATS.map((s) => (
-                <div key={s.label} style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: "#e2e8f0" }}>{s.value}</div>
-                  <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 600 }}>{s.label}</div>
-                </div>
-              ))}
+            {/* Right column: stats + daily principle banner */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+              <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                {PLATFORM_STATS.map((s) => (
+                  <div key={s.label} style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#e2e8f0" }}>{s.value}</div>
+                    <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 600 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ maxWidth: 520, width: "100%" }}>
+                <DailyPrincipleBanner />
+              </div>
             </div>
           </div>
         </header>
@@ -145,11 +150,6 @@ export default function PlatformWelcome({ projects = [] }) {
           height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.2) 50%, transparent 100%)",
           marginBottom: 32,
         }} />
-
-        {/* DAILY PRINCIPLE BANNER — issued by PMO Agent */}
-        <div style={{ marginBottom: 32 }}>
-          <DailyPrincipleBanner />
-        </div>
 
         {/* SECTION: YOUR PROJECTS */}
         <section style={{
