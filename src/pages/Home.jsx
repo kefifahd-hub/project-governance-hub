@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { createPageUrl } from '../utils';
 import PlatformWelcome from '../components/PlatformWelcome';
-import PMTriangleBanner from '../components/PMTriangleBanner';
+import DailyPrincipleBanner from '../components/DailyPrincipleBanner';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -193,8 +193,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Project Triangle Banner */}
-      {selectedProjectId && <PMTriangleBanner />}
+      {/* Daily Principle Banner — issued by PMO Agent */}
+      {selectedProjectId && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+          <DailyPrincipleBanner />
+        </div>
+      )}
 
       {/* Quality Gate Timeline */}
       {selectedProjectId && <QualityGateTimeline projectId={selectedProjectId} />}

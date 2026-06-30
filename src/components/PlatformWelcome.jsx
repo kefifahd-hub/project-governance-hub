@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import DailyPrincipleBanner from "./DailyPrincipleBanner";
 
 const PLATFORM_STATS = [
   { label: "Active Projects", value: "1", icon: "📁" },
@@ -145,43 +146,9 @@ export default function PlatformWelcome({ projects = [] }) {
           marginBottom: 32,
         }} />
 
-        {/* PROJECT MANAGEMENT TRIANGLE BANNER */}
-        <div style={{
-          marginBottom: 48,
-          borderRadius: 16, padding: "20px 24px",
-          background: "linear-gradient(135deg, rgba(167,139,250,0.06) 0%, rgba(0,168,150,0.05) 50%, rgba(245,158,11,0.06) 100%)",
-          border: "1px solid rgba(202,220,252,0.1)",
-          display: "flex", flexWrap: "wrap", alignItems: "center", gap: 20,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-            <div style={{ padding: 10, borderRadius: 10, background: "rgba(15,23,42,0.6)" }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#CADCFC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2L2 22h20L12 2z" />
-              </svg>
-            </div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#CADCFC", textTransform: "uppercase", letterSpacing: "1.5px" }}>The Project Triangle</div>
-              <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>Balance competing constraints — change one, impact the others</div>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, flex: 1, justifyContent: "center" }}>
-            {[
-              { label: "Scope", color: "#a78bfa", bg: "rgba(167,139,250,0.1)" },
-              { label: "Cost", color: "#F59E0B", bg: "rgba(245,158,11,0.1)" },
-              { label: "Schedule", color: "#00A896", bg: "rgba(0,168,150,0.1)" },
-              { label: "Quality", color: "#10B981", bg: "rgba(16,185,129,0.1)" },
-            ].map((p, i, arr) => (
-              <div key={p.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{
-                  padding: "6px 14px", borderRadius: 8,
-                  background: p.bg, border: `1px solid ${p.color}33`,
-                }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: p.color }}>{p.label}</span>
-                </div>
-                {i < arr.length - 1 && <span style={{ fontSize: 12, fontWeight: 700, color: "#475569" }}>⇄</span>}
-              </div>
-            ))}
-          </div>
+        {/* DAILY PRINCIPLE BANNER — issued by PMO Agent */}
+        <div style={{ marginBottom: 32 }}>
+          <DailyPrincipleBanner />
         </div>
 
         {/* SECTION: YOUR PROJECTS */}

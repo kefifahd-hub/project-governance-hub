@@ -1,0 +1,32 @@
+{
+  "name": "DailyPrinciple",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date this principle banner applies to"
+    },
+    "title": {
+      "type": "string",
+      "description": "Principle banner title"
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Short explanatory subtitle"
+    },
+    "principles": {
+      "type": "string",
+      "description": "JSON array of {label, color} pillars"
+    },
+    "source": {
+      "type": "string",
+      "default": "PMO Agent"
+    }
+  },
+  "required": [
+    "date",
+    "title",
+    "principles"
+  ]
+}
