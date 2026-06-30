@@ -14,16 +14,24 @@ Deno.serve(async (req) => {
 
     const prompt = `You are the PMO Agent for a project governance platform focused on large-scale engineering projects (battery gigafactories, data centers).
 
-Generate a fresh "Principle of the Day" banner that reminds project managers of a key project management principle.
+Generate a fresh "Principle of the Day" banner drawn from the PMBOK Guide (PMBOK knowledge areas and process groups) and established project management principles.
 
-Vary the theme each day across these core areas (and others): Scope-Cost-Schedule-Quality (the Iron Triangle), Risk Management, Stakeholder Engagement, Change Control, Quality Assurance, Communication, Leadership, Lessons Learned, Value Engineering, Earned Value, Governance Gates, Assumptions & Dependencies.
+Each day pick a DIFFERENT principle or tip. Rotate systematically across the PMBOK knowledge areas and core PM principles, for example:
+- Integration Management, Scope Management, Schedule Management, Cost Management
+- Quality Management, Resource Management, Communications Management, Risk Management
+- Procurement Management, Stakeholder Management
+- The Iron Triangle (Scope-Cost-Schedule-Quality)
+- Earned Value Management, Work Breakdown Structure (WBS), RACI accountability
+- Change Control, Lessons Learned, Progressive Elaboration, Rolling Wave Planning
+- Goldratt's Critical Chain, Parkinson's Law, the Halo Effect, Brooks' Law
+- Project governance gates, phase-gate reviews, assumption/dependency management
 
-Return JSON with:
+For each day return JSON with:
 - title: a punchy principle name (max 5 words)
-- subtitle: a one-line explanation (max 90 chars)
-- principles: an array of 3 to 4 objects each with "label" (one word, the dimension) and "color" (a hex color string). These represent the competing/related dimensions of today's principle.
+- subtitle: a one-line, actionable explanation grounded in PMBOK/PM practice (max 90 chars)
+- principles: an array of 3 to 4 objects each with "label" (one word, the dimension/facet of today's principle) and "color" (a hex color string). These represent the competing/related dimensions of today's principle.
 
-Keep it concise, professional, and actionable. Do not repeat the exact same theme as yesterday.`;
+Keep it concise, professional, and actionable. Avoid repeating yesterday's theme.`;
 
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
