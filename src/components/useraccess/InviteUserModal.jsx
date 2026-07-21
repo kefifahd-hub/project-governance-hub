@@ -1,15 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, ShieldAlert } from 'lucide-react';
 
 export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess }) {
   const [form, setForm] = useState({ full_name: '', email: '', job_title: '', org_id: '', role_id: '', platform_role: 'user' });
   const [loading, setLoading] = useState(false);
   const [inviteError, setInviteError] = useState(null);
+
+  const selectedOrg = orgs.find(o => o.id === form.org_id);
+  // Guard rail: platform Admin (built-in role → bypasses RLS, sees ALL domains)
+  // may only be granted to users in an Internal-type domain (your own team).
+  // Client domains (Investor/Consultant/Legal/Other) can only get scoped Users.
+  const canBeAdmin = selectedOrg?.org_type === 'Internal';
+
+  // If the chosen domain can't host admins, force the access level back to User.
+  useEffect(() => {
+    if (!canBeAdmin && form.platform_role === 'admin') {
+      setForm(f => ({ ...f, platform_role: 'user' }));
+    }
+  }, [canBeAdmin, form.platform_role]);
 
   const selectedRole = roles.find(r => r.id === form.role_id);
   let permissions = [];
@@ -100,10 +113,25 @@ export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess 
                 <SelectValue />
               </SelectTrigger>
               <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
-                <SelectItem value="admin" style={{ color: '#CADCFC' }}>Admin — full access, can manage users</SelectItem>
-                <SelectItem value="user" style={{ color: '#CADCFC' }}>User — app access only</SelectItem>
+                <SelectItem value="user" style={{ color: '#CADCFC' }}>User — scoped to their domain only</SelectItem>
+                <SelectItem value="admin" disabled={!canBeAdmin} style={{ color: canBeAdmin ? '#CADCFC' : '#475569' }}>
+                  Admin — full platform access, all domains
+                </SelectItem>
               </SelectContent>
             </Select>
+            {!canBeAdmin && (
+              <p className="text-[11px] mt-1" style={{ color: '#64748B' }}>
+                {form.org_id
+                  ? 'Admin is only available for Internal domains. This domain’s users are scoped to their own workspace.'
+                  : 'Select a domain first. Admin access is only available for Internal domains.'}
+              </p>
+            )}
+            {form.platform_role === 'admin' && (
+              <div className="flex gap-2 mt-2 text-[11px] p-2 rounded" style={{ color: '#fcd34d', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}>
+                <ShieldAlert className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>This grants <strong>platform-wide</strong> access — this person will see and manage <strong>every</strong> client domain, not just {selectedOrg?.name || 'this one'}. Use only for your own team.</span>
+              </div>
+            )}
           </div>
 
           {inviteError && (
