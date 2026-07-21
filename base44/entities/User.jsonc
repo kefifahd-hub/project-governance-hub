@@ -1,0 +1,19 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Organization ID this user belongs to (mirrors PlatformUser.org_id; used for row-level security scoping)"
+    },
+    "platform_role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "default": "user",
+      "description": "Platform role mirroring PlatformUser.platform_role"
+    }
+  }
+}
