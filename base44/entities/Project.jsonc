@@ -4,7 +4,7 @@
   "properties": {
     "org_id": {
       "type": "string",
-      "description": "Reference to the owning Organization (client domain/workspace). Scopes which client can see this project."
+      "description": "Organization ID this project belongs to"
     },
     "projectName": {
       "type": "string",
