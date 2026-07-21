@@ -2,6 +2,10 @@
   "name": "CapexPlan",
   "type": "object",
   "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Organization ID inherited from parent FinanceModel/Project (denormalized for RLS). Note: this entity references financeModelId, not projectId directly."
+    },
     "financeModelId": {
       "type": "string"
     },
@@ -85,5 +89,55 @@
     "financeModelId",
     "category",
     "quarter"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    }
+  }
 }

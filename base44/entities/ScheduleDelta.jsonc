@@ -2,6 +2,10 @@
   "name": "ScheduleDelta",
   "type": "object",
   "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Organization ID inherited from parent Project (denormalized for RLS)"
+    },
     "sourceId": {
       "type": "string"
     },
@@ -82,5 +86,55 @@
     "toVersionId",
     "externalId",
     "changeType"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    }
+  }
 }
