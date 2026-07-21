@@ -83,18 +83,7 @@
     "severity"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "data.org_id": "{{user.data.org_id}}"
-        }
-      ]
-    },
+    "create": true,
     "read": {
       "$or": [
         {
