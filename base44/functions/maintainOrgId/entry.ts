@@ -111,22 +111,27 @@ Deno.serve(async (req) => {
         (byParent[pid] = byParent[pid] || []).push(r);
       }
 
-      const updates = [];
+      let stamped = 0;
       let skippedNoParentOrg = 0;
       for (const pid of Object.keys(byParent)) {
         const parent = await base44.asServiceRole.entities[cfg.parentEntity].get(pid).catch(() => null);
         const parentOrg = parent ? parent[cfg.parentOrgField] : null;
         if (!parentOrg) { skippedNoParentOrg += byParent[pid].length; continue; }
-        for (const r of byParent[pid]) updates.push({ id: r.id, org_id: parentOrg });
-      }
-
-      for (let i = 0; i < updates.length; i += CHUNK) {
-        await base44.asServiceRole.entities[cfg.name].bulkUpdate(updates.slice(i, i + CHUNK));
+        // updateMany with $set bypasses full-record schema validation (old records may
+        // predate required fields), and groups share one org_id per parent.
+        const ids = byParent[pid].map((r) => r.id);
+        for (let i = 0; i < ids.length; i += CHUNK) {
+          await base44.asServiceRole.entities[cfg.name].updateMany(
+            { id: { $in: ids.slice(i, i + CHUNK) } },
+            { $set: { org_id: parentOrg } }
+          );
+        }
+        stamped += ids.length;
       }
 
       report[cfg.name] = {
         missing: records.length,
-        stamped: updates.length,
+        stamped: stamped,
         skippedNoParentOrg: skippedNoParentOrg,
         noParentRef: noParentRef.length,
       };
