@@ -6,6 +6,10 @@
       "type": "string",
       "description": "Organization name e.g. Project YE PMO"
     },
+    "slug": {
+      "type": "string",
+      "description": "Short URL-safe domain key for this client workspace e.g. 'acme'. Used to identify the domain a user logs into."
+    },
     "org_type": {
       "type": "string",
       "enum": [

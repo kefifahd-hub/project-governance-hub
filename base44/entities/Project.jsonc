@@ -2,6 +2,10 @@
   "name": "Project",
   "type": "object",
   "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Reference to the owning Organization (client domain/workspace). Scopes which client can see this project."
+    },
     "projectName": {
       "type": "string",
       "description": "Project name"

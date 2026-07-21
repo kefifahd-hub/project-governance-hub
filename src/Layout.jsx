@@ -9,9 +9,20 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useIsMobile } from '@/hooks/use-mobile';
 import MobileNavMenu from './components/MobileNavMenu';
+import { useSession } from '@/lib/SessionContext';
+import { getModule } from '@/lib/modules';
 
 export default function Layout({ children, currentPageName }) {
   const authed = true;
+  const { can, isAdmin, domain, scopeFilter } = useSession();
+
+  // Should the current user see a given tool/page in the nav?
+  const canSee = (page) => {
+    const mod = getModule(page);
+    if (mod?.adminOnly) return isAdmin;
+    if (mod?.alwaysAllowed) return true;
+    return can(page, 'can_view');
+  };
 
   // All hooks must be called unconditionally before any early return
   const location = useLocation();
@@ -26,8 +37,8 @@ export default function Layout({ children, currentPageName }) {
   }, [projectId]);
 
   const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.filter({ status: 'Active' }, '-created_date'),
+    queryKey: ['projects', domain?.id || 'all'],
+    queryFn: () => base44.entities.Project.filter(scopeFilter({ status: 'Active' }), '-created_date'),
     enabled: authed,
   });
 
@@ -73,8 +84,8 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Change Workflow', page: 'ChangeWorkflow' },
     { name: 'Workflow Builder', page: 'WorkflowBuilder' },
     { name: 'AI Governance Wizard', page: 'GovernanceWizard' }
-  ];
-  
+  ].filter((t) => canSee(t.page));
+
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
     { name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('ProjectDashboard') },
@@ -105,8 +116,16 @@ export default function Layout({ children, currentPageName }) {
       {/* Top Navigation Bar */}
       <div className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(15, 23, 42, 0.98)', borderBottom: '1px solid rgba(202, 220, 252, 0.1)', paddingTop: 'var(--safe-area-top)', height: 'calc(3.5rem + var(--safe-area-top))' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link to={createPageUrl('Home')} className="font-bold text-lg" style={{ color: '#CADCFC' }}>
+          <Link to={createPageUrl('Home')} className="flex items-center gap-2 font-bold text-lg" style={{ color: '#CADCFC' }}>
             PMO Platform
+            {domain?.name && (
+              <span
+                className="hidden sm:inline text-xs font-medium px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(0,168,150,0.15)', color: '#5eead4', border: '1px solid rgba(0,168,150,0.25)' }}
+              >
+                {domain.name}
+              </span>
+            )}
           </Link>
           
           <div className="flex items-center gap-2">

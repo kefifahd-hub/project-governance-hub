@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createPageUrl } from '../utils';
+import { useSession } from '@/lib/SessionContext';
 
 export default function NewProject() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { platformUser, isAdmin } = useSession();
   const [formData, setFormData] = useState({
     projectName: '',
     clientName: '',
@@ -25,11 +27,25 @@ export default function NewProject() {
     startDate: '',
     targetCompletion: '',
     healthScore: 75,
-    notes: ''
+    notes: '',
+    org_id: ''
+  });
+
+  // Admins can place a project into any client domain; regular users always
+  // create inside their own domain, so we only need the list for admins.
+  const { data: orgs = [] } = useQuery({
+    queryKey: ['orgs'],
+    queryFn: () => base44.entities.Organization.list(),
+    enabled: isAdmin,
   });
 
   const createProjectMutation = useMutation({
-    mutationFn: (data) => base44.entities.Project.create(data),
+    // Stamp the new project with a domain (org_id) so it lands in the right
+    // client workspace and is scoped correctly for everyone else.
+    mutationFn: (data) => {
+      const org_id = data.org_id || platformUser?.org_id || undefined;
+      return base44.entities.Project.create({ ...data, org_id });
+    },
     onSuccess: (newProject) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       navigate(createPageUrl(`ProjectDashboard?id=${newProject.id}`));
@@ -83,6 +99,23 @@ export default function NewProject() {
                   />
                 </div>
               </div>
+
+              {isAdmin && (
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Client Domain</Label>
+                  <Select
+                    value={formData.org_id}
+                    onValueChange={(value) => setFormData({ ...formData, org_id: value })}
+                  >
+                    <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                      <SelectValue placeholder="Select the client domain this project belongs to" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {orgs.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
