@@ -10,17 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { createPageUrl } from '../utils';
-import RequirePermission from '../components/RequirePermission';
 
 export default function BudgetDashboard() {
-  return (
-    <RequirePermission page="BudgetDashboard">
-      <BudgetDashboardView />
-    </RequirePermission>
-  );
-}
-
-function BudgetDashboardView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');

@@ -28,11 +28,18 @@ export default function Home() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editFormData, setEditFormData] = useState(null);
   const queryClient = useQueryClient();
-  const { scopeFilter, domain } = useSession();
+  const { scopeFilter, domain, isAdmin } = useSession();
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects', domain?.id || 'all'],
     queryFn: () => base44.entities.Project.filter(scopeFilter({ status: 'Active' }), '-created_date')
+  });
+
+  // Admins can move a project between client domains; load the domain list for them.
+  const { data: orgs = [] } = useQuery({
+    queryKey: ['orgs'],
+    queryFn: () => base44.entities.Organization.list(),
+    enabled: isAdmin
   });
 
   const { data: currentProject } = useQuery({
@@ -154,7 +161,8 @@ export default function Home() {
       startDate: currentProject.startDate || '',
       targetCompletion: currentProject.targetCompletion || '',
       status: currentProject.status,
-      notes: currentProject.notes || ''
+      notes: currentProject.notes || '',
+      org_id: currentProject.org_id || ''
     });
     setShowEditDialog(true);
   };
@@ -439,6 +447,19 @@ export default function Home() {
                   />
                 </div>
               </div>
+              {isAdmin && (
+                <div className="space-y-2">
+                  <Label style={{ color: '#94A3B8' }}>Client Domain</Label>
+                  <Select value={editFormData.org_id} onValueChange={(value) => setEditFormData({ ...editFormData, org_id: value })}>
+                    <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                      <SelectValue placeholder="Unassigned" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {orgs.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label style={{ color: '#94A3B8' }}>Status</Label>
                 <Select value={editFormData.status} onValueChange={(value) => setEditFormData({ ...editFormData, status: value })}>

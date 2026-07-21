@@ -16,7 +16,6 @@ import HeadcountTab from '../components/financemodel/tabs/HeadcountTab';
 import PLOutputTab from '../components/financemodel/tabs/PLOutputTab';
 import DCFOutputTab from '../components/financemodel/tabs/DCFOutputTab';
 import CashFlowOutputTab from '../components/financemodel/tabs/CashFlowOutputTab';
-import RequirePermission from '../components/RequirePermission';
 import {
   calcCellProduction, calcBOMCost, aggregateCells,
   calcCapexAndDepreciation, calcLabourCost, calcUtilityCost,
@@ -25,14 +24,6 @@ import {
 } from '../components/financemodel/calcEngine';
 
 export default function FinanceModel() {
-  return (
-    <RequirePermission page="FinanceModel">
-      <FinanceModelView />
-    </RequirePermission>
-  );
-}
-
-function FinanceModelView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');

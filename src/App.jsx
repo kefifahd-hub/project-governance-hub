@@ -10,6 +10,7 @@ import WorkflowBuilder from './pages/WorkflowBuilder';
 import SwotAnalysis from './pages/SwotAnalysis';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SessionProvider } from '@/lib/SessionContext';
+import RequirePermission from '@/components/RequirePermission';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -64,7 +65,9 @@ const AnimatedRoutes = () => {
         <Route path="/" element={
           <LayoutWrapper currentPageName={mainPageKey}>
             <PageTransition k="main">
-              <MainPage />
+              <RequirePermission page={mainPageKey}>
+                <MainPage />
+              </RequirePermission>
             </PageTransition>
           </LayoutWrapper>
         } />
@@ -75,7 +78,9 @@ const AnimatedRoutes = () => {
             element={
               <LayoutWrapper currentPageName={path}>
                 <PageTransition k={path}>
-                  <Page />
+                  <RequirePermission page={path}>
+                    <Page />
+                  </RequirePermission>
                 </PageTransition>
               </LayoutWrapper>
             }
@@ -84,21 +89,27 @@ const AnimatedRoutes = () => {
         <Route path="/GovernanceWizard" element={
           <LayoutWrapper currentPageName="GovernanceWizard">
             <PageTransition k="GovernanceWizard">
-              <GovernanceWizard />
+              <RequirePermission page="GovernanceWizard">
+                <GovernanceWizard />
+              </RequirePermission>
             </PageTransition>
           </LayoutWrapper>
         } />
         <Route path="/WorkflowBuilder" element={
           <LayoutWrapper currentPageName="WorkflowBuilder">
             <PageTransition k="WorkflowBuilder">
-              <WorkflowBuilder />
+              <RequirePermission page="WorkflowBuilder">
+                <WorkflowBuilder />
+              </RequirePermission>
             </PageTransition>
           </LayoutWrapper>
         } />
         <Route path="/SwotAnalysis" element={
           <LayoutWrapper currentPageName="SwotAnalysis">
             <PageTransition k="SwotAnalysis">
-              <SwotAnalysis />
+              <RequirePermission page="SwotAnalysis">
+                <SwotAnalysis />
+              </RequirePermission>
             </PageTransition>
           </LayoutWrapper>
         } />
