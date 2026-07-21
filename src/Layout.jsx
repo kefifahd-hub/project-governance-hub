@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { Home, Wrench, Settings, Menu, ChevronDown, Briefcase, FileBarChart, Users, BrainCircuit, Bot } from 'lucide-react';
+import { Home, Wrench, Settings, Menu, ChevronDown, Briefcase, FileBarChart, Users, BrainCircuit, Bot, ShieldCheck } from 'lucide-react';
 import { createPageUrl } from './utils';
 import ProjectSidebar from './components/ProjectSidebar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
@@ -91,6 +91,9 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('ProjectDashboard') },
     { name: 'Brainiac', icon: BrainCircuit, path: createPageUrl('Brainiac'), glow: true },
     { name: 'PMO Agent', icon: Bot, path: createPageUrl('PMOAgent'), glow2: true },
+    // Admins get a persistent entry to the admin console (domains, users, roles),
+    // so it no longer hides inside the project-scoped Tools dropdown.
+    ...(isAdmin ? [{ name: 'Admin', icon: ShieldCheck, path: createPageUrl('UserAccess') }] : []),
     { name: 'Settings', icon: Settings, path: createPageUrl('Settings') }
   ];
 
@@ -188,6 +191,16 @@ export default function Layout({ children, currentPageName }) {
               </DropdownMenu>
             )}
               </>
+            )}
+
+            {/* Admin console — quick link, admins only */}
+            {isAdmin && (
+              <Link to={createPageUrl('UserAccess')} title="Admin console">
+                <Button variant="ghost" size="sm" style={{ color: '#5eead4' }}>
+                  <ShieldCheck className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1.5">Admin</span>
+                </Button>
+              </Link>
             )}
 
             {/* Settings Link */}
