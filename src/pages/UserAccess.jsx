@@ -36,7 +36,7 @@ function UserAccessConsole() {
   const [orgFilter, setOrgFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('active');
   const [showAddOrg, setShowAddOrg] = useState(false);
-  const [newOrg, setNewOrg] = useState({ name: '', slug: '', org_type: 'Internal' });
+  const [newOrg, setNewOrg] = useState({ name: '', slug: '', org_type: 'Internal', primary_contact_name: '', primary_contact_email: '', notes: '' });
   const qc = useQueryClient();
 
   const { data: orgs = [] } = useQuery({ queryKey: ['orgs'], queryFn: () => base44.entities.Organization.list() });
@@ -50,7 +50,7 @@ function UserAccessConsole() {
 
   const createOrgMutation = useMutation({
     mutationFn: (data) => base44.entities.Organization.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['orgs'] }); setShowAddOrg(false); setNewOrg({ name: '', slug: '', org_type: 'Internal' }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['orgs'] }); setShowAddOrg(false); setNewOrg({ name: '', slug: '', org_type: 'Internal', primary_contact_name: '', primary_contact_email: '', notes: '' }); },
   });
 
   const filteredUsers = users.filter(u => {
@@ -166,23 +166,50 @@ function UserAccessConsole() {
             {showAddOrg && (
               <div className="rounded-xl p-4 mb-4 space-y-3" style={{ background: 'rgba(30,41,59,0.8)', border: '1px solid rgba(0,168,150,0.3)' }}>
                 <div className="text-sm font-semibold" style={{ color: '#00A896' }}>New Domain</div>
-                <div className="flex gap-3 flex-wrap">
-                  <Input value={newOrg.name} onChange={e => setNewOrg(n => ({ ...n, name: e.target.value }))} placeholder="Client / domain name"
-                    className="flex-1" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
-                  <Input value={newOrg.slug} onChange={e => setNewOrg(n => ({ ...n, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))} placeholder="slug (e.g. acme)"
-                    className="w-40" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
-                  <Select value={newOrg.org_type} onValueChange={v => setNewOrg(n => ({ ...n, org_type: v }))}>
-                    <SelectTrigger className="w-48" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
-                      {['Internal','Investor','Engineering Consultant','Legal Advisor','Other'].map(t =>
-                        <SelectItem key={t} value={t} style={{ color: '#CADCFC' }}>{t}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <Button onClick={() => createOrgMutation.mutate({ ...newOrg, is_active: true })} disabled={!newOrg.name || createOrgMutation.isPending}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Client / domain name *</label>
+                    <Input value={newOrg.name} onChange={e => setNewOrg(n => ({ ...n, name: e.target.value, slug: n.slug || e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') }))} placeholder="e.g. Acme Energy"
+                      style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+                  </div>
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Slug *</label>
+                    <Input value={newOrg.slug} onChange={e => setNewOrg(n => ({ ...n, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))} placeholder="acme"
+                      style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+                  </div>
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Domain type *</label>
+                    <Select value={newOrg.org_type} onValueChange={v => setNewOrg(n => ({ ...n, org_type: v }))}>
+                      <SelectTrigger style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
+                        {['Internal','Investor','Engineering Consultant','Legal Advisor','Other'].map(t =>
+                          <SelectItem key={t} value={t} style={{ color: '#CADCFC' }}>{t}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Primary contact name</label>
+                    <Input value={newOrg.primary_contact_name} onChange={e => setNewOrg(n => ({ ...n, primary_contact_name: e.target.value }))} placeholder="Jane Smith"
+                      style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+                  </div>
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Primary contact email</label>
+                    <Input type="email" value={newOrg.primary_contact_email} onChange={e => setNewOrg(n => ({ ...n, primary_contact_email: e.target.value }))} placeholder="jane@acme.com"
+                      style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+                  </div>
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Notes</label>
+                    <Input value={newOrg.notes} onChange={e => setNewOrg(n => ({ ...n, notes: e.target.value }))} placeholder="Optional"
+                      style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowAddOrg(false)} style={{ borderColor: 'rgba(202,220,252,0.2)', color: '#94A3B8' }}>Cancel</Button>
+                  <Button onClick={() => createOrgMutation.mutate({ ...newOrg, is_active: true })} disabled={!newOrg.name || !newOrg.slug || createOrgMutation.isPending}
                     style={{ background: 'linear-gradient(135deg, #028090, #00A896)', color: '#F8FAFC' }}>
-                    {createOrgMutation.isPending ? 'Adding...' : 'Add'}
+                    {createOrgMutation.isPending ? 'Adding...' : 'Create Domain'}
                   </Button>
                 </div>
               </div>
