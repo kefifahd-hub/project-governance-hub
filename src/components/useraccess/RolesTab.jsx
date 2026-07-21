@@ -1,68 +1,70 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { CheckCircle, XCircle, Lock } from 'lucide-react';
-
-const PERM_KEYS = ['can_view','can_create','can_edit','can_delete','can_export','can_approve'];
-const PERM_LABELS = { can_view:'View', can_create:'Create', can_edit:'Edit', can_delete:'Delete', can_export:'Export', can_approve:'Approve' };
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus } from 'lucide-react';
+import RolePermissionEditor from './RolePermissionEditor';
 
 export default function RolesTab() {
+  const qc = useQueryClient();
+  const [showAdd, setShowAdd] = useState(false);
+  const [newRole, setNewRole] = useState({ role_name: '', role_type: 'Internal', description: '' });
+
   const { data: roles = [] } = useQuery({
     queryKey: ['platform-roles'],
     queryFn: () => base44.entities.PlatformRole.list(),
   });
 
+  const createRole = useMutation({
+    mutationFn: (data) => base44.entities.PlatformRole.create({ ...data, module_permissions: '[]', is_system_role: false }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['platform-roles'] });
+      setShowAdd(false);
+      setNewRole({ role_name: '', role_type: 'Internal', description: '' });
+    },
+  });
+
   return (
     <div className="space-y-4">
-      {roles.map(role => {
-        let perms = [];
-        try { perms = JSON.parse(role.module_permissions || '[]'); } catch {}
-        return (
-          <div key={role.id} className="rounded-xl p-4" style={{ background: 'rgba(30,41,59,0.8)', border: '1px solid rgba(202,220,252,0.1)' }}>
-            <div className="flex items-center gap-3 mb-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm" style={{ color: '#CADCFC' }}>{role.role_name}</span>
-                  {role.is_system_role && <Lock className="w-3 h-3" style={{ color: '#475569' }} />}
-                  <span className={`text-xs px-2 py-0.5 rounded-full border ${role.role_type === 'Internal' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`}>
-                    {role.role_type}
-                  </span>
-                </div>
-                {role.description && <div className="text-xs mt-0.5" style={{ color: '#64748B' }}>{role.description}</div>}
-              </div>
-            </div>
-            {perms.length > 0 && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr>
-                      <th className="text-left pb-1 pr-4" style={{ color: '#475569' }}>Module</th>
-                      {PERM_KEYS.map(k => <th key={k} className="text-center pb-1 px-1" style={{ color: '#475569' }}>{PERM_LABELS[k]}</th>)}
-                      <th className="text-left pb-1 pl-2" style={{ color: '#475569' }}>Scope</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {perms.map(p => (
-                      <tr key={p.module} style={{ borderTop: '1px solid rgba(202,220,252,0.05)' }}>
-                        <td className="py-1 pr-4" style={{ color: p.can_view ? '#94A3B8' : '#334155' }}>{p.module}</td>
-                        {PERM_KEYS.map(k => (
-                          <td key={k} className="text-center py-1 px-1">
-                            {p[k] === true
-                              ? <CheckCircle className="w-3 h-3 text-green-400 inline" />
-                              : p[k] === false
-                              ? <XCircle className="w-3 h-3 text-red-500/40 inline" />
-                              : <span style={{ color: '#334155' }}>—</span>}
-                          </td>
-                        ))}
-                        <td className="py-1 pl-2 text-xs" style={{ color: '#64748B' }}>{p.data_scope || '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+      <div className="flex items-center justify-between">
+        <p className="text-xs" style={{ color: '#64748B' }}>
+          Set what each role can do per module — View, Create, Edit, Delete, Export, Approve — and its data scope.
+        </p>
+        <Button onClick={() => setShowAdd((s) => !s)} size="sm"
+          style={{ background: 'linear-gradient(135deg, #028090, #00A896)', color: '#F8FAFC' }}>
+          <Plus className="w-4 h-4 mr-1" /> New Role
+        </Button>
+      </div>
+
+      {showAdd && (
+        <div className="rounded-xl p-4 space-y-3" style={{ background: 'rgba(30,41,59,0.8)', border: '1px solid rgba(0,168,150,0.3)' }}>
+          <div className="text-sm font-semibold" style={{ color: '#00A896' }}>New Role</div>
+          <div className="flex gap-3 flex-wrap">
+            <Input value={newRole.role_name} onChange={(e) => setNewRole((n) => ({ ...n, role_name: e.target.value }))} placeholder="Role name"
+              className="flex-1 min-w-40" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+            <Select value={newRole.role_type} onValueChange={(v) => setNewRole((n) => ({ ...n, role_type: v }))}>
+              <SelectTrigger className="w-40" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
+                {['Internal', 'External'].map((t) => <SelectItem key={t} value={t} style={{ color: '#CADCFC' }}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
-        );
-      })}
+          <Input value={newRole.description} onChange={(e) => setNewRole((n) => ({ ...n, description: e.target.value }))} placeholder="Description (optional)"
+            style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+          <div className="flex justify-end">
+            <Button onClick={() => createRole.mutate(newRole)} disabled={!newRole.role_name || createRole.isPending}
+              style={{ background: 'linear-gradient(135deg, #028090, #00A896)', color: '#F8FAFC' }}>
+              {createRole.isPending ? 'Creating…' : 'Create Role'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {roles.map((role) => <RolePermissionEditor key={role.id} role={role} />)}
     </div>
   );
 }

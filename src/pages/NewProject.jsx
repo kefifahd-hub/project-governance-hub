@@ -10,10 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createPageUrl } from '../utils';
+import { useSession } from '@/lib/SessionContext';
 
 export default function NewProject() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { platformUser } = useSession();
   const [formData, setFormData] = useState({
     projectName: '',
     clientName: '',
@@ -29,7 +31,12 @@ export default function NewProject() {
   });
 
   const createProjectMutation = useMutation({
-    mutationFn: (data) => base44.entities.Project.create(data),
+    // Stamp the new project with the creator's domain (org_id) so it lands in
+    // their client workspace and is scoped correctly for everyone else.
+    mutationFn: (data) =>
+      base44.entities.Project.create(
+        platformUser?.org_id ? { ...data, org_id: platformUser.org_id } : data
+      ),
     onSuccess: (newProject) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       navigate(createPageUrl(`ProjectDashboard?id=${newProject.id}`));

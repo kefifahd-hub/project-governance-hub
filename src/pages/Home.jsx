@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { createPageUrl } from '../utils';
 import PlatformWelcome from '../components/PlatformWelcome';
 import DailyPrincipleBanner from '../components/DailyPrincipleBanner';
+import { useSession } from '@/lib/SessionContext';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -27,10 +28,11 @@ export default function Home() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editFormData, setEditFormData] = useState(null);
   const queryClient = useQueryClient();
+  const { scopeFilter, domain } = useSession();
 
   const { data: projects = [], isLoading } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.filter({ status: 'Active' }, '-created_date')
+    queryKey: ['projects', domain?.id || 'all'],
+    queryFn: () => base44.entities.Project.filter(scopeFilter({ status: 'Active' }), '-created_date')
   });
 
   const { data: currentProject } = useQuery({

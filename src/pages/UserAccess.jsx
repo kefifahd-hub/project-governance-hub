@@ -11,15 +11,24 @@ import UserRow from '../components/useraccess/UserRow';
 import InviteUserModal from '../components/useraccess/InviteUserModal';
 import AuditLogTab from '../components/useraccess/AuditLogTab';
 import RolesTab from '../components/useraccess/RolesTab';
+import RequirePermission from '../components/RequirePermission';
 
 const TABS = [
   { id: 'users', label: 'Users', icon: Users },
-  { id: 'orgs', label: 'Organizations', icon: Building2 },
+  { id: 'orgs', label: 'Domains', icon: Building2 },
   { id: 'roles', label: 'Roles & Permissions', icon: Shield },
   { id: 'audit', label: 'Audit Log', icon: ClipboardList },
 ];
 
 export default function UserAccess() {
+  return (
+    <RequirePermission page="UserAccess">
+      <UserAccessConsole />
+    </RequirePermission>
+  );
+}
+
+function UserAccessConsole() {
   const [activeTab, setActiveTab] = useState('users');
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [showInvite, setShowInvite] = useState(false);
@@ -27,7 +36,7 @@ export default function UserAccess() {
   const [orgFilter, setOrgFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('active');
   const [showAddOrg, setShowAddOrg] = useState(false);
-  const [newOrg, setNewOrg] = useState({ name: '', org_type: 'Internal' });
+  const [newOrg, setNewOrg] = useState({ name: '', slug: '', org_type: 'Internal' });
   const qc = useQueryClient();
 
   const { data: orgs = [] } = useQuery({ queryKey: ['orgs'], queryFn: () => base44.entities.Organization.list() });
@@ -41,7 +50,7 @@ export default function UserAccess() {
 
   const createOrgMutation = useMutation({
     mutationFn: (data) => base44.entities.Organization.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['orgs'] }); setShowAddOrg(false); setNewOrg({ name: '', org_type: 'Internal' }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['orgs'] }); setShowAddOrg(false); setNewOrg({ name: '', slug: '', org_type: 'Internal' }); },
   });
 
   const filteredUsers = users.filter(u => {
@@ -60,14 +69,14 @@ export default function UserAccess() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold" style={{ color: '#CADCFC' }}>👥 Users & Access</h1>
           <p className="text-sm mt-1" style={{ color: '#64748B' }}>
-            Manage organizations, users, roles and permissions across the platform.
+            Manage client domains, users, roles and permissions across the platform.
           </p>
         </div>
 
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           {[
-            { label: 'Organizations', value: orgs.length, sub: `${orgs.filter(o => o.is_active).length} active` },
+            { label: 'Domains', value: orgs.length, sub: `${orgs.filter(o => o.is_active).length} active` },
             { label: 'Users', value: users.length, sub: `${users.filter(u => u.is_active).length} active` },
             { label: 'Roles', value: roles.length, sub: 'system-defined' },
           ].map(s => (
@@ -151,15 +160,17 @@ export default function UserAccess() {
             <div className="flex justify-end mb-4">
               <Button onClick={() => setShowAddOrg(!showAddOrg)}
                 style={{ background: 'linear-gradient(135deg, #028090, #00A896)', color: '#F8FAFC' }}>
-                <Plus className="w-4 h-4 mr-1" /> Add Organization
+                <Plus className="w-4 h-4 mr-1" /> Add Domain
               </Button>
             </div>
             {showAddOrg && (
               <div className="rounded-xl p-4 mb-4 space-y-3" style={{ background: 'rgba(30,41,59,0.8)', border: '1px solid rgba(0,168,150,0.3)' }}>
-                <div className="text-sm font-semibold" style={{ color: '#00A896' }}>New Organization</div>
+                <div className="text-sm font-semibold" style={{ color: '#00A896' }}>New Domain</div>
                 <div className="flex gap-3 flex-wrap">
-                  <Input value={newOrg.name} onChange={e => setNewOrg(n => ({ ...n, name: e.target.value }))} placeholder="Organization name"
+                  <Input value={newOrg.name} onChange={e => setNewOrg(n => ({ ...n, name: e.target.value }))} placeholder="Client / domain name"
                     className="flex-1" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+                  <Input value={newOrg.slug} onChange={e => setNewOrg(n => ({ ...n, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))} placeholder="slug (e.g. acme)"
+                    className="w-40" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
                   <Select value={newOrg.org_type} onValueChange={v => setNewOrg(n => ({ ...n, org_type: v }))}>
                     <SelectTrigger className="w-48" style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>
                       <SelectValue />

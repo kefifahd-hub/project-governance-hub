@@ -9,6 +9,7 @@ import GovernanceWizard from './pages/GovernanceWizard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import SwotAnalysis from './pages/SwotAnalysis';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { SessionProvider } from '@/lib/SessionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -127,7 +128,11 @@ const AuthenticatedApp = () => {
     }
   }
 
-  return <AnimatedRoutes />;
+  return (
+    <SessionProvider>
+      <AnimatedRoutes />
+    </SessionProvider>
+  );
 };
 
 

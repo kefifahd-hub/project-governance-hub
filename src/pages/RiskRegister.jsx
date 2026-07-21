@@ -12,8 +12,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { createPageUrl } from '../utils';
+import RequirePermission from '../components/RequirePermission';
 
 export default function RiskRegister() {
+  return (
+    <RequirePermission page="RiskRegister">
+      <RiskRegisterView />
+    </RequirePermission>
+  );
+}
+
+function RiskRegisterView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
