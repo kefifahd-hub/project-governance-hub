@@ -151,11 +151,16 @@ export default function RiskRegister() {
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Button
                 onClick={() => setShowAdvisor(true)}
-                className="w-full sm:w-auto"
+                className="relative w-full sm:w-auto"
                 style={{ background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(248,113,113,0.4)', color: '#f87171' }}
+                title="New — AI advisor that reviews your action checklists and proposes risk mitigations"
               >
                 <ShieldCheck className="w-4 h-4 mr-2" />
                 Mitigation Advisor
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 border border-red-200/50"></span>
+                </span>
               </Button>
               <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
                 <DialogTrigger asChild>

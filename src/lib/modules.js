@@ -30,6 +30,7 @@ export const MODULES = [
   { page: 'Home', label: 'Home', group: 'Core', alwaysAllowed: true },
   { page: 'Settings', label: 'Settings', group: 'Core', alwaysAllowed: true },
   { page: 'NewProject', label: 'New Project', group: 'Core', alwaysAllowed: true },
+  { page: 'UserManual', label: 'User Manual', group: 'Core', alwaysAllowed: true },
 
   // Dashboards
   { page: 'ProjectDashboard', label: 'Project Dashboard', group: 'Dashboards' },

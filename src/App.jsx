@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 import GovernanceWizard from './pages/GovernanceWizard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import SwotAnalysis from './pages/SwotAnalysis';
+import UserManual from './pages/UserManual';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SessionProvider } from '@/lib/SessionContext';
 import RequirePermission from '@/components/RequirePermission';
@@ -109,6 +110,15 @@ const AnimatedRoutes = () => {
             <PageTransition k="SwotAnalysis">
               <RequirePermission page="SwotAnalysis">
                 <SwotAnalysis />
+              </RequirePermission>
+            </PageTransition>
+          </LayoutWrapper>
+        } />
+        <Route path="/UserManual" element={
+          <LayoutWrapper currentPageName="UserManual">
+            <PageTransition k="UserManual">
+              <RequirePermission page="UserManual">
+                <UserManual />
               </RequirePermission>
             </PageTransition>
           </LayoutWrapper>

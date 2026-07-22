@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { User, Building2, Mail, Shield, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
+import { User, Building2, Mail, Shield, Trash2, AlertTriangle, Loader2, BookOpen } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { createPageUrl } from '../utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +20,7 @@ import {
 
 export default function Settings() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
@@ -94,7 +97,7 @@ export default function Settings() {
           <CardHeader>
             <CardTitle style={{ color: '#CADCFC' }}>About</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
               <Building2 className="w-8 h-8" style={{ color: '#028090' }} />
               <div>
@@ -102,6 +105,15 @@ export default function Settings() {
                 <div className="text-sm" style={{ color: '#94A3B8' }}>Integrated project management and governance</div>
               </div>
             </div>
+            <Button
+              onClick={() => navigate(createPageUrl('UserManual'))}
+              variant="outline"
+              className="w-full sm:w-auto"
+              style={{ borderColor: 'rgba(0,168,150,0.4)', color: '#00A896', background: 'rgba(0,168,150,0.08)' }}
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              Feature User Manual
+            </Button>
           </CardContent>
         </Card>
 
