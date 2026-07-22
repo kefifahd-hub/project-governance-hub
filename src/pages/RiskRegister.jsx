@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { createPageUrl } from '../utils';
+import { ShieldCheck } from 'lucide-react';
+import RiskMitigationAgentPanel from '@/components/riskregister/RiskMitigationAgentPanel';
 
 export default function RiskRegister() {
   const navigate = useNavigate();
@@ -23,6 +25,7 @@ export default function RiskRegister() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [levelFilter, setLevelFilter] = useState('all');
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showAdvisor, setShowAdvisor] = useState(false);
   
   const [newRisk, setNewRisk] = useState({
     riskDescription: '',
@@ -145,94 +148,104 @@ export default function RiskRegister() {
               <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>Risk Register</h1>
               <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>{project.projectName}</p>
             </div>
-            <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-              <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto" style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Risk
-                </Button>
-              </DialogTrigger>
-              <DialogContent style={{ background: 'rgba(15, 23, 42, 0.98)', borderColor: 'rgba(202, 220, 252, 0.2)' }}>
-                <DialogHeader>
-                  <DialogTitle style={{ color: '#CADCFC' }}>Add New Risk</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label style={{ color: '#94A3B8' }}>Risk Description *</Label>
-                    <Textarea
-                      value={newRisk.riskDescription}
-                      onChange={(e) => setNewRisk({ ...newRisk, riskDescription: e.target.value })}
-                      style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Button
+                onClick={() => setShowAdvisor(true)}
+                className="w-full sm:w-auto"
+                style={{ background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(248,113,113,0.4)', color: '#f87171' }}
+              >
+                <ShieldCheck className="w-4 h-4 mr-2" />
+                Mitigation Advisor
+              </Button>
+              <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+                <DialogTrigger asChild>
+                  <Button className="w-full sm:w-auto" style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Risk
+                  </Button>
+                </DialogTrigger>
+                <DialogContent style={{ background: 'rgba(15, 23, 42, 0.98)', borderColor: 'rgba(202, 220, 252, 0.2)' }}>
+                  <DialogHeader>
+                    <DialogTitle style={{ color: '#CADCFC' }}>Add New Risk</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Category</Label>
-                      <Select value={newRisk.category} onValueChange={(value) => setNewRisk({ ...newRisk, category: value })}>
-                        <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Technical">Technical</SelectItem>
-                          <SelectItem value="Financial">Financial</SelectItem>
-                          <SelectItem value="Schedule">Schedule</SelectItem>
-                          <SelectItem value="Regulatory">Regulatory</SelectItem>
-                          <SelectItem value="Environmental">Environmental</SelectItem>
-                          <SelectItem value="Safety">Safety</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label style={{ color: '#94A3B8' }}>Owner</Label>
-                      <Input
-                        value={newRisk.owner}
-                        onChange={(e) => setNewRisk({ ...newRisk, owner: e.target.value })}
+                      <Label style={{ color: '#94A3B8' }}>Risk Description *</Label>
+                      <Textarea
+                        value={newRisk.riskDescription}
+                        onChange={(e) => setNewRisk({ ...newRisk, riskDescription: e.target.value })}
                         style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
                       />
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label style={{ color: '#94A3B8' }}>Probability (1-3)</Label>
-                      <Select value={String(newRisk.probability)} onValueChange={(value) => setNewRisk({ ...newRisk, probability: parseInt(value) })}>
-                        <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1">Low (1)</SelectItem>
-                          <SelectItem value="2">Medium (2)</SelectItem>
-                          <SelectItem value="3">High (3)</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label style={{ color: '#94A3B8' }}>Category</Label>
+                        <Select value={newRisk.category} onValueChange={(value) => setNewRisk({ ...newRisk, category: value })}>
+                          <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Technical">Technical</SelectItem>
+                            <SelectItem value="Financial">Financial</SelectItem>
+                            <SelectItem value="Schedule">Schedule</SelectItem>
+                            <SelectItem value="Regulatory">Regulatory</SelectItem>
+                            <SelectItem value="Environmental">Environmental</SelectItem>
+                            <SelectItem value="Safety">Safety</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label style={{ color: '#94A3B8' }}>Owner</Label>
+                        <Input
+                          value={newRisk.owner}
+                          onChange={(e) => setNewRisk({ ...newRisk, owner: e.target.value })}
+                          style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label style={{ color: '#94A3B8' }}>Probability (1-3)</Label>
+                        <Select value={String(newRisk.probability)} onValueChange={(value) => setNewRisk({ ...newRisk, probability: parseInt(value) })}>
+                          <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">Low (1)</SelectItem>
+                            <SelectItem value="2">Medium (2)</SelectItem>
+                            <SelectItem value="3">High (3)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label style={{ color: '#94A3B8' }}>Impact (1-3)</Label>
+                        <Select value={String(newRisk.impact)} onValueChange={(value) => setNewRisk({ ...newRisk, impact: parseInt(value) })}>
+                          <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">Low (1)</SelectItem>
+                            <SelectItem value="2">Medium (2)</SelectItem>
+                            <SelectItem value="3">High (3)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div>
-                      <Label style={{ color: '#94A3B8' }}>Impact (1-3)</Label>
-                      <Select value={String(newRisk.impact)} onValueChange={(value) => setNewRisk({ ...newRisk, impact: parseInt(value) })}>
-                        <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1">Low (1)</SelectItem>
-                          <SelectItem value="2">Medium (2)</SelectItem>
-                          <SelectItem value="3">High (3)</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label style={{ color: '#94A3B8' }}>Mitigation Plan</Label>
+                      <Textarea
+                        value={newRisk.mitigationPlan}
+                        onChange={(e) => setNewRisk({ ...newRisk, mitigationPlan: e.target.value })}
+                        style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
+                      />
                     </div>
+                    <Button onClick={() => createRiskMutation.mutate(newRisk)} style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
+                      Create Risk
+                    </Button>
                   </div>
-                  <div>
-                    <Label style={{ color: '#94A3B8' }}>Mitigation Plan</Label>
-                    <Textarea
-                      value={newRisk.mitigationPlan}
-                      onChange={(e) => setNewRisk({ ...newRisk, mitigationPlan: e.target.value })}
-                      style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}
-                    />
-                  </div>
-                  <Button onClick={() => createRiskMutation.mutate(newRisk)} style={{ background: 'linear-gradient(135deg, #028090 0%, #00A896 100%)', color: '#F8FAFC' }}>
-                    Create Risk
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
       </div>
@@ -350,6 +363,13 @@ export default function RiskRegister() {
           ))}
         </div>
       </div>
+
+      <RiskMitigationAgentPanel
+        open={showAdvisor}
+        onClose={() => setShowAdvisor(false)}
+        projectId={projectId}
+        projectName={project?.projectName}
+      />
     </div>
   );
 }
