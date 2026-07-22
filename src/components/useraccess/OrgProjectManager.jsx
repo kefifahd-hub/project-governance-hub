@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,29 +21,72 @@ export default function OrgProjectManager({ org, projects, allProjects, orgs }) 
   const [moveTarget, setMoveTarget] = useState({});
   const qc = useQueryClient();
 
+  const { data: me } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ['all-projects-admin'] });
     qc.invalidateQueries({ queryKey: ['projects'] });
+    qc.invalidateQueries({ queryKey: ['auditlogs'] });
+  };
+
+  const writeAudit = (entry) => {
+    base44.entities.AuditLog.create({
+      user_id: me?.id,
+      user_name: me?.full_name || me?.email,
+      org_id: org.id,
+      org_name: org.name,
+      timestamp: new Date().toISOString(),
+      ...entry,
+    }).catch(() => {});
   };
 
   const assignMutation = useMutation({
     mutationFn: (id) => base44.entities.Project.update(id, { org_id: org.id }),
-    onSuccess: () => { invalidate(); setShowAssign(false); setAssignId(''); },
+    onSuccess: (_data, id) => {
+      const p = allProjects.find((x) => x.id === id);
+      writeAudit({
+        action: 'Update', module: 'Project Assignment', record_type: 'Project',
+        record_id: id, record_name: p?.projectName, details: `Assigned to ${org.name}`,
+      });
+      invalidate(); setShowAssign(false); setAssignId('');
+    },
   });
 
   const archiveMutation = useMutation({
     mutationFn: (id) => base44.entities.Project.update(id, { status: 'On Hold' }),
-    onSuccess: invalidate,
+    onSuccess: (_data, id) => {
+      const p = allProjects.find((x) => x.id === id);
+      writeAudit({
+        action: 'Update', module: 'Project Archive', record_type: 'Project',
+        record_id: id, record_name: p?.projectName, details: 'Set to On Hold',
+      });
+      invalidate();
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Project.delete(id),
-    onSuccess: invalidate,
+    onSuccess: (_data, id) => {
+      const p = allProjects.find((x) => x.id === id);
+      writeAudit({
+        action: 'Delete', module: 'Project Delete', record_type: 'Project',
+        record_id: id, record_name: p?.projectName, details: 'Permanently deleted',
+      });
+      invalidate();
+    },
   });
 
   const moveMutation = useMutation({
     mutationFn: ({ id, targetOrgId }) => base44.entities.Project.update(id, { org_id: targetOrgId }),
-    onSuccess: invalidate,
+    onSuccess: (_data, { id, targetOrgId }) => {
+      const p = allProjects.find((x) => x.id === id);
+      const targetName = orgs.find((o) => o.id === targetOrgId)?.name;
+      writeAudit({
+        action: 'Update', module: 'Project Move', record_type: 'Project',
+        record_id: id, record_name: p?.projectName, details: `Moved from ${org.name} to ${targetName}`,
+      });
+      invalidate();
+    },
   });
 
   const otherOrgs = orgs.filter((o) => o.id !== org.id);
