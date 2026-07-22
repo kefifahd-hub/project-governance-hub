@@ -60,6 +60,14 @@ export const ORG_ID_ENTITIES = [
 
   { name: "CandidateSite", parentEntity: "SiteAssessment", parentField: "assessmentId", parentOrgField: "org_id" },
   { name: "SiteCriteria", parentEntity: "CandidateSite", parentField: "siteId", parentOrgField: "org_id" },
+
+  // Grandchildren of Project (parent = ActionItem, itself child of Project)
+  { name: "ActionChecklist", parentEntity: "ActionItem", parentField: "actionItemId", parentOrgField: "org_id" },
+  { name: "ActionComment", parentEntity: "ActionItem", parentField: "actionItemId", parentOrgField: "org_id" },
+
+  // Grandchildren of Project (parent = ChangeRequest, itself child of Project)
+  { name: "ChangeApproval", parentEntity: "ChangeRequest", parentField: "crId", parentOrgField: "org_id" },
+  { name: "ChangeImpactAssessment", parentEntity: "ChangeRequest", parentField: "crId", parentOrgField: "org_id" },
 ];
 
 export function getConfig(entityName) {
