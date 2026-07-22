@@ -47,8 +47,9 @@ export default function OrgProjectManager({ org, projects, allProjects, orgs }) 
   });
 
   const otherOrgs = orgs.filter((o) => o.id !== org.id);
-  // Projects that can be assigned to this domain: unassigned or belonging to another domain
-  const assignable = allProjects.filter((p) => p.org_id !== org.id);
+  // A project can belong to only one domain — the Assign picker shows only unassigned projects.
+  // Use "Move to…" on an existing project row to relocate it between domains.
+  const assignable = allProjects.filter((p) => !p.org_id);
 
   return (
     <div className="mt-4">
