@@ -224,7 +224,7 @@ function UserAccessConsole() {
             </div>
             {selectedOrg && (
               <div className="mt-4">
-                <OrgDetailPanel org={selectedOrg} users={users} projects={projects.filter(p => p.org_id === selectedOrg.id)} onClose={() => setSelectedOrg(null)} />
+                <OrgDetailPanel org={selectedOrg} users={users} projects={projects.filter(p => p.org_id === selectedOrg.id)} allProjects={projects} orgs={orgs} onClose={() => setSelectedOrg(null)} />
               </div>
             )}
           </div>
