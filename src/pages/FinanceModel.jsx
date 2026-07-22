@@ -5,8 +5,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, TrendingUp, BarChart3, DollarSign, Settings, Layers, Calculator, Zap, TrendingDown, Users, LineChart } from 'lucide-react';
+import { ArrowLeft, TrendingUp, BarChart3, DollarSign, Settings, Layers, Calculator, Zap, TrendingDown, Users, LineChart, Bot } from 'lucide-react';
 import { createPageUrl } from '../utils';
+import FinanceModelingAgentPanel from '../components/financemodel/FinanceModelingAgentPanel';
 import ModelSetupTab from '../components/financemodel/tabs/ModelSetupTab';
 import CapexTab from '../components/financemodel/tabs/CapexTab';
 import AssumptionsTab from '../components/financemodel/tabs/AssumptionsTab';
@@ -29,6 +30,7 @@ export default function FinanceModel() {
   const projectId = searchParams.get('id');
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState('setup');
+  const [showModelingAgent, setShowModelingAgent] = useState(false);
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
@@ -143,6 +145,15 @@ export default function FinanceModel() {
                   <div className="text-lg font-bold" style={{ color: totalNPV >= 0 ? '#34D399' : '#EF4444' }}>€{totalNPV.toFixed(1)}M</div>
                 </div>
               )}
+              <Button
+                onClick={() => setShowModelingAgent(true)}
+                size="sm"
+                style={{ background: 'rgba(0,168,150,0.15)', border: '1px solid rgba(0,168,150,0.4)', color: '#5eead4' }}
+              >
+                <Bot className="w-4 h-4 mr-1.5" />
+                <span className="hidden sm:inline">Modeling Assistant</span>
+                <span className="sm:hidden">AI</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -204,6 +215,15 @@ export default function FinanceModel() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <FinanceModelingAgentPanel
+        open={showModelingAgent}
+        onClose={() => setShowModelingAgent(false)}
+        projectId={projectId}
+        projectName={project?.projectName}
+        modelId={modelId}
+        modelName={model?.modelName}
+      />
     </div>
   );
 }

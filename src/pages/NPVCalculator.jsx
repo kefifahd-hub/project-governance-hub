@@ -2,18 +2,20 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Calculator, Save, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Calculator, Save, TrendingUp, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createPageUrl } from '../utils';
+import FinanceModelingAgentPanel from '../components/financemodel/FinanceModelingAgentPanel';
 
 export default function NPVCalculator() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
   const queryClient = useQueryClient();
+  const [showModelingAgent, setShowModelingAgent] = useState(false);
 
   const [formData, setFormData] = useState({
     scenarioName: '',
@@ -188,8 +190,21 @@ export default function NPVCalculator() {
             <span className="hidden sm:inline">Back to Dashboard</span>
             <span className="sm:hidden">Back</span>
           </Button>
-          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>NPV Calculator</h1>
-          <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>{project.projectName}</p>
+          <div className="flex items-center justify-between mt-2 gap-2">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#CADCFC' }}>NPV Calculator</h1>
+              <p className="mt-2 text-sm sm:text-base" style={{ color: '#94A3B8' }}>{project.projectName}</p>
+            </div>
+            <Button
+              onClick={() => setShowModelingAgent(true)}
+              size="sm"
+              style={{ background: 'rgba(0,168,150,0.15)', border: '1px solid rgba(0,168,150,0.4)', color: '#5eead4' }}
+            >
+              <Bot className="w-4 h-4 mr-1.5" />
+              <span className="hidden sm:inline">Modeling Assistant</span>
+              <span className="sm:hidden">AI</span>
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -500,6 +515,13 @@ export default function NPVCalculator() {
           </div>
         </div>
       </div>
+
+      <FinanceModelingAgentPanel
+        open={showModelingAgent}
+        onClose={() => setShowModelingAgent(false)}
+        projectId={projectId}
+        projectName={project?.projectName}
+      />
     </div>
   );
 }
