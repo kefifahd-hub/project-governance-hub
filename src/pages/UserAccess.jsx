@@ -42,6 +42,7 @@ function UserAccessConsole() {
   const { data: orgs = [] } = useQuery({ queryKey: ['orgs'], queryFn: () => base44.entities.Organization.list() });
   const { data: users = [] } = useQuery({ queryKey: ['platform-users'], queryFn: () => base44.entities.PlatformUser.list() });
   const { data: roles = [] } = useQuery({ queryKey: ['platform-roles'], queryFn: () => base44.entities.PlatformRole.list() });
+  const { data: projects = [] } = useQuery({ queryKey: ['all-projects-admin'], queryFn: () => base44.entities.Project.list('-created_date') });
 
   const updateUserMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.PlatformUser.update(id, data),
@@ -61,6 +62,7 @@ function UserAccessConsole() {
   });
 
   const orgUserCounts = users.reduce((acc, u) => { acc[u.org_id] = (acc[u.org_id] || 0) + 1; return acc; }, {});
+  const orgProjectCounts = projects.reduce((acc, p) => { acc[p.org_id] = (acc[p.org_id] || 0) + 1; return acc; }, {});
 
   return (
     <div className="min-h-screen p-6" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E2761 100%)' }}>
@@ -216,13 +218,13 @@ function UserAccessConsole() {
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {orgs.map(org => (
-                <OrgCard key={org.id} org={org} userCount={orgUserCounts[org.id] || 0}
+                <OrgCard key={org.id} org={org} userCount={orgUserCounts[org.id] || 0} projectCount={orgProjectCounts[org.id] || 0}
                   onClick={() => setSelectedOrg(selectedOrg?.id === org.id ? null : org)} />
               ))}
             </div>
             {selectedOrg && (
               <div className="mt-4">
-                <OrgDetailPanel org={selectedOrg} users={users} onClose={() => setSelectedOrg(null)} />
+                <OrgDetailPanel org={selectedOrg} users={users} projects={projects.filter(p => p.org_id === selectedOrg.id)} onClose={() => setSelectedOrg(null)} />
               </div>
             )}
           </div>

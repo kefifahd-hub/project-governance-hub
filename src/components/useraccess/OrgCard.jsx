@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { Building2, Users, CheckCircle, XCircle } from 'lucide-react';
+import { Building2, Users, Briefcase, CheckCircle, XCircle } from 'lucide-react';
 
 const ORG_TYPE_COLORS = {
   'Internal': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
@@ -9,7 +9,7 @@ const ORG_TYPE_COLORS = {
   'Other': 'bg-slate-500/20 text-slate-300 border-slate-500/30',
 };
 
-export default function OrgCard({ org, userCount, onClick }) {
+export default function OrgCard({ org, userCount, projectCount, onClick }) {
   return (
     <div
       onClick={onClick}
@@ -34,6 +34,7 @@ export default function OrgCard({ org, userCount, onClick }) {
       </div>
       <div className="flex items-center gap-4 text-xs" style={{ color: '#64748B' }}>
         <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {userCount || 0} users</span>
+        <span className="flex items-center gap-1"><Briefcase className="w-3 h-3" /> {projectCount || 0} projects</span>
         {org.primary_contact_name && <span>{org.primary_contact_name}</span>}
       </div>
     </div>

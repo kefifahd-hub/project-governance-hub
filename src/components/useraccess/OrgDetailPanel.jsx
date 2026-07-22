@@ -4,9 +4,10 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Building2, CheckCircle } from 'lucide-react';
+import { X, Building2, CheckCircle, Briefcase } from 'lucide-react';
+import { createPageUrl } from '@/utils';
 
-export default function OrgDetailPanel({ org, users, onClose }) {
+export default function OrgDetailPanel({ org, users, projects = [], onClose }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ ...org });
   const qc = useQueryClient();
@@ -83,6 +84,24 @@ export default function OrgDetailPanel({ org, users, onClose }) {
           {org.primary_contact_email && <div style={{ color: '#94A3B8' }}>Email: <span style={{ color: '#CADCFC' }}>{org.primary_contact_email}</span></div>}
           {org.contract_reference && <div style={{ color: '#94A3B8' }}>Contract: <span style={{ color: '#CADCFC' }}>{org.contract_reference}</span></div>}
           {org.notes && <div style={{ color: '#94A3B8' }}>Notes: <span style={{ color: '#CADCFC' }}>{org.notes}</span></div>}
+        </div>
+      )}
+
+      {projects.length > 0 && (
+        <div className="mt-4">
+          <div className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: '#475569' }}>Projects ({projects.length})</div>
+          {projects.map(p => (
+            <a key={p.id} href={createPageUrl(`Home?id=${p.id}`)}
+              className="flex items-center gap-3 py-1.5 text-sm hover:opacity-80 transition-opacity">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: 'rgba(202,220,252,0.1)', color: '#CADCFC' }}>
+                <Briefcase className="w-3 h-3" />
+              </div>
+              <span style={{ color: '#CADCFC' }}>{p.projectName}</span>
+              <span className="text-xs" style={{ color: '#64748B' }}>{p.currentPhase}</span>
+              <span className="ml-auto text-xs" style={{ color: p.status === 'Active' ? '#34d399' : '#94A3B8' }}>{p.status}</span>
+            </a>
+          ))}
         </div>
       )}
 
