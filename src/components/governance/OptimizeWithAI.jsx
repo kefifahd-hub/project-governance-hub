@@ -14,6 +14,7 @@ const ENTITY_MAP = {
   raid: { entity: 'RaidItem', label: 'RAID Log', isArray: true },
   qualityGates: { entity: 'QualityGate', label: 'Quality Gates', isArray: true },
   requirements: { entity: 'Requirement', label: 'Requirements', isArray: true },
+  swot: { entity: 'SwotItem', label: 'SWOT Analysis', isArray: true },
   charter: { entity: 'ProjectCharter', label: 'Project Charter', isArray: false },
 };
 
@@ -170,7 +171,8 @@ export default function OptimizeWithAI({ documentType, projectId, currentData, o
                         {item.reqCode && <div className="font-medium">{item.reqCode} — {item.description || ''}</div>}
                         {item.activity && <div className="font-medium">{item.activity} → {item.roleName} ({item.responsibility})</div>}
                         {item.audience && <div className="font-medium">{item.audience} — {item.information || ''}</div>}
-                        {item.title && <div className="font-medium">{item.itemType}: {item.title}</div>}
+                        {item.title && !item.itemType && <div className="font-medium">{item.category}: {item.title}</div>}
+                        {item.title && item.itemType && <div className="font-medium">{item.itemType}: {item.title}</div>}
                         {item.gateName && <div className="font-medium">Gate {item.gateNumber}: {item.gateName}</div>}
                         {item.description && <div className="text-xs mt-1" style={{ color: '#94A3B8' }}>{item.description}</div>}
                       </div>

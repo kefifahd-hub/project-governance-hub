@@ -15,6 +15,7 @@ const DOC_LABELS = {
   raid: 'RAID Log',
   qualityGates: 'Quality Gates',
   requirements: 'Requirements Register',
+  swot: 'SWOT Analysis',
 };
 
 Deno.serve(async (req) => {
@@ -288,7 +289,7 @@ ${fullContext}`;
     // ── OPTIMIZE MODE ──
     if (mode === 'optimize') {
       const label = DOC_LABELS[documentType] || documentType;
-      const isArray = ['stakeholders', 'wbs', 'raci', 'communication', 'raid', 'qualityGates', 'requirements'].includes(documentType);
+      const isArray = ['stakeholders', 'wbs', 'raci', 'communication', 'raid', 'qualityGates', 'requirements', 'swot'].includes(documentType);
 
       const instructionText = optimizeInstruction
         ? `Specific instruction from user: ${optimizeInstruction}`
