@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { User, Building2, Mail, Shield, Trash2, AlertTriangle, Loader2, BookOpen } from 'lucide-react';
+import { User, Building2, Mail, Shield, Trash2, AlertTriangle, Loader2, BookOpen, LogOut, LifeBuoy } from 'lucide-react';
+
+// Where "Contact Administrator" routes to. Change to a shared mailbox if needed.
+const ADMIN_EMAIL = 'kefi.fahd@gmail.com';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '../utils';
@@ -28,6 +31,24 @@ export default function Settings() {
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me()
   });
+
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogOut = async () => {
+    setLoggingOut(true);
+    try {
+      await base44.auth.logout();
+      qc.clear();
+      window.location.href = '/';
+    } catch (err) {
+      setLoggingOut(false);
+    }
+  };
+
+  const handleContactAdmin = () => {
+    const subject = encodeURIComponent('Support request — PMO Governance Platform');
+    window.location.href = `mailto:${ADMIN_EMAIL}?subject=${subject}`;
+  };
 
   const handleDeleteAccount = async () => {
     setDeleting(true);
@@ -113,6 +134,35 @@ export default function Settings() {
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Feature User Manual
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Support — log out & contact admin */}
+        <Card style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)' }} className="mb-6">
+          <CardHeader>
+            <CardTitle style={{ color: '#CADCFC' }}>Support</CardTitle>
+            <CardDescription style={{ color: '#94A3B8' }}>Session and help</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-3">
+            <Button
+              onClick={handleLogOut}
+              disabled={loggingOut}
+              variant="outline"
+              className="w-full sm:w-auto"
+              style={{ borderColor: 'rgba(202, 220, 252, 0.3)', color: '#CADCFC' }}
+            >
+              {loggingOut ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogOut className="w-4 h-4 mr-2" />}
+              {loggingOut ? 'Signing out…' : 'Log Off'}
+            </Button>
+            <Button
+              onClick={handleContactAdmin}
+              variant="outline"
+              className="w-full sm:w-auto"
+              style={{ borderColor: 'rgba(0,168,150,0.4)', color: '#00A896', background: 'rgba(0,168,150,0.08)' }}
+            >
+              <LifeBuoy className="w-4 h-4 mr-2" />
+              Contact Administrator
             </Button>
           </CardContent>
         </Card>
