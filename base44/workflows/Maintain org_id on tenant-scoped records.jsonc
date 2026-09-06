@@ -1,0 +1,46 @@
+{
+  "name": "Maintain org_id on tenant-scoped records",
+  "description": "Stamps org_id on any tenant-scoped record missing it, resolved from the parent chain (Project \u2192 FinanceModel \u2192 child; SiteAssessment \u2192 CandidateSite \u2192 SiteCriteria).",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": 10,
+      "interval_unit": "minutes",
+      "interval_anchor": "2026-07-21T16:09:25.428000",
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "maintain_org_id_on_tenant_scoped_records",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "maintainOrgId",
+            "args": {
+              "maintain_token": "pmo_maintain_orgid_8f3a9c21"
+            }
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "maintainOrgId"
+  }
+}
