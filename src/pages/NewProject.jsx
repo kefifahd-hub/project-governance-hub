@@ -119,7 +119,7 @@ export default function NewProject() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="projectType" style={{ color: '#94A3B8' }}>Project Type *</Label>
+                  <Label htmlFor="projectType" style={{ color: '#94A3B8' }}>Industry / type *</Label>
                   <Select
                     value={formData.projectType}
                     onValueChange={(value) => setFormData({ ...formData, projectType: value })}
@@ -128,9 +128,7 @@ export default function NewProject() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Battery Gigafactory">Battery Gigafactory</SelectItem>
-                      <SelectItem value="Data Center">Data Center</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
+                      {["Battery Gigafactory","Data Center","Energy Storage (BESS)","Mining & Minerals","Steel & Metals","Oil & Gas","Chemicals & Process","Renewables (Solar / Wind)","Semiconductor Fab","Pharma & Biotech","Infrastructure & Utilities","Other"].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>

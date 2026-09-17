@@ -1,0 +1,34 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "LessonLearned"
+    }
+  },
+  "description": "Stamps org_id on new LessonLearned records from parent Project.",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "stamp_org_id_on_lessonlearned_create",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "stampOrgIdOnCreate",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "name": "Stamp org_id on LessonLearned create"
+}

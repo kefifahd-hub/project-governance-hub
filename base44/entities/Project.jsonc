@@ -19,9 +19,18 @@
       "enum": [
         "Battery Gigafactory",
         "Data Center",
+        "Energy Storage (BESS)",
+        "Mining & Minerals",
+        "Steel & Metals",
+        "Oil & Gas",
+        "Chemicals & Process",
+        "Renewables (Solar / Wind)",
+        "Semiconductor Fab",
+        "Pharma & Biotech",
+        "Infrastructure & Utilities",
         "Other"
       ],
-      "description": "Type of project"
+      "description": "Industry / type of project"
     },
     "totalBudgetEurM": {
       "type": "number",

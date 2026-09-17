@@ -8,6 +8,9 @@ import PageNotFound from './lib/PageNotFound';
 import GovernanceWizard from './pages/GovernanceWizard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import SwotAnalysis from './pages/SwotAnalysis';
+import LessonsLearned from './pages/LessonsLearned';
+import TurnoverPackages from './pages/TurnoverPackages';
+import AuditRegister from './pages/AuditRegister';
 import UserManual from './pages/UserManual';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SessionProvider } from '@/lib/SessionContext';
@@ -119,6 +122,33 @@ const AnimatedRoutes = () => {
             <PageTransition k="UserManual">
               <RequirePermission page="UserManual">
                 <UserManual />
+              </RequirePermission>
+            </PageTransition>
+          </LayoutWrapper>
+        } />
+        <Route path="/LessonsLearned" element={
+          <LayoutWrapper currentPageName="LessonsLearned">
+            <PageTransition k="LessonsLearned">
+              <RequirePermission page="LessonsLearned">
+                <LessonsLearned />
+              </RequirePermission>
+            </PageTransition>
+          </LayoutWrapper>
+        } />
+        <Route path="/TurnoverPackages" element={
+          <LayoutWrapper currentPageName="TurnoverPackages">
+            <PageTransition k="TurnoverPackages">
+              <RequirePermission page="TurnoverPackages">
+                <TurnoverPackages />
+              </RequirePermission>
+            </PageTransition>
+          </LayoutWrapper>
+        } />
+        <Route path="/AuditRegister" element={
+          <LayoutWrapper currentPageName="AuditRegister">
+            <PageTransition k="AuditRegister">
+              <RequirePermission page="AuditRegister">
+                <AuditRegister />
               </RequirePermission>
             </PageTransition>
           </LayoutWrapper>

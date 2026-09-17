@@ -373,15 +373,13 @@ export default function Home() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label style={{ color: '#94A3B8' }}>Project Type</Label>
+                  <Label style={{ color: '#94A3B8' }}>Industry / type</Label>
                   <Select value={editFormData.projectType} onValueChange={(value) => setEditFormData({ ...editFormData, projectType: value })}>
                     <SelectTrigger style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.2)', color: '#F8FAFC' }}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Battery Gigafactory">Battery Gigafactory</SelectItem>
-                      <SelectItem value="Data Center">Data Center</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
+                      {["Battery Gigafactory","Data Center","Energy Storage (BESS)","Mining & Minerals","Steel & Metals","Oil & Gas","Chemicals & Process","Renewables (Solar / Wind)","Semiconductor Fab","Pharma & Biotech","Infrastructure & Utilities","Other"].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>

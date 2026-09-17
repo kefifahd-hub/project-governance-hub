@@ -40,7 +40,7 @@ const FEATURE_GROUPS = [
     items: [
       { name: 'Site Selection', desc: 'Score candidate sites against weighted criteria (ownership, plot, utilities, infrastructure, workforce, incentives).' },
       { name: 'Feasibility Study', desc: 'Run the 11-tab feasibility assessment and produce a go / no-go recommendation with NPV and IRR.' },
-      { name: 'Finance Model', desc: 'Build the full gigafactory financial model — capex, BOM, revenue, headcount, overheads, DCF and P&L.' },
+      { name: 'Finance Model', desc: 'Build the full project financial model — capex, BOM, revenue, headcount, overheads, DCF and P&L.' },
       { name: 'FEED Tracker', desc: 'Track Front-End Engineering Design items across the five FEED phases.' },
       { name: 'NPV Calculator', desc: 'Run NPV scenarios (base, optimistic, conservative) with payback and viability checks.' },
       { name: 'Client Briefing', desc: 'Generate a one-page executive briefing and download it for stakeholders.' },

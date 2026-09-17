@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LayoutGrid, List, BarChart2, User, TrendingUp, Search, Plus, SlidersHorizontal } from 'lucide-react';
+import { LayoutGrid, List, BarChart2, User, TrendingUp, Search, Plus, SlidersHorizontal, Upload } from 'lucide-react';
 
 const VIEWS = [
   { id: 'board', label: 'Board', icon: LayoutGrid },
@@ -16,7 +16,8 @@ export default function ActionTrackerHeader({
   search, onSearch,
   filters, onFilters,
   buckets, phases,
-  onNewItem
+  onNewItem,
+  onImport
 }) {
   const [showFilters, setShowFilters] = useState(false);
 
@@ -67,14 +68,25 @@ export default function ActionTrackerHeader({
           Filters
         </Button>
 
-        <Button
-          size="sm"
-          onClick={onNewItem}
-          style={{ background: 'linear-gradient(135deg,#028090,#00A896)', color: '#F8FAFC' }}
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          New Item
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onImport}
+            style={{ borderColor: 'rgba(202,220,252,0.3)', color: '#CADCFC' }}
+          >
+            <Upload className="w-4 h-4 mr-1" />
+            Import CSV
+          </Button>
+          <Button
+            size="sm"
+            onClick={onNewItem}
+            style={{ background: 'linear-gradient(135deg,#028090,#00A896)', color: '#F8FAFC' }}
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            New Item
+          </Button>
+        </div>
       </div>
 
       {/* Filter row */}

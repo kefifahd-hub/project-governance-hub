@@ -68,6 +68,14 @@ export const ORG_ID_ENTITIES = [
   // Grandchildren of Project (parent = ChangeRequest, itself child of Project)
   { name: "ChangeApproval", parentEntity: "ChangeRequest", parentField: "crId", parentOrgField: "org_id" },
   { name: "ChangeImpactAssessment", parentEntity: "ChangeRequest", parentField: "crId", parentOrgField: "org_id" },
+
+  // New governance tools (children of Project)
+  { name: "LessonLearned", parentEntity: "Project", parentField: "projectId", parentOrgField: "org_id" },
+  { name: "TurnoverPackage", parentEntity: "Project", parentField: "projectId", parentOrgField: "org_id" },
+  { name: "Audit", parentEntity: "Project", parentField: "projectId", parentOrgField: "org_id" },
+
+  // Grandchild of Project (parent = Audit, itself child of Project)
+  { name: "AuditFinding", parentEntity: "Audit", parentField: "auditId", parentOrgField: "org_id" },
 ];
 
 export function getConfig(entityName) {

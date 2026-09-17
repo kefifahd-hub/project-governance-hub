@@ -1,0 +1,128 @@
+{
+  "name": "TurnoverPackage",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Organization ID inherited from parent Project (denormalized for RLS)"
+    },
+    "projectId": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "packageCode": {
+      "type": "string",
+      "description": "Package code e.g. TOP-014"
+    },
+    "systemName": {
+      "type": "string",
+      "description": "System name"
+    },
+    "subsystem": {
+      "type": "string",
+      "description": "Subsystem"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Scope of the package"
+    },
+    "constructionPercent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0
+    },
+    "punchlistA": {
+      "type": "number",
+      "default": 0,
+      "description": "Must-fix items before energisation"
+    },
+    "punchlistB": {
+      "type": "number",
+      "default": 0,
+      "description": "Fix-later items"
+    },
+    "custodianFrom": {
+      "type": "string",
+      "description": "Handing-over custodian e.g. Construction"
+    },
+    "custodianTo": {
+      "type": "string",
+      "description": "Receiving custodian e.g. Commissioning / Operations"
+    },
+    "targetDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "actualDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "wbsCode": {
+      "type": "string",
+      "description": "Links to a WbsElement"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Construction Complete",
+        "Walkdown",
+        "Punchlist A Cleared",
+        "Mechanical Completion",
+        "Commissioning",
+        "Ready for Ops",
+        "Turned Over to Ops"
+      ],
+      "default": "Construction Complete",
+      "description": "Turnover workflow status"
+    }
+  },
+  "required": [
+    "projectId",
+    "packageCode",
+    "systemName"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    }
+  }
+}

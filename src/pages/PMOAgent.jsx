@@ -137,7 +137,7 @@ What would you like to fine-tune first?`;
     // Gather live project context
     let contextData = {};
     try {
-      const [actions, risks, crs, milestones, charter, stakeholders, raidItems, requirements, wbsElements, neurons, synapses] = await Promise.all([
+      const [actions, risks, crs, milestones, charter, stakeholders, raidItems, requirements, wbsElements, neurons, synapses, turnoverPackages, audits, auditFindings, openLessons] = await Promise.all([
         base44.entities.ActionItem.filter({ projectId: activeProject?.id }, '-due_date', 10).catch(() => []),
         base44.entities.Risk.list('-created_date', 5).catch(() => []),
         base44.entities.ChangeRequest.filter({ projectId: activeProject?.id }, '-created_date', 5).catch(() => []),
@@ -149,8 +149,15 @@ What would you like to fine-tune first?`;
         base44.entities.WbsElement.filter({ projectId: activeProject?.id }).catch(() => []),
         base44.entities.Neuron.list().catch(() => []),
         base44.entities.Synapse.list().catch(() => []),
+        base44.entities.TurnoverPackage.filter({ projectId: activeProject?.id }).catch(() => []),
+        base44.entities.Audit.filter({ projectId: activeProject?.id }).catch(() => []),
+        base44.entities.AuditFinding.filter({ projectId: activeProject?.id }).catch(() => []),
+        base44.entities.LessonLearned.filter({ projectId: activeProject?.id, status: 'Open' }).catch(() => []),
       ]);
-      contextData = { actions, risks, crs, milestones, charter, stakeholders, raidItems, requirements, wbsElements, neurons, synapses };
+      const today = new Date().toDateString();
+      const overdueCapas = (auditFindings || []).filter(f => f.dueDate && f.status !== 'Closed' && new Date(f.dueDate) < new Date(today));
+      const turnoverPctTurnedOver = turnoverPackages?.length ? Math.round(turnoverPackages.filter(p => p.status === 'Turned Over to Ops').length / turnoverPackages.length * 100) : 0;
+      contextData = { actions, risks, crs, milestones, charter, stakeholders, raidItems, requirements, wbsElements, neurons, synapses, turnoverPackages, turnoverPctTurnedOver, overdueCapas, openLessons };
     } catch {}
 
     const systemPrompt = buildSystemPrompt(user, activeProject, contextData);

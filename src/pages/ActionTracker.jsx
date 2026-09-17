@@ -10,6 +10,7 @@ import MyTasksView from '../components/actiontracker/MyTasksView';
 import DashboardView from '../components/actiontracker/DashboardView';
 import ItemDetailPanel from '../components/actiontracker/ItemDetailPanel';
 import NewItemDialog from '../components/actiontracker/NewItemDialog';
+import ImportCsvDialog from '../components/actiontracker/ImportCsvDialog';
 import { Button } from '@/components/ui/button';
 import { Settings2, Plus } from 'lucide-react';
 import { createPageUrl } from '../utils';
@@ -51,6 +52,7 @@ export default function ActionTracker() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [newItemOpen, setNewItemOpen] = useState(false);
   const [newItemDefaults, setNewItemDefaults] = useState({});
+  const [importOpen, setImportOpen] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('pmo_current_user') || '');
 
@@ -197,6 +199,7 @@ export default function ActionTracker() {
         buckets={buckets}
         phases={phases}
         onNewItem={() => handleNewItem({})}
+        onImport={() => setImportOpen(true)}
       />
 
       {/* View content */}
@@ -245,6 +248,16 @@ export default function ActionTracker() {
         onClose={() => setNewItemOpen(false)}
         projectId={projectId}
         defaults={newItemDefaults}
+        buckets={buckets}
+        phases={phases}
+        nextKey={nextKey}
+      />
+
+      {/* Import CSV dialog */}
+      <ImportCsvDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        projectId={projectId}
         buckets={buckets}
         phases={phases}
         nextKey={nextKey}

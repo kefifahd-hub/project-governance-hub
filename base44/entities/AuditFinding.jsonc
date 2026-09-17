@@ -1,0 +1,118 @@
+{
+  "name": "AuditFinding",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Organization ID inherited from parent Audit (denormalized for RLS)"
+    },
+    "auditId": {
+      "type": "string",
+      "description": "Parent Audit ID"
+    },
+    "projectId": {
+      "type": "string",
+      "description": "Project ID (denormalized for project-scoped queries)"
+    },
+    "findingRef": {
+      "type": "string",
+      "description": "Finding reference e.g. F-001"
+    },
+    "description": {
+      "type": "string",
+      "description": "Finding description"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "Major",
+        "Minor",
+        "Observation",
+        "Opportunity"
+      ],
+      "default": "Minor"
+    },
+    "clause": {
+      "type": "string",
+      "description": "Standard / clause reference"
+    },
+    "correctiveAction": {
+      "type": "string",
+      "description": "Corrective action (CAPA)"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner of the corrective action"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "evidence": {
+      "type": "string",
+      "description": "Evidence"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Open",
+        "Actioned",
+        "Verified",
+        "Closed"
+      ],
+      "default": "Open"
+    },
+    "closedDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "linkedRiskId": {
+      "type": "string",
+      "description": "Linked Risk record ID (set when promoted to risk)"
+    }
+  },
+  "required": [
+    "auditId",
+    "projectId",
+    "description"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.org_id": "{{user.data.org_id}}"
+        }
+      ]
+    }
+  }
+}

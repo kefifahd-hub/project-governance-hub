@@ -79,6 +79,9 @@ import RaciMatrix from './pages/RaciMatrix';
 import QualityGates from './pages/QualityGates';
 import ChangeWorkflow from './pages/ChangeWorkflow';
 import Requirements from './pages/Requirements';
+import LessonsLearned from './pages/LessonsLearned';
+import TurnoverPackages from './pages/TurnoverPackages';
+import AuditRegister from './pages/AuditRegister';
 import __Layout from './Layout.jsx';
 
 
@@ -115,6 +118,9 @@ export const PAGES = {
     "QualityGates": QualityGates,
     "ChangeWorkflow": ChangeWorkflow,
     "Requirements": Requirements,
+    "LessonsLearned": LessonsLearned,
+    "TurnoverPackages": TurnoverPackages,
+    "AuditRegister": AuditRegister,
 }
 
 export const pagesConfig = {

@@ -333,7 +333,7 @@ export default function PlatformWelcome({ projects = [] }) {
             <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.3 }}>📁</div>
             <div style={{ fontSize: 14, color: "#334155", fontWeight: 500 }}>Add another project</div>
             <div style={{ fontSize: 12, color: "#1e293b", marginTop: 4 }}>
-              Start a new project governance setup for your next gigafactory
+              Start a new project governance setup for your next capital project
             </div>
           </div>
         </section>
@@ -388,7 +388,7 @@ export default function PlatformWelcome({ projects = [] }) {
         }}>
           <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)", marginBottom: 24 }} />
           <div style={{ fontSize: 12, color: "#1e293b" }}>
-            Project Governance Hub · PMO Platform · Built for Battery Gigafactory Projects
+            Project Governance Hub · PMO Platform · Built for Capital Projects
           </div>
         </footer>
       </div>

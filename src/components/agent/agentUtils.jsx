@@ -1,7 +1,8 @@
-export const DEFAULT_SYSTEM_PROMPT = `You are the PMO Agent — the AI assistant embedded in the Project Governance Hub platform for a battery gigafactory program.
+export const DEFAULT_SYSTEM_PROMPT = `You are the PMO Agent — the AI assistant embedded in the Project Governance Hub platform for capital projects across industries.
 
 ## WHO YOU ARE
-- You are a senior PMO expert with deep knowledge of megaproject delivery, EPCM, battery manufacturing, and project controls
+- You are a senior PMO expert with deep knowledge of megaproject delivery, EPCM, and project controls across industries (battery gigafactories, data centers, energy storage, mining & metals, oil & gas, chemicals, renewables, semiconductor fabs, pharma, infrastructure and more)
+- You tailor your advice to the project's industry — use the Industry shown in the context and frame guidance around that industry's standards, risks and practices
 - You speak like a trusted PMO advisor — direct, clear, specific, no fluff
 - You are embedded inside the platform and can see, query, and modify project data across all modules
 - You address the user by their first name when you know it
@@ -36,6 +37,11 @@ When the user asks you to "generate a new project", "create a project", "set up 
 3. After generation, summarize what was created and suggest they review each document
 Never ask the user to go to another page — handle it right here in the conversation.
 `;
+
+const TURNOVER_STATUSES = [
+  'Construction Complete', 'Walkdown', 'Punchlist A Cleared', 'Mechanical Completion',
+  'Commissioning', 'Ready for Ops', 'Turned Over to Ops',
+];
 
 export function buildSystemPrompt(user, project, contextData = {}) {
   const firstName = user?.full_name?.split(' ')[0] || 'there';
@@ -82,12 +88,26 @@ export function buildSystemPrompt(user, project, contextData = {}) {
     ? `  Neurons (${contextData.neurons.length}):\n${contextData.neurons.map(n => `    - ${n.display_name} [${n.short_code}] | ${n.category} | Health: ${n.health_status}`).join('\n')}\n  Synapses (${contextData.synapses?.length || 0}):\n${(contextData.synapses || []).slice(0, 15).map(s => `    - ${s.synapse_name} | ${s.synapse_type} | ${s.health_status}`).join('\n')}`
     : '  (Brainiac graph not loaded)';
 
+  const turnoverSummary = contextData.turnoverPackages?.length
+    ? `  Total: ${contextData.turnoverPackages.length} | Turned Over: ${contextData.turnoverPackages.filter(p => p.status === 'Turned Over to Ops').length} (${contextData.turnoverPctTurnedOver}%)\n  By status: ${TURNOVER_STATUSES.map(s => `${s}: ${contextData.turnoverPackages.filter(p => p.status === s).length}`).join(', ')}\n  Punchlist A open (total): ${contextData.turnoverPackages.reduce((sum, p) => sum + (p.punchlistA || 0), 0)}`
+    : '  (no turnover packages loaded)';
+
+  const overdueCapaSummary = contextData.overdueCapas?.length
+    ? contextData.overdueCapas.slice(0, 10).map(f => `  - [${f.severity}] ${(f.description || '').slice(0, 80)} | Owner: ${f.owner || 'TBD'} | Due: ${f.dueDate || 'TBD'}`).join('\n')
+    : '  (no overdue CAPAs)';
+
+  const lessonsSummary = contextData.openLessons?.length
+    ? contextData.openLessons.slice(0, 10).map(l => `  - [${l.category || '—'}] ${l.title} | Type: ${l.lessonType} | Status: ${l.status}`).join('\n')
+    : '  (no open lessons)';
+
   return `${DEFAULT_SYSTEM_PROMPT}
 
 ## CURRENT CONTEXT
 - User: ${user?.full_name || 'Unknown'} (${user?.email || ''}) | Role: ${user?.role || 'user'}
 - Today: ${today} | Calendar Week: CW${cw}
-- Active Project: ${project?.projectName || 'None'} | Phase: ${project?.currentPhase || 'Unknown'} | Health: ${project?.healthScore || 'N/A'}/100
+- Active Project: ${project?.projectName || 'None'} | Industry: ${project?.projectType || 'Unspecified'} | Phase: ${project?.currentPhase || 'Unknown'} | Health: ${project?.healthScore || 'N/A'}/100
+
+Tailor every recommendation to the ${project?.projectType || 'capital projects'} industry — reference its typical standards, risk profile and delivery practices.
 
 ## LIVE PROJECT DATA (use this in your responses)
 
@@ -120,6 +140,15 @@ ${wbsSummary}
 
 ### Brainiac Neural Graph (module map + connections):
 ${brainiacGraph}
+
+### Turnover Packages:
+${turnoverSummary}
+
+### Overdue CAPAs (audit findings past due, not closed):
+${overdueCapaSummary}
+
+### Open Lessons Learned:
+${lessonsSummary}
 
 ---
 Address the user as ${firstName}. Be direct, use the data above. You can trace cross-module impacts using the Brainiac graph above.`;
