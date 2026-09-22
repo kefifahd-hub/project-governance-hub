@@ -2,8 +2,10 @@ import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight, FileCheck, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow, Wand2, Sun, BookOpen, Search, KeyRound } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPageUrl } from '../utils';
+
+const SIDEBAR_SCROLL_KEY = 'pmo_sidebar_scroll';
 
 // Phase → which tools are relevant
 const PHASE_TOOLS = {
@@ -81,6 +83,17 @@ export default function ProjectSidebar() {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const scrollRef = useRef(null);
+
+  // Restore scroll position on mount so the menu stays where the user left it
+  useEffect(() => {
+    const saved = sessionStorage.getItem(SIDEBAR_SCROLL_KEY);
+    if (saved && scrollRef.current) scrollRef.current.scrollTop = parseInt(saved, 10);
+  }, []);
+
+  const persistScroll = () => {
+    if (scrollRef.current) sessionStorage.setItem(SIDEBAR_SCROLL_KEY, String(scrollRef.current.scrollTop));
+  };
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
@@ -102,6 +115,8 @@ export default function ProjectSidebar() {
 
   return (
     <div
+      ref={scrollRef}
+      onScroll={persistScroll}
       className="fixed left-0 top-14 bottom-16 w-64 overflow-y-auto hidden lg:block z-40"
       style={{ background: 'rgba(15, 23, 42, 0.98)', borderRight: '1px solid rgba(202, 220, 252, 0.1)' }}
     >
