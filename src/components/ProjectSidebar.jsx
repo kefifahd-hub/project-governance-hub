@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight, FileCheck, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow, Wand2, Sun } from 'lucide-react';
+import { Briefcase, LayoutDashboard, MapPin, FileText, DollarSign, Calculator, AlertTriangle, PiggyBank, CheckSquare, BarChart3, ClipboardCheck, FileBarChart, GitPullRequest, ListTodo, Newspaper, RefreshCcw, Users, BarChart2, Calendar, ChevronDown, ChevronRight, FileCheck, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow, Wand2, Sun, BookOpen, Search, KeyRound } from 'lucide-react';
 import { useState } from 'react';
 import { createPageUrl } from '../utils';
 
@@ -14,9 +14,9 @@ const PHASE_TOOLS = {
   'Project Setup':       ['FinanceModel', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring'],
   'Detailed Engineering':['ActionTracker', 'FEEDTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'ChangeManagement', 'UserAccess', 'Reports'],
   'Procurement':         ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'UserAccess', 'Reports'],
-  'Construction':        ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'UserAccess', 'Reports'],
-  'Commissioning':       ['ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister', 'ChangeManagement', 'ActionTracker', 'UserAccess', 'Reports'],
-  'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports'],
+  'Construction':        ['ActionTracker', 'RiskRegister', 'BudgetDashboard', 'ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'QAQCDashboard', 'ChangeManagement', 'TurnoverPackages', 'AuditRegister', 'UserAccess', 'Reports'],
+  'Commissioning':       ['ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard', 'WeeklyReports', 'QAQCDashboard', 'BudgetDashboard', 'RiskRegister', 'ChangeManagement', 'ActionTracker', 'TurnoverPackages', 'AuditRegister', 'UserAccess', 'Reports'],
+  'SOP':                 ['FinanceModel', 'BudgetDashboard', 'WeeklyReports', 'TurnoverPackages', 'LessonsLearned', 'AuditRegister'],
 };
 
 const SCHEDULE_PAGES = ['ScheduleMonitoring', 'ScheduleSync', 'ScheduleDashboard'];
@@ -31,6 +31,8 @@ const TOOL_CATEGORIES = [
     { page: 'CommunicationPlan',   label: 'Communications Plan',   icon: Mail },
     { page: 'RaidLog',             label: 'RAID Log',              icon: Flag },
     { page: 'QualityGates',        label: 'Quality Gates',         icon: GitBranch },
+    { page: 'LessonsLearned',      label: 'Lessons Learned',       icon: BookOpen },
+    { page: 'AuditRegister',       label: 'Audit & CAPA',          icon: Search },
     { page: 'SwotAnalysis',        label: 'SWOT Analysis',         icon: Sun },
   ]},
   { label: 'Planning & Business Case', tools: [
@@ -48,6 +50,7 @@ const TOOL_CATEGORIES = [
     { page: 'ChangeManagement',   label: 'Change Management',    icon: GitPullRequest },
     { page: 'ChangeWorkflow',      label: 'Change Workflow',      icon: Workflow },
     { page: 'WorkflowBuilder',     label: 'Workflow Builder',     icon: Workflow },
+    { page: 'TurnoverPackages',    label: 'Turnover Packages',     icon: KeyRound },
   ]},
   { label: 'Reporting', tools: [
     { page: 'WeeklyReports',      label: 'Weekly Reports',       icon: FileBarChart },
@@ -70,7 +73,7 @@ const ALL_TOOLS = TOOL_CATEGORIES.flatMap(cat => cat.tools).concat([
 ]);
 
 // Always visible regardless of phase — governance tools are fundamental and available in every phase
-const ALWAYS_TOOLS = ['ClientBriefing', 'ProjectCharter', 'StakeholderRegister', 'Requirements', 'WBS', 'RaciMatrix', 'CommunicationPlan', 'RaidLog', 'QualityGates', 'SwotAnalysis', 'ChangeWorkflow', 'WorkflowBuilder'];
+const ALWAYS_TOOLS = ['ClientBriefing', 'ProjectCharter', 'StakeholderRegister', 'Requirements', 'WBS', 'RaciMatrix', 'CommunicationPlan', 'RaidLog', 'QualityGates', 'SwotAnalysis', 'ChangeWorkflow', 'WorkflowBuilder', 'LessonsLearned', 'AuditRegister', 'TurnoverPackages'];
 
 export default function ProjectSidebar() {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Activity, DollarSign, ClipboardCheck, AlertTriangle, FileText, Briefcase, CheckSquare, BarChart3, MapPin, GitPullRequest, ListTodo, FileCheck, Users, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow } from 'lucide-react';
+import { ArrowLeft, Activity, DollarSign, ClipboardCheck, AlertTriangle, FileText, Briefcase, CheckSquare, BarChart3, MapPin, GitPullRequest, ListTodo, FileCheck, Users, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow, BookOpen, Search, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createPageUrl } from '../utils';
@@ -42,6 +42,24 @@ export default function ProjectDashboard() {
     queryFn: () => base44.entities.WbsElement.filter({ projectId }),
     enabled: !!projectId,
   });
+  const { data: turnoverPackages = [] } = useQuery({
+    queryKey: ['turnoverPackages', projectId],
+    queryFn: () => base44.entities.TurnoverPackage.filter({ projectId }),
+    enabled: !!projectId,
+  });
+  const { data: qualityGates = [] } = useQuery({
+    queryKey: ['qualityGates', projectId],
+    queryFn: () => base44.entities.QualityGate.filter({ projectId }),
+    enabled: !!projectId,
+  });
+
+  const turnoverTurnedOver = turnoverPackages.filter(p => p.status === 'Turned Over to Ops').length;
+  const turnoverPct = turnoverPackages.length ? Math.round(turnoverTurnedOver / turnoverPackages.length * 100) : 0;
+  const punchlistAOpen = turnoverPackages.reduce((s, p) => s + (p.punchlistA || 0), 0);
+  const qg5 = qualityGates.find(g => g.gateNumber === 5);
+  const qg6 = qualityGates.find(g => g.gateNumber === 6);
+  const qg5Ready = turnoverPct >= 80 && punchlistAOpen === 0;
+  const qg6Ready = turnoverPct >= 100;
 
   const manageCloselyCount = stakeholders.filter(s => (s.influence === 'High') && (s.interest === 'High' || s.interest === 'Medium')).length;
   const highRisksCount = risks.filter(r => r.riskLevel === 'Critical' || r.riskLevel === 'High').length;
@@ -76,6 +94,8 @@ export default function ProjectDashboard() {
       { id: 'comms', name: 'Communications Plan', description: 'Audience, frequency & channel matrix', icon: Mail, color: 'bg-blue-500', page: 'CommunicationPlan' },
       { id: 'raid', name: 'RAID Log', description: 'Assumptions, issues & dependencies', icon: Flag, color: 'bg-amber-600', page: 'RaidLog' },
       { id: 'gates', name: 'Quality Gates', description: 'Stage-gate readiness & go/no-go', icon: GitBranch, color: 'bg-green-600', page: 'QualityGates' },
+      { id: 'lessons', name: 'Lessons Learned', description: 'Capture lessons & recommendations', icon: BookOpen, color: 'bg-sky-500', page: 'LessonsLearned' },
+      { id: 'audit', name: 'Audit & CAPA', description: 'Audits, findings & corrective actions', icon: Search, color: 'bg-purple-500', page: 'AuditRegister' },
     ]},
     { label: 'Planning & Business Case', tools: [
       { id: 'feasibility', name: 'Feasibility Study', description: 'Comprehensive project viability assessment', icon: FileText, color: 'bg-blue-600', page: 'FeasibilityStudy' },
@@ -91,6 +111,7 @@ export default function ProjectDashboard() {
       { id: 'qaqc', name: 'QA/QC', description: 'FAT, SAT, inspections & non-conformities', icon: CheckSquare, color: 'bg-teal-500', page: 'QAQCDashboard' },
       { id: 'changemanagement', name: 'Change Management', description: 'Track, assess and approve change requests', icon: GitPullRequest, color: 'bg-pink-600', page: 'ChangeManagement' },
       { id: 'changeworkflow', name: 'Change Workflow', description: 'Drag-and-drop CCB process canvas', icon: Workflow, color: 'bg-pink-700', page: 'ChangeWorkflow' },
+      { id: 'turnover', name: 'Turnover Packages', description: 'System turnover status & workflow board', icon: KeyRound, color: 'bg-green-500', page: 'TurnoverPackages' },
     ]},
     { label: 'Reporting', tools: [
       { id: 'weekly', name: 'Weekly Reports', description: 'Generate compiled status reports', icon: FileText, color: 'bg-orange-500', page: 'WeeklyReports' },
@@ -224,6 +245,43 @@ export default function ProjectDashboard() {
           </Card>
         </div>
       </div>
+
+      {/* Turnover & Handover Readiness */}
+      {turnoverPackages.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-2">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: '#CADCFC' }}>Turnover & Handover Readiness</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }} onClick={() => navigate(createPageUrl(`TurnoverPackages?id=${projectId}`))}>
+              <CardContent className="pt-4">
+                <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>% Turned Over</span>
+                <div className="text-2xl font-bold" style={{ color: '#22c55e' }}>{turnoverPct}%</div>
+                <p className="text-xs" style={{ color: '#64748b' }}>{turnoverTurnedOver} of {turnoverPackages.length} systems</p>
+              </CardContent>
+            </Card>
+            <Card style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }}>
+              <CardContent className="pt-4">
+                <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Punchlist A Open</span>
+                <div className="text-2xl font-bold" style={{ color: punchlistAOpen > 0 ? '#f59e0b' : '#22c55e' }}>{punchlistAOpen}</div>
+                <p className="text-xs" style={{ color: '#64748b' }}>Must-fix before energisation</p>
+              </CardContent>
+            </Card>
+            <Card style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }}>
+              <CardContent className="pt-4">
+                <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>QG5 — Mechanical Completion</span>
+                <div className={`text-sm font-semibold ${qg5Ready ? 'text-green-400' : 'text-amber-400'}`}>{qg5?.status || 'Not Reached'}</div>
+                <p className="text-xs" style={{ color: '#64748b' }}>{qg5Ready ? 'Ready (≥80% turnover, no punchlist A)' : 'Awaiting turnover progress'}</p>
+              </CardContent>
+            </Card>
+            <Card style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }}>
+              <CardContent className="pt-4">
+                <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>QG6 — Ready for Ops</span>
+                <div className={`text-sm font-semibold ${qg6Ready ? 'text-green-400' : 'text-amber-400'}`}>{qg6?.status || 'Not Reached'}</div>
+                <p className="text-xs" style={{ color: '#64748b' }}>{qg6Ready ? 'Ready (100% turnover)' : 'Awaiting 100% turnover'}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
 
       {/* Categorized Tools Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
