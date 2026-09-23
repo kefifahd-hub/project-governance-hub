@@ -26,6 +26,7 @@
         "Sprint",
         "Monthly",
         "Gate Phase",
+        "Package",
         "Custom"
       ],
       "default": "Gate Phase"

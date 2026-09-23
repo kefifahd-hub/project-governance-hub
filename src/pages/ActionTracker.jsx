@@ -116,13 +116,20 @@ export default function ActionTracker() {
 
   const handleSkipSetup = () => setShowSetup(false);
 
-  // Generate next item key
+  // Generate next item key — prefix follows the existing items' key prefix
+  // (e.g. a project seeded with A-0xx keys continues at A-0xx), falling back to
+  // the project-name initials when no items exist yet.
   const nextKey = (() => {
-    const prefix = project?.projectName?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'PR';
-    const maxNum = items.reduce((max, item) => {
-      const num = parseInt(item.itemKey?.split('-')[1] || '0');
-      return isNaN(num) ? max : Math.max(max, num);
-    }, 0);
+    let prefix = project?.projectName?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'PR';
+    let maxNum = 0;
+    items.forEach((item) => {
+      const parts = item.itemKey?.split('-');
+      const num = parseInt(parts?.[1] || '0');
+      if (!isNaN(num) && num > maxNum) {
+        maxNum = num;
+        if (parts[0]) prefix = parts[0];
+      }
+    });
     return `${prefix}-${String(maxNum + 1).padStart(3, '0')}`;
   })();
 
