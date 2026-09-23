@@ -83,13 +83,13 @@ export default function ActionTracker() {
     enabled: !!projectId,
   });
 
-  const { data: buckets = [], refetch: refetchBuckets } = useQuery({
+  const { data: buckets = [], refetch: refetchBuckets, isPending: bucketsLoading } = useQuery({
     queryKey: ['actionBuckets', projectId],
     queryFn: () => base44.entities.ActionBucket.filter({ projectId }, 'sortOrder'),
     enabled: !!projectId,
   });
 
-  const { data: phases = [], refetch: refetchPhases } = useQuery({
+  const { data: phases = [], refetch: refetchPhases, isPending: phasesLoading } = useQuery({
     queryKey: ['actionPhases', projectId],
     queryFn: () => base44.entities.ActionPhase.filter({ projectId }, 'startDate'),
     enabled: !!projectId,
@@ -113,12 +113,14 @@ export default function ActionTracker() {
     }
   });
 
-  // Auto-setup buckets & phases if none exist
+  // Auto-setup prompt — only once both queries have loaded and both are truly empty.
+  // Guards against the loading window (empty arrays while fetching) that caused
+  // duplicate auto-generation on every board visit.
   useEffect(() => {
-    if (projectId && buckets.length === 0 && phases.length === 0) {
+    if (projectId && !bucketsLoading && !phasesLoading && buckets.length === 0 && phases.length === 0) {
       setShowSetup(true);
     }
-  }, [projectId, buckets.length, phases.length]);
+  }, [projectId, buckets.length, phases.length, bucketsLoading, phasesLoading]);
 
   const handleAutoSetup = async () => {
     await Promise.all([
