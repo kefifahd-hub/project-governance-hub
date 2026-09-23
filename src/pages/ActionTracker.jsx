@@ -11,6 +11,7 @@ import DashboardView from '../components/actiontracker/DashboardView';
 import ItemDetailPanel from '../components/actiontracker/ItemDetailPanel';
 import NewItemDialog from '../components/actiontracker/NewItemDialog';
 import ImportCsvDialog from '../components/actiontracker/ImportCsvDialog';
+import BucketEditDialog from '../components/actiontracker/BucketEditDialog';
 import { Button } from '@/components/ui/button';
 import { Settings2, Plus } from 'lucide-react';
 import { createPageUrl } from '../utils';
@@ -54,6 +55,7 @@ export default function ActionTracker() {
   const [newItemDefaults, setNewItemDefaults] = useState({});
   const [importOpen, setImportOpen] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
+  const [bucketEdit, setBucketEdit] = useState(null);
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('pmo_current_user') || '');
 
   const { data: project } = useQuery({
@@ -115,6 +117,31 @@ export default function ActionTracker() {
   };
 
   const handleSkipSetup = () => setShowSetup(false);
+
+  // Bucket CRUD (create / rename / delete) — driven from the board view
+  const handleAddBucket = () => setBucketEdit({});
+  const handleRenameBucket = (bucket) => setBucketEdit({ bucket });
+
+  const handleSaveBucket = async (data) => {
+    if (bucketEdit?.bucket?.id) {
+      await base44.entities.ActionBucket.update(bucketEdit.bucket.id, data);
+    } else {
+      const maxOrder = buckets.reduce((m, b) => Math.max(m, b.sortOrder || 0), 0);
+      await base44.entities.ActionBucket.create({ ...data, projectId, sortOrder: maxOrder + 1 });
+    }
+    await refetchBuckets();
+    setBucketEdit(null);
+  };
+
+  const handleDeleteBucket = async (bucket) => {
+    const count = items.filter(i => i.bucket === bucket.bucketName).length;
+    const msg = count > 0
+      ? `Delete bucket "${bucket.bucketName}"? ${count} item(s) will move to "No Bucket".`
+      : `Delete bucket "${bucket.bucketName}"?`;
+    if (!window.confirm(msg)) return;
+    await base44.entities.ActionBucket.delete(bucket.id);
+    await refetchBuckets();
+  };
 
   // Generate next item key — prefix follows the existing items' key prefix
   // (e.g. a project seeded with A-0xx keys continues at A-0xx), falling back to
@@ -221,7 +248,15 @@ export default function ActionTracker() {
       >
         <div className="flex-1 overflow-auto">
           {view === 'board' && (
-            <BoardView items={filtered} buckets={buckets} onItemClick={setSelectedItem} onNewItem={handleNewItem} />
+            <BoardView
+              items={filtered}
+              buckets={buckets}
+              onItemClick={setSelectedItem}
+              onNewItem={handleNewItem}
+              onRenameBucket={handleRenameBucket}
+              onDeleteBucket={handleDeleteBucket}
+              onAddBucket={handleAddBucket}
+            />
           )}
           {view === 'list' && (
             <ListView items={filtered} onItemClick={setSelectedItem} onNewItem={handleNewItem} />
@@ -268,6 +303,15 @@ export default function ActionTracker() {
         buckets={buckets}
         phases={phases}
         nextKey={nextKey}
+      />
+
+      {/* Bucket create / rename dialog */}
+      <BucketEditDialog
+        open={!!bucketEdit}
+        onClose={() => setBucketEdit(null)}
+        onSave={handleSaveBucket}
+        bucket={bucketEdit?.bucket}
+        existingNames={buckets.map(b => b.bucketName)}
       />
 
       {/* First-time setup dialog */}

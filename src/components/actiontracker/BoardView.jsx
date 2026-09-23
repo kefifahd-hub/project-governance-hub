@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Wrench, AlertTriangle, HelpCircle, FileText, Search, Package, Shield, Clock, Link } from 'lucide-react';
+import { Wrench, AlertTriangle, HelpCircle, FileText, Search, Package, Shield, Clock, Link, MoreVertical, Pencil, Trash2, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 const TYPE_ICONS = {
   'Action': { icon: Wrench, color: '#6366f1' },
@@ -82,7 +83,7 @@ function ItemCard({ item, onClick }) {
   );
 }
 
-export default function BoardView({ items, buckets, onItemClick, onNewItem }) {
+export default function BoardView({ items, buckets, onItemClick, onNewItem, onRenameBucket, onDeleteBucket, onAddBucket }) {
   const allBuckets = buckets.length > 0 ? buckets : [{ bucketName: 'General', bucketColor: '#6366f1' }];
 
   // Group items by bucket; also collect items with no matching bucket
@@ -95,11 +96,26 @@ export default function BoardView({ items, buckets, onItemClick, onNewItem }) {
         return (
           <div key={bucket.id || bucket.bucketName} className="flex-shrink-0 w-72 flex flex-col">
             <div className="flex items-center justify-between mb-3 px-1">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ background: bucket.bucketColor || '#6366f1' }} />
-                <span className="font-semibold text-sm" style={{ color: '#CADCFC' }}>{bucket.bucketName}</span>
-                <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(202,220,252,0.1)', color: '#94A3B8' }}>{bucketItems.length}</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-3 h-3 rounded-full shrink-0" style={{ background: bucket.bucketColor || '#6366f1' }} />
+                <span className="font-semibold text-sm truncate" style={{ color: '#CADCFC' }}>{bucket.bucketName}</span>
+                <span className="text-xs px-1.5 py-0.5 rounded-full shrink-0" style={{ background: 'rgba(202,220,252,0.1)', color: '#94A3B8' }}>{bucketItems.length}</span>
               </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" style={{ color: '#64748b' }}>
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" style={{ background: 'rgba(15,23,42,0.98)', borderColor: 'rgba(202,220,252,0.2)' }}>
+                  <DropdownMenuItem onClick={() => onRenameBucket(bucket)} style={{ color: '#CADCFC' }}>
+                    <Pencil className="w-3.5 h-3.5 mr-2" /> Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onDeleteBucket(bucket)} style={{ color: '#fca5a5' }}>
+                    <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1">
@@ -120,6 +136,17 @@ export default function BoardView({ items, buckets, onItemClick, onNewItem }) {
           </div>
         );
       })}
+
+      <div className="flex-shrink-0 w-72 flex flex-col">
+        <Button
+          variant="outline"
+          className="w-full h-12 border-dashed text-xs mt-7"
+          style={{ borderColor: 'rgba(202,220,252,0.2)', color: '#94A3B8' }}
+          onClick={onAddBucket}
+        >
+          <Plus className="w-4 h-4 mr-1.5" /> Add bucket
+        </Button>
+      </div>
 
       {ungrouped.length > 0 && (
         <div className="flex-shrink-0 w-72 flex flex-col">
