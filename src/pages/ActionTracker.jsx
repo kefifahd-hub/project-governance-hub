@@ -58,10 +58,23 @@ export default function ActionTracker() {
   const [bucketEdit, setBucketEdit] = useState(null);
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('pmo_current_user') || '');
 
+  // Default "My Tasks" user to the logged-in user's name when no manual choice was saved
+  useEffect(() => {
+    if (!currentUser && me?.full_name) {
+      setCurrentUser(me.full_name);
+      localStorage.setItem('pmo_current_user', me.full_name);
+    }
+  }, [currentUser, me]);
+
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => { const r = await base44.entities.Project.filter({ id: projectId }); return r[0]; },
     enabled: !!projectId,
+  });
+
+  const { data: me } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => base44.auth.me(),
   });
 
   const { data: items = [] } = useQuery({
