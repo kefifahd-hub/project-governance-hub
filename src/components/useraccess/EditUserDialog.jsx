@@ -59,7 +59,7 @@ export default function EditUserDialog({ user, orgs = [], roles = [], onClose })
       ...form,
       org_id: primaryOrgId,
       org_name: primaryOrg?.name || '',
-      role_name: selectedRole?.name || '',
+      role_name: selectedRole?.role_name || '',
     });
   };
 
@@ -120,7 +120,7 @@ export default function EditUserDialog({ user, orgs = [], roles = [], onClose })
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
-                {roles.map((r) => <SelectItem key={r.id} value={r.id} style={{ color: '#CADCFC' }}>{r.name}</SelectItem>)}
+                {roles.map((r) => <SelectItem key={r.id} value={r.id} style={{ color: '#CADCFC' }}>{r.role_name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
