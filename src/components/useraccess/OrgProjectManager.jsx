@@ -123,7 +123,12 @@ export default function OrgProjectManager({ org, projects, allProjects, orgs }) 
   // A project always belongs to exactly one domain — assigning it here relocates it.
   const assignable = allProjects
     .filter((p) => p.org_id !== org.id)
-    .sort((a, b) => (a.org_id ? 0 : -1) - (b.org_id ? 0 : -1) || a.projectName.localeCompare(b.projectName));
+    .sort((a, b) => {
+      const aUnassigned = a.org_id ? 0 : -1;
+      const bUnassigned = b.org_id ? 0 : -1;
+      if (aUnassigned !== bUnassigned) return aUnassigned - bUnassigned;
+      return (a.projectName || '').localeCompare(b.projectName || '');
+    });
 
   return (
     <div className="mt-4">
