@@ -57,9 +57,11 @@ export default function OrgProjectManager({ org, projects, allProjects, orgs }) 
     mutationFn: (id) => base44.entities.Project.update(id, { org_id: org.id }),
     onSuccess: (_data, id) => {
       const p = allProjects.find((x) => x.id === id);
+      const fromOrg = p?.org_id && orgs.find((o) => o.id === p.org_id)?.name;
       writeAudit({
         action: 'Update', module: 'Project Assignment', record_type: 'Project',
-        record_id: id, record_name: p?.projectName, details: `Assigned to ${org.name}`,
+        record_id: id, record_name: p?.projectName,
+        details: fromOrg ? `Moved from ${fromOrg} to ${org.name}` : `Assigned to ${org.name}`,
       });
       invalidate(); setShowAssign(false); setAssignId('');
     },
@@ -117,9 +119,11 @@ export default function OrgProjectManager({ org, projects, allProjects, orgs }) 
   });
 
   const otherOrgs = orgs.filter((o) => o.id !== org.id);
-  // A project can belong to only one domain — the Assign picker shows only unassigned projects.
-  // Use "Move to…" on an existing project row to relocate it between domains.
-  const assignable = allProjects.filter((p) => !p.org_id);
+  // Buildmind (as owner) can bring in projects from other domains or unassigned ones.
+  // A project always belongs to exactly one domain — assigning it here relocates it.
+  const assignable = allProjects
+    .filter((p) => p.org_id !== org.id)
+    .sort((a, b) => (a.org_id ? 0 : -1) - (b.org_id ? 0 : -1) || a.projectName.localeCompare(b.projectName));
 
   return (
     <div className="mt-4">
@@ -200,7 +204,7 @@ export default function OrgProjectManager({ org, projects, allProjects, orgs }) 
             </SelectTrigger>
             <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
               {assignable.length === 0 && (
-                <SelectItem value="__none__" disabled style={{ color: '#64748B' }}>No unassigned projects</SelectItem>
+                <SelectItem value="__none__" disabled style={{ color: '#64748B' }}>No projects available</SelectItem>
               )}
               {assignable.map((p) => (
                 <SelectItem key={p.id} value={p.id} style={{ color: '#CADCFC' }}>
@@ -213,7 +217,12 @@ export default function OrgProjectManager({ org, projects, allProjects, orgs }) 
             </SelectContent>
           </Select>
           <Button size="sm" disabled={!assignId || assignMutation.isPending}
-            onClick={() => assignMutation.mutate(assignId)}
+            onClick={() => {
+              const p = allProjects.find((x) => x.id === assignId);
+              const fromOrg = p?.org_id && orgs.find((o) => o.id === p.org_id)?.name;
+              if (fromOrg && !window.confirm(`"${p.projectName}" currently belongs to ${fromOrg}. Move it to ${org.name}?`)) return;
+              assignMutation.mutate(assignId);
+            }}
             style={{ background: 'linear-gradient(135deg, #028090, #00A896)', color: '#F8FAFC' }}>
             {assignMutation.isPending ? 'Assigning…' : 'Assign'}
           </Button>
