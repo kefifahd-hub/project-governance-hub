@@ -14,7 +14,9 @@ const ROLE_COLORS = {
   'Engineering Team': 'bg-green-400/20 text-green-200 border-green-400/30',
 };
 
-export default function UserRow({ user, onEdit, onToggleActive }) {
+export default function UserRow({ user, onEdit, onToggleActive, orgs = [] }) {
+  const orgIds = Array.isArray(user.org_ids) && user.org_ids.length ? user.org_ids : (user.org_id ? [user.org_id] : []);
+  const extraDomains = Math.max(0, orgIds.length - 1);
   return (
     <div className="flex items-center gap-4 px-4 py-3 rounded-lg transition-all hover:bg-white/5"
       style={{ borderBottom: '1px solid rgba(202,220,252,0.06)' }}>
@@ -30,7 +32,16 @@ export default function UserRow({ user, onEdit, onToggleActive }) {
         <div className="text-sm font-medium truncate" style={{ color: '#CADCFC' }}>{user.full_name}</div>
         <div className="text-xs truncate" style={{ color: '#64748B' }}>{user.email}</div>
       </div>
-      <div className="hidden sm:block text-xs truncate max-w-[140px]" style={{ color: '#94A3B8' }}>{user.org_name}</div>
+      <div className="hidden sm:flex items-center gap-1 text-xs truncate max-w-[160px]" style={{ color: '#94A3B8' }}>
+        <span className="truncate">{user.org_name}</span>
+        {extraDomains > 0 && (
+          <span className="shrink-0 px-1.5 py-0.5 rounded-full text-[10px]"
+            style={{ background: 'rgba(0,168,150,0.15)', color: '#5eead4', border: '1px solid rgba(0,168,150,0.25)' }}
+            title={`${orgIds.length} domains assigned`}>
+            +{extraDomains}
+          </span>
+        )}
+      </div>
       <span className={`text-xs px-2 py-0.5 rounded-full border hidden md:inline-flex ${ROLE_COLORS[user.role_name] || 'bg-slate-500/20 text-slate-300 border-slate-500/30'}`}>
         {user.role_name}
       </span>

@@ -4,7 +4,14 @@
   "properties": {
     "org_id": {
       "type": "string",
-      "description": "Reference to Organization"
+      "description": "Active/primary Organization (drives RLS scope)"
+    },
+    "org_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "All Organizations this user is a member of (multi-domain). org_id is the active one."
     },
     "email": {
       "type": "string"

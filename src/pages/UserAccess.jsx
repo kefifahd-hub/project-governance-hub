@@ -149,7 +149,7 @@ function UserAccessConsole() {
                 <div className="text-center py-12 text-sm" style={{ color: '#64748B' }}>No users found</div>
               ) : (
                 filteredUsers.map(u => (
-                  <UserRow key={u.id} user={u}
+                  <UserRow key={u.id} user={u} orgs={orgs}
                     onEdit={(user) => setEditingUser(user)}
                     onToggleActive={(user) => updateUserMutation.mutate({ id: user.id, data: { is_active: !user.is_active } })} />
                 ))

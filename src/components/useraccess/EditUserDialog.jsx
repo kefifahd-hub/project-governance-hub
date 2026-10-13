@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from '@/components/ui/dialog';
-import { X } from 'lucide-react';
 
 export default function EditUserDialog({ user, orgs = [], roles = [], onClose }) {
   const [form, setForm] = useState(null);
@@ -16,11 +16,14 @@ export default function EditUserDialog({ user, orgs = [], roles = [], onClose })
 
   useEffect(() => {
     if (user) {
+      const initialIds = Array.isArray(user.org_ids) && user.org_ids.length
+        ? user.org_ids
+        : (user.org_id ? [user.org_id] : []);
       setForm({
         full_name: user.full_name || '',
         job_title: user.job_title || '',
         phone: user.phone || '',
-        org_id: user.org_id || '',
+        org_ids: initialIds,
         role_id: user.role_id || '',
         platform_role: user.platform_role || 'user',
         access_end_date: user.access_end_date || '',
@@ -38,13 +41,24 @@ export default function EditUserDialog({ user, orgs = [], roles = [], onClose })
 
   if (!user || !form) return null;
 
-  const selectedOrg = orgs.find((o) => o.id === form.org_id);
   const selectedRole = roles.find((r) => r.id === form.role_id);
+  // Primary domain = first selected; drives RLS via org_id.
+  const primaryOrgId = form.org_ids[0] || '';
+  const primaryOrg = orgs.find((o) => o.id === primaryOrgId);
+
+  const toggleOrg = (id) => {
+    setForm((f) => {
+      const set = new Set(f.org_ids);
+      if (set.has(id)) set.delete(id); else set.add(id);
+      return { ...f, org_ids: Array.from(set) };
+    });
+  };
 
   const submit = () => {
     updateMutation.mutate({
       ...form,
-      org_name: selectedOrg?.name || '',
+      org_id: primaryOrgId,
+      org_name: primaryOrg?.name || '',
       role_name: selectedRole?.name || '',
     });
   };
@@ -74,15 +88,30 @@ export default function EditUserDialog({ user, orgs = [], roles = [], onClose })
               style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
           </div>
           <div>
-            <Label style={{ color: '#94A3B8' }}>Domain</Label>
-            <Select value={form.org_id} onValueChange={(v) => setForm((f) => ({ ...f, org_id: v }))}>
-              <SelectTrigger style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>
-                <SelectValue placeholder="Select domain" />
-              </SelectTrigger>
-              <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
-                {orgs.map((o) => <SelectItem key={o.id} value={o.id} style={{ color: '#CADCFC' }}>{o.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Label style={{ color: '#94A3B8' }}>Domains (select one or more)</Label>
+            <div className="mt-1 max-h-40 overflow-auto rounded-md border space-y-1 p-2"
+              style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)' }}>
+              {orgs.length === 0 && (
+                <p className="text-xs px-1 py-2" style={{ color: '#64748B' }}>No domains available.</p>
+              )}
+              {orgs.map((o, idx) => {
+                const checked = form.org_ids.includes(o.id);
+                const isPrimary = checked && form.org_ids[0] === o.id;
+                return (
+                  <label key={o.id} className="flex items-center gap-2 rounded px-1 py-1 cursor-pointer"
+                    style={{ background: isPrimary ? 'rgba(0,168,150,0.12)' : 'transparent' }}>
+                    <Checkbox checked={checked} onCheckedChange={() => toggleOrg(o.id)}
+                      style={{ borderColor: 'rgba(202,220,252,0.4)' }} />
+                    <span style={{ color: '#CADCFC' }} className="text-sm flex-1">{o.name}</span>
+                    {isPrimary && <span className="text-[10px] px-1.5 py-0.5 rounded-full"
+                      style={{ background: 'rgba(0,168,150,0.2)', color: '#5eead4' }}>primary</span>}
+                  </label>
+                );
+              })}
+            </div>
+            <p className="text-[11px] mt-1" style={{ color: '#64748B' }}>
+              The first checked domain is the active one for data access. Reorder by unchecking and rechecking.
+            </p>
           </div>
           <div>
             <Label style={{ color: '#94A3B8' }}>Role</Label>
