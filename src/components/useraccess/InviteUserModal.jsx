@@ -143,7 +143,7 @@ export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess 
           {selectedRole && visibleModules.length > 0 && (
             <div className="rounded-lg p-3 space-y-2" style={{ background: 'rgba(0,168,150,0.07)', border: '1px solid rgba(0,168,150,0.2)' }}>
               <div className="text-xs font-semibold" style={{ color: '#00A896' }}>Role Preview — {selectedRole.role_name}</div>
-              <div className="space-y-1">
+              <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
                 {visibleModules.map(p => (
                   <div key={p.module} className="flex items-center gap-2 text-xs" style={{ color: '#94A3B8' }}>
                     <CheckCircle className="w-3 h-3 text-green-400 shrink-0" />
