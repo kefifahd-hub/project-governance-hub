@@ -65,7 +65,7 @@ export default function EditUserDialog({ user, orgs = [], roles = [], onClose })
 
   return (
     <Dialog open={!!user} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-md" style={{ background: 'rgba(15,23,42,0.98)', borderColor: 'rgba(202,220,252,0.15)' }}>
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto" style={{ background: 'rgba(15,23,42,0.98)', borderColor: 'rgba(202,220,252,0.15)' }}>
         <DialogHeader>
           <DialogTitle style={{ color: '#CADCFC' }}>Edit user</DialogTitle>
           <DialogDescription style={{ color: '#64748B' }}>{user.email}</DialogDescription>
