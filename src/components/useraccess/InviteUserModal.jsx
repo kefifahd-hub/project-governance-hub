@@ -60,11 +60,14 @@ export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess 
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg" style={{ background: 'rgba(15,23,42,0.99)', border: '1px solid rgba(202,220,252,0.15)', color: '#CADCFC' }}>
-        <DialogHeader>
+      <DialogContent
+        className="max-w-lg flex flex-col min-h-0 overflow-hidden gap-0 p-0"
+        style={{ background: 'rgba(15,23,42,0.99)', border: '1px solid rgba(202,220,252,0.15)', color: '#CADCFC', top: '1rem', transform: 'translateX(-50%)', height: 'min(48rem, calc(100dvh - 2rem))', maxHeight: 'calc(100dvh - 2rem)', animation: 'none' }}
+      >
+        <DialogHeader className="shrink-0 px-6 pt-6 pb-4">
           <DialogTitle style={{ color: '#CADCFC' }}>📨 Invite User</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-3 px-6 pb-6" tabIndex={0} role="region" aria-label="Invitation details">
           <div>
             <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Organization *</label>
             <Select value={form.org_id} onValueChange={v => setForm(f => ({ ...f, org_id: v }))}>
@@ -143,7 +146,7 @@ export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess 
           {selectedRole && visibleModules.length > 0 && (
             <div className="rounded-lg p-3 space-y-2" style={{ background: 'rgba(0,168,150,0.07)', border: '1px solid rgba(0,168,150,0.2)' }}>
               <div className="text-xs font-semibold" style={{ color: '#00A896' }}>Role Preview — {selectedRole.role_name}</div>
-              <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+              <div className="space-y-1">
                 {visibleModules.map(p => (
                   <div key={p.module} className="flex items-center gap-2 text-xs" style={{ color: '#94A3B8' }}>
                     <CheckCircle className="w-3 h-3 text-green-400 shrink-0" />
@@ -160,13 +163,13 @@ export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess 
             </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={onClose} style={{ borderColor: 'rgba(202,220,252,0.2)', color: '#94A3B8' }}>Cancel</Button>
-            <Button onClick={handleSubmit} disabled={loading || !form.full_name || !form.email || !form.org_id || !form.role_id}
-              style={{ background: 'linear-gradient(135deg, #028090, #00A896)', color: '#F8FAFC' }}>
-              {loading ? 'Creating...' : '📨 Add User'}
-            </Button>
-          </div>
+        </div>
+        <div className="flex shrink-0 justify-end gap-2 px-6 py-4">
+          <Button variant="outline" onClick={onClose} style={{ borderColor: 'rgba(202,220,252,0.2)', color: '#94A3B8' }}>Cancel</Button>
+          <Button onClick={handleSubmit} disabled={loading || !form.full_name || !form.email || !form.org_id || !form.role_id}
+            style={{ background: 'linear-gradient(135deg, #028090, #00A896)', color: '#F8FAFC' }}>
+            {loading ? 'Creating...' : '📨 Add User'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
