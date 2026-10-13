@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -15,10 +16,22 @@ const STATUS_COLOR = {
   Cancelled: '#94A3B8',
 };
 
+const PROJECT_TYPES = [
+  'Battery Gigafactory', 'Data Center', 'Energy Storage (BESS)', 'Mining & Minerals',
+  'Steel & Metals', 'Oil & Gas', 'Chemicals & Process', 'Renewables (Solar / Wind)',
+  'Semiconductor Fab', 'Pharma & Biotech', 'Infrastructure & Utilities', 'Other',
+];
+const PROJECT_PHASES = [
+  'Feasibility', 'Pre-FEED', 'FEED', 'Investment Decision', 'Project Setup',
+  'Detailed Engineering', 'Procurement', 'Construction', 'Commissioning', 'SOP',
+];
+
 export default function OrgProjectManager({ org, projects, allProjects, orgs }) {
   const [showAssign, setShowAssign] = useState(false);
   const [assignId, setAssignId] = useState('');
   const [moveTarget, setMoveTarget] = useState({});
+  const [showCreate, setShowCreate] = useState(false);
+  const [newProj, setNewProj] = useState({ projectName: '', clientName: '', projectType: 'Other', currentPhase: 'Feasibility' });
   const qc = useQueryClient();
 
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
@@ -76,6 +89,20 @@ export default function OrgProjectManager({ org, projects, allProjects, orgs }) 
     },
   });
 
+  const createProjectMutation = useMutation({
+    mutationFn: (data) => base44.entities.Project.create({ ...data, org_id: org.id, status: 'Active' }),
+    onSuccess: (created) => {
+      writeAudit({
+        action: 'Create', module: 'Project Create', record_type: 'Project',
+        record_id: created.id, record_name: created.projectName,
+        details: `Created project in ${org.name}`,
+      });
+      invalidate();
+      setShowCreate(false);
+      setNewProj({ projectName: '', clientName: '', projectType: 'Other', currentPhase: 'Feasibility' });
+    },
+  });
+
   const moveMutation = useMutation({
     mutationFn: ({ id, targetOrgId }) => base44.entities.Project.update(id, { org_id: targetOrgId }),
     onSuccess: (_data, { id, targetOrgId }) => {
@@ -100,11 +127,68 @@ export default function OrgProjectManager({ org, projects, allProjects, orgs }) 
         <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#475569' }}>
           Projects ({projects.length})
         </div>
-        <Button variant="outline" size="sm" onClick={() => setShowAssign((s) => !s)}
-          style={{ borderColor: 'rgba(0,168,150,0.4)', color: '#00A896' }}>
-          <Plus className="w-3 h-3 mr-1" /> Assign Project
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => { setShowCreate((s) => !s); setShowAssign(false); }}
+            style={{ borderColor: 'rgba(0,168,150,0.4)', color: '#00A896' }}>
+            <Plus className="w-3 h-3 mr-1" /> New Project
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { setShowAssign((s) => !s); setShowCreate(false); }}
+            style={{ borderColor: 'rgba(202,220,252,0.2)', color: '#94A3B8' }}>
+            <ArrowRightLeft className="w-3 h-3 mr-1" /> Assign Existing
+          </Button>
+        </div>
       </div>
+
+      {showCreate && (
+        <div className="rounded-lg p-3 mb-2 space-y-2"
+          style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(0,168,150,0.25)' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Project name *</label>
+              <Input value={newProj.projectName} onChange={e => setNewProj(n => ({ ...n, projectName: e.target.value }))}
+                placeholder="e.g. Battery Plant Phase 2"
+                style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+            </div>
+            <div>
+              <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Client name *</label>
+              <Input value={newProj.clientName} onChange={e => setNewProj(n => ({ ...n, clientName: e.target.value }))}
+                placeholder="e.g. Acme Energy"
+                style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }} />
+            </div>
+            <div>
+              <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Project type *</label>
+              <Select value={newProj.projectType} onValueChange={v => setNewProj(n => ({ ...n, projectType: v }))}>
+                <SelectTrigger style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
+                  {PROJECT_TYPES.map(t => <SelectItem key={t} value={t} style={{ color: '#CADCFC' }}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs mb-1 block" style={{ color: '#94A3B8' }}>Current phase *</label>
+              <Select value={newProj.currentPhase} onValueChange={v => setNewProj(n => ({ ...n, currentPhase: v }))}>
+                <SelectTrigger style={{ background: 'rgba(15,23,42,0.6)', borderColor: 'rgba(202,220,252,0.2)', color: '#CADCFC' }}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent style={{ background: 'rgba(15,23,42,0.99)', borderColor: 'rgba(202,220,252,0.15)' }}>
+                  {PROJECT_PHASES.map(ph => <SelectItem key={ph} value={ph} style={{ color: '#CADCFC' }}>{ph}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <Button variant="ghost" size="sm" onClick={() => setShowCreate(false)} style={{ color: '#64748B' }}>Cancel</Button>
+            <Button size="sm"
+              disabled={!newProj.projectName || !newProj.clientName || createProjectMutation.isPending}
+              onClick={() => createProjectMutation.mutate(newProj)}
+              style={{ background: 'linear-gradient(135deg, #028090, #00A896)', color: '#F8FAFC' }}>
+              {createProjectMutation.isPending ? 'Creating…' : 'Create Project'}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {showAssign && (
         <div className="rounded-lg p-3 mb-2 flex flex-wrap items-center gap-2"
