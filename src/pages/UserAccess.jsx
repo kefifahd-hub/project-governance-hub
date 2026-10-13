@@ -8,6 +8,7 @@ import { Users, Building2, Shield, ClipboardList, Plus, Search } from 'lucide-re
 import OrgCard from '../components/useraccess/OrgCard';
 import OrgDetailPanel from '../components/useraccess/OrgDetailPanel';
 import UserRow from '../components/useraccess/UserRow';
+import EditUserDialog from '../components/useraccess/EditUserDialog';
 import InviteUserModal from '../components/useraccess/InviteUserModal';
 import AuditLogTab from '../components/useraccess/AuditLogTab';
 import RolesTab from '../components/useraccess/RolesTab';
@@ -36,6 +37,7 @@ function UserAccessConsole() {
   const [orgFilter, setOrgFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('active');
   const [showAddOrg, setShowAddOrg] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
   const [newOrg, setNewOrg] = useState({ name: '', slug: '', org_type: 'Internal', primary_contact_name: '', primary_contact_email: '', notes: '' });
   const qc = useQueryClient();
 
@@ -148,7 +150,7 @@ function UserAccessConsole() {
               ) : (
                 filteredUsers.map(u => (
                   <UserRow key={u.id} user={u}
-                    onEdit={() => {}}
+                    onEdit={(user) => setEditingUser(user)}
                     onToggleActive={(user) => updateUserMutation.mutate({ id: user.id, data: { is_active: !user.is_active } })} />
                 ))
               )}
@@ -239,6 +241,8 @@ function UserAccessConsole() {
 
       <InviteUserModal open={showInvite} onClose={() => setShowInvite(false)}
         orgs={orgs} roles={roles} onSuccess={() => qc.invalidateQueries({ queryKey: ['platform-users'] })} />
+
+      <EditUserDialog user={editingUser} orgs={orgs} roles={roles} onClose={() => setEditingUser(null)} />
     </div>
   );
 }
