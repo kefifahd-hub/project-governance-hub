@@ -1,13 +1,13 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.54";
+import { mirrorOrgIdForUser } from "../../shared/orgMirror.ts";
 
 // Mirrors the CALLER'S OWN organization + platform role onto their built-in User record.
 //
-// User.org_id and User.platform_role carry field-level update locks (see User.jsonc), so an
-// app user can no longer write them via auth.updateMe — that closed a self-escalation path
-// (a user could otherwise point their own org_id at another organization and read its data).
-// The server-side RLS rules scope records by {{user.data.org_id}}, so that field still has to
-// be populated for every signed-in user; this endpoint does it with the service role, and only
-// after confirming the caller actually has a matching PlatformUser record (their entitlement).
+// Both identities come from the session (auth.me()), never from the request body, so a caller can
+// only ever refresh their own record — this cannot be used to stamp someone else's user.
+//
+// The reliable, server-side path for every login is the "Mirror org_id on app user login" workflow
+// (syncUserOrgId); this endpoint stays as the in-session fallback the app calls after login.
 export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -16,23 +16,8 @@ export default async function (req) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Resolve the caller's own membership (service role bypasses PlatformUser RLS).
-    const matches = await base44.asServiceRole.entities.PlatformUser.filter({ email: user.email });
-    const platformUser = matches && matches[0];
-    if (!platformUser || !platformUser.org_id) {
-      return Response.json({ synced: false, reason: "no platform membership" });
-    }
-
-    await base44.asServiceRole.entities.User.update(user.id, {
-      org_id: platformUser.org_id,
-      platform_role: platformUser.platform_role || "user",
-    });
-
-    return Response.json({
-      synced: true,
-      org_id: platformUser.org_id,
-      platform_role: platformUser.platform_role || "user",
-    });
+    const result = await mirrorOrgIdForUser(base44, { userId: user.id, email: user.email });
+    return Response.json(result);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

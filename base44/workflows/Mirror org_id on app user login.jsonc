@@ -1,0 +1,41 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "app_user_auth",
+      "events": [
+        "signup",
+        "login"
+      ]
+    }
+  },
+  "name": "Mirror org_id on app user login",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "mirror_org_id_on_app_user_login",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "copy_org_id": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "syncUserOrgId",
+            "args": {
+              "user_id": "${ .trigger.user_id }",
+              "email": "${ .trigger.email }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Copy org_id onto the user record",
+            "description": "From their platform membership"
+          }
+        }
+      }
+    ]
+  },
+  "description": "On every app-user signup and login, copies the user's PlatformUser org_id and platform_role onto their own user record, so the row-level security rules that scope data by {{user.data.org_id}} always have a value to work with."
+}
