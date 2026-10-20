@@ -1,16 +1,5 @@
 {
-  "name": "Stamp org_id on ChangeApproval create",
   "description": "Stamps org_id on new ChangeApproval records from parent ChangeRequest.",
-  "trigger": {
-    "condition": null,
-    "config": {
-      "trigger_type": "entity",
-      "events": [
-        "create"
-      ],
-      "entity_name": "ChangeApproval"
-    }
-  },
   "definition": {
     "document": {
       "dsl": "1.0.0",
@@ -20,16 +9,34 @@
     },
     "do": [
       {
-        "run_function": {
+        "stamp_org_id": {
           "call": "invoke_backend_function",
           "with": {
-            "function_name": "stampOrgIdOnCreate",
-            "args": {}
+            "function_name": "stampOrgId",
+            "args": {
+              "entity_name": "ChangeApproval",
+              "entity_id": "${ .trigger.entity_id }"
+            }
           },
-          "then": "end"
+          "then": "end",
+          "x-base44": {
+            "title": "Stamp org_id",
+            "description": "From parent ChangeRequest"
+          }
         }
       }
     ]
+  },
+  "name": "Stamp org_id on ChangeApproval create",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "ChangeApproval"
+    }
   },
   "x-base44-migrated-from-automation": {
     "legacy_payload_function": "stampOrgIdOnCreate"

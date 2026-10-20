@@ -1,4 +1,6 @@
 {
+  "name": "Stamp org_id on AuditFinding create",
+  "description": "Stamps org_id on new AuditFinding records from parent Audit.",
   "trigger": {
     "condition": null,
     "config": {
@@ -9,7 +11,6 @@
       "entity_name": "AuditFinding"
     }
   },
-  "description": "Stamps org_id on new AuditFinding records from parent Audit.",
   "definition": {
     "document": {
       "dsl": "1.0.0",
@@ -19,16 +20,22 @@
     },
     "do": [
       {
-        "run_function": {
+        "stamp_org_id": {
           "call": "invoke_backend_function",
           "with": {
-            "function_name": "stampOrgIdOnCreate",
-            "args": {}
+            "function_name": "stampOrgId",
+            "args": {
+              "entity_name": "AuditFinding",
+              "entity_id": "${ .trigger.entity_id }"
+            }
           },
-          "then": "end"
+          "then": "end",
+          "x-base44": {
+            "title": "Stamp org_id",
+            "description": "From parent Audit"
+          }
         }
       }
     ]
-  },
-  "name": "Stamp org_id on AuditFinding create"
+  }
 }

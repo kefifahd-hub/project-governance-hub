@@ -1,0 +1,41 @@
+{
+  "name": "Stamp org_id on ScheduleVersion create",
+  "description": "Stamps org_id on new ScheduleVersion records from parent Project.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "ScheduleVersion"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "stamp_org_id_on_scheduleversion_create",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "stamp_org_id": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "stampOrgId",
+            "args": {
+              "entity_name": "ScheduleVersion",
+              "entity_id": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Stamp org_id",
+            "description": "From parent Project"
+          }
+        }
+      }
+    ]
+  }
+}
