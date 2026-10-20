@@ -24,6 +24,13 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    // Caller identity for tenant scoping. org_id is mirrored onto the built-in User by
+    // the syncMyOrgId function; platform_role/role tells us whether they're an admin.
+    // RLS scopes the user-token SDK, but this function writes with the service role, so
+    // every project-scoped operation has to be authorized explicitly here.
+    const callerOrgId = user.data?.org_id || null;
+    const isAdmin = user.role === 'admin' || user.data?.platform_role === 'admin';
+
     const body = await req.json();
     const { mode, message, conversationHistory, projectContext, projectId, documentType, currentContent, optimizeInstruction } = body;
 
@@ -60,9 +67,14 @@ Respond as the PMO assistant. If you have gathered enough context to generate go
 
     // ── GENERATE MODE ──
     if (mode === 'generate') {
-      const projectInfo = projectId
-        ? await base44.asServiceRole.entities.Project.filter({ id: projectId }).then(r => r[0])
-        : null;
+      // Authorize BEFORE any read, delete or regenerate: look up the target project and
+      // reject unless the caller's org matches it or the caller is an admin. Missing /
+      // unknown projects are rejected too, so this can't be used to probe other tenants.
+      if (!projectId) return Response.json({ error: 'projectId is required' }, { status: 400 });
+      const projectInfo = await base44.asServiceRole.entities.Project.filter({ id: projectId }).then(r => r[0]);
+      if (!projectInfo || (!isAdmin && (projectInfo.org_id || null) !== callerOrgId)) {
+        return Response.json({ error: 'Forbidden: project not found or not in your organization' }, { status: 403 });
+      }
 
       const fullContext = `Project from database: ${JSON.stringify(projectInfo || {})}
 Additional context from user interview:
@@ -399,6 +411,7 @@ ${story}`,
         status: 'Active',
         healthScore: 75,
         notes: extractResult.notes,
+        org_id: callerOrgId,
       });
 
       const newProjectId = project.id;
