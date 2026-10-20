@@ -21,6 +21,29 @@ work is solid.
   (Change Management, workflows…)?
 - Which actions need **approval**, and who is the approver (PM? admin?)?
 
+## Delegated per-client admin ("Client Admin" / Org Admin)
+A third role tier so each client manages its own people, without the platform owner
+doing it for them.
+
+- **Three tiers:** Platform Admin (your team — all orgs) → **Client Admin** (one or
+  more per client, designated by the platform owner — *their own org only*) → Member.
+- **A Client Admin can, within their own org only:** invite/remove users, and set
+  which modules each user can access and whether they can read / edit / write.
+- **The platform owner (you) chooses who the Client Admin is** for each client.
+
+### Guardrails (must-haves — all enforced server-side, never UI-only)
+- Client Admin is hard-scoped to their own `org_id`: cannot see, edit, or invite into
+  any other org.
+- Cannot grant Platform-Admin (no self/other escalation to the top tier).
+- Cannot delete their organization or change its `org_id`.
+- Same lesson as the data leak: if these limits live only in the screen, they're
+  bypassable — they must be in the access rules / backend.
+
+### Open questions to answer before building
+- One Client Admin per client, or several?
+- Can a Client Admin create custom roles, or only assign from a preset list you define?
+- Exact capability list for the Client Admin vs. a Member.
+
 ## Key principle (same lesson as the data-leak fix)
 Enforce "who can use what" and "needs approval" at the **data layer / backend**, never
 only in the screen — UI-only gating is bypassable.
