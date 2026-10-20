@@ -71,7 +71,12 @@ Respond as the PMO assistant. If you have gathered enough context to generate go
       // reject unless the caller's org matches it or the caller is an admin. Missing /
       // unknown projects are rejected too, so this can't be used to probe other tenants.
       if (!projectId) return Response.json({ error: 'projectId is required' }, { status: 400 });
-      const projectInfo = await base44.asServiceRole.entities.Project.filter({ id: projectId }).then(r => r[0]);
+      let projectInfo = null;
+      try {
+        projectInfo = await base44.asServiceRole.entities.Project.filter({ id: projectId }).then(r => r[0]);
+      } catch {
+        projectInfo = null; // malformed id -> treat as not found so it fails closed with 403
+      }
       if (!projectInfo || (!isAdmin && (projectInfo.org_id || null) !== callerOrgId)) {
         return Response.json({ error: 'Forbidden: project not found or not in your organization' }, { status: 403 });
       }
