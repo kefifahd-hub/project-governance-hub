@@ -24,12 +24,20 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Caller identity for tenant scoping. org_id is mirrored onto the built-in User by
-    // the syncMyOrgId function; platform_role/role tells us whether they're an admin.
-    // RLS scopes the user-token SDK, but this function writes with the service role, so
-    // every project-scoped operation has to be authorized explicitly here.
-    const callerOrgId = user.data?.org_id || null;
+    // Caller identity for tenant scoping. The org_id mirrored onto the built-in User can be
+    // stale or unset (syncMyOrgId only runs at login), so the caller's organization is resolved
+    // authoritatively from their own PlatformUser record, falling back to the mirror. A caller
+    // with no organization resolves to null and is rejected by the guard below. platform_role/
+    // role tells us whether they're an admin. RLS scopes the user-token SDK, but this function
+    // reads, deletes and regenerates with the service role, so project-scoped operations are
+    // authorized explicitly here.
     const isAdmin = user.role === 'admin' || user.data?.platform_role === 'admin';
+    let callerOrgId = user.data?.org_id || null;
+    try {
+      const accounts = await base44.asServiceRole.entities.PlatformUser.filter({ email: user.email });
+      const account = accounts && accounts[0];
+      if (account && account.org_id) callerOrgId = account.org_id;
+    } catch { /* never elevate: fall back to the mirrored value (possibly null) */ }
 
     const body = await req.json();
     const { mode, message, conversationHistory, projectContext, projectId, documentType, currentContent, optimizeInstruction } = body;
@@ -67,9 +75,11 @@ Respond as the PMO assistant. If you have gathered enough context to generate go
 
     // ── GENERATE MODE ──
     if (mode === 'generate') {
-      // Authorize BEFORE any read, delete or regenerate: look up the target project and
-      // reject unless the caller's org matches it or the caller is an admin. Missing /
-      // unknown projects are rejected too, so this can't be used to probe other tenants.
+      // Authorize BEFORE any read, delete or regenerate: look up the target project's org_id
+      // and reject unless it matches the caller's org or the caller is an admin. This fails
+      // closed when the caller has no org (an org-less caller can never match an org-less
+      // project), and unknown/malformed ids are rejected as not found, so it can't be used to
+      // probe or modify another tenant's governance documents.
       if (!projectId) return Response.json({ error: 'projectId is required' }, { status: 400 });
       let projectInfo = null;
       try {
@@ -77,7 +87,9 @@ Respond as the PMO assistant. If you have gathered enough context to generate go
       } catch {
         projectInfo = null; // malformed id -> treat as not found so it fails closed with 403
       }
-      if (!projectInfo || (!isAdmin && (projectInfo.org_id || null) !== callerOrgId)) {
+      const callerOwnsProject =
+        !!callerOrgId && !!projectInfo && (projectInfo.org_id || null) === callerOrgId;
+      if (!projectInfo || (!isAdmin && !callerOwnsProject)) {
         return Response.json({ error: 'Forbidden: project not found or not in your organization' }, { status: 403 });
       }
 
