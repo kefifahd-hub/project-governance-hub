@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { UserCircle, MoreHorizontal, ShieldCheck, ShieldOff } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { UserCircle, MoreHorizontal, ShieldCheck, ShieldOff, Mail, KeyRound } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const ROLE_COLORS = {
   'Platform Admin': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
@@ -14,7 +14,7 @@ const ROLE_COLORS = {
   'Engineering Team': 'bg-green-400/20 text-green-200 border-green-400/30',
 };
 
-export default function UserRow({ user, onEdit, onToggleActive, orgs = [] }) {
+export default function UserRow({ user, onEdit, onToggleActive, onResendInvite, onSendReset, orgs = [] }) {
   const orgIds = Array.isArray(user.org_ids) && user.org_ids.length ? user.org_ids : (user.org_id ? [user.org_id] : []);
   const extraDomains = Math.max(0, orgIds.length - 1);
   return (
@@ -63,6 +63,13 @@ export default function UserRow({ user, onEdit, onToggleActive, orgs = [] }) {
           <DropdownMenuItem onClick={() => onEdit(user)} style={{ color: '#CADCFC' }}>Edit</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onToggleActive(user)} style={{ color: user.is_active ? '#F87171' : '#4ADE80' }}>
             {user.is_active ? 'Deactivate' : 'Activate'}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator style={{ background: 'rgba(202,220,252,0.1)' }} />
+          <DropdownMenuItem onClick={() => onResendInvite(user)} style={{ color: '#CADCFC' }}>
+            <Mail className="w-3.5 h-3.5 mr-2" /> Resend invitation
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onSendReset(user)} style={{ color: '#CADCFC' }}>
+            <KeyRound className="w-3.5 h-3.5 mr-2" /> Send password reset
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

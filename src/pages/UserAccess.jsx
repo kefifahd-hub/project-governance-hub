@@ -13,6 +13,7 @@ import InviteUserModal from '../components/useraccess/InviteUserModal';
 import AuditLogTab from '../components/useraccess/AuditLogTab';
 import RolesTab from '../components/useraccess/RolesTab';
 import RequirePermission from '../components/RequirePermission';
+import { toast } from '@/components/ui/use-toast';
 
 const TABS = [
   { id: 'users', label: 'Users', icon: Users },
@@ -55,6 +56,26 @@ function UserAccessConsole() {
     mutationFn: (data) => base44.entities.Organization.create(data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['orgs'] }); setShowAddOrg(false); setNewOrg({ name: '', slug: '', org_type: 'Internal', primary_contact_name: '', primary_contact_email: '', notes: '' }); },
   });
+
+  // Admin recovery actions. Both delegate to the platform's own auth: inviting an existing
+  // user re-sends the invitation email, and resetPasswordRequest emails a reset link.
+  const resendInvitation = async (user) => {
+    try {
+      await base44.users.inviteUser(user.email, user.platform_role === 'admin' ? 'admin' : 'user');
+      toast({ title: 'Invitation resent', description: `A fresh invitation email was sent to ${user.email}.` });
+    } catch (e) {
+      toast({ title: 'Could not resend the invitation', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
+  };
+
+  const sendPasswordReset = async (user) => {
+    try {
+      await base44.auth.resetPasswordRequest(user.email);
+      toast({ title: 'Password reset sent', description: `A reset link was emailed to ${user.email}.` });
+    } catch (e) {
+      toast({ title: 'Could not send the password reset', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
+  };
 
   const filteredUsers = users.filter(u => {
     const matchSearch = !search || u.full_name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase());
@@ -151,7 +172,9 @@ function UserAccessConsole() {
                 filteredUsers.map(u => (
                   <UserRow key={u.id} user={u} orgs={orgs}
                     onEdit={(user) => setEditingUser(user)}
-                    onToggleActive={(user) => updateUserMutation.mutate({ id: user.id, data: { is_active: !user.is_active } })} />
+                    onToggleActive={(user) => updateUserMutation.mutate({ id: user.id, data: { is_active: !user.is_active } })}
+                    onResendInvite={resendInvitation}
+                    onSendReset={sendPasswordReset} />
                 ))
               )}
             </div>
