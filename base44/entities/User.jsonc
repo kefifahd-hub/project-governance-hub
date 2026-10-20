@@ -4,7 +4,14 @@
   "properties": {
     "org_id": {
       "type": "string",
-      "description": "Organization ID this user belongs to (mirrors PlatformUser.org_id; used for row-level security scoping)"
+      "description": "Organization ID this user belongs to (mirrors PlatformUser.org_id; used for row-level security scoping). Locked: app users cannot change it \u2014 the app assigns it server-side via the syncMyOrgId backend function.",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "collaborator_role": "editor"
+          }
+        }
+      }
     },
     "platform_role": {
       "type": "string",
@@ -13,7 +20,14 @@
         "user"
       ],
       "default": "user",
-      "description": "Platform role mirroring PlatformUser.platform_role"
+      "description": "Platform role mirroring PlatformUser.platform_role. Locked: app users cannot change it \u2014 assigned server-side via the syncMyOrgId backend function.",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "collaborator_role": "editor"
+          }
+        }
+      }
     }
   }
 }

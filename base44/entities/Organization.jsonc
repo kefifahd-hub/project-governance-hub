@@ -62,6 +62,18 @@
         "role": "admin"
       }
     },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "id": "{{user.data.org_id}}"
+        }
+      ]
+    },
     "update": {
       "user_condition": {
         "role": "admin"

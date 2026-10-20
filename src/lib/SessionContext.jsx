@@ -78,8 +78,9 @@ export const SessionProvider = ({ children }) => {
    * user would pass their PlatformUser lookup yet see zero records server-side.
    *
    * Here we mirror the resolved PlatformUser's org_id (and platform_role, as a
-   * readable copy) onto the built-in User via auth.updateMe, then refetch the
-   * now-unblocked queries. We deliberately do NOT set the built-in `role` from
+   * readable copy) onto the built-in User via the syncMyOrgId backend function
+   * (service role - the fields are locked against client writes), then refetch
+   * the now-unblocked queries. We deliberately do NOT set the built-in `role` from
    * the client — that would be a self-escalation path; the admin role is set
    * server-side at invite time (InviteUserModal -> users.inviteUser).
    *
@@ -97,10 +98,10 @@ export const SessionProvider = ({ children }) => {
     if (syncedRef.current === sig) return; // already attempted this target
     syncedRef.current = sig; // set before await to prevent re-entry loops
 
-    base44.auth
-      .updateMe({ org_id: targetOrg, platform_role: platformUser.platform_role || 'user' })
+    base44.functions
+      .invoke('syncMyOrgId', {})
       .then(() => {
-        // User.data.org_id now set server-side → re-run RLS-scoped queries.
+        // User.data.org_id now set server-side (service role) → re-run RLS-scoped queries.
         queryClient.invalidateQueries();
       })
       .catch(() => {
