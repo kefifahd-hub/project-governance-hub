@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { UserCircle, MoreHorizontal, ShieldCheck, ShieldOff, Mail, KeyRound } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const ROLE_COLORS = {
   'Platform Admin': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
@@ -18,7 +18,7 @@ export default function UserRow({ user, onEdit, onToggleActive, onResendInvite, 
   const orgIds = Array.isArray(user.org_ids) && user.org_ids.length ? user.org_ids : (user.org_id ? [user.org_id] : []);
   const extraDomains = Math.max(0, orgIds.length - 1);
   return (
-    <div className="flex items-center gap-4 px-4 py-3 rounded-lg transition-all hover:bg-white/5"
+    <div className="flex flex-wrap items-center gap-4 px-4 py-3 rounded-lg transition-all hover:bg-white/5"
       style={{ borderBottom: '1px solid rgba(202,220,252,0.06)' }}>
       <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
         style={{ background: 'rgba(0,168,150,0.2)' }}>
@@ -28,7 +28,7 @@ export default function UserRow({ user, onEdit, onToggleActive, onResendInvite, 
               {user.full_name?.charAt(0)?.toUpperCase()}
             </span>}
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-[140px]">
         <div className="text-sm font-medium truncate" style={{ color: '#CADCFC' }}>{user.full_name}</div>
         <div className="text-xs truncate" style={{ color: '#64748B' }}>{user.email}</div>
       </div>
@@ -53,26 +53,34 @@ export default function UserRow({ user, onEdit, onToggleActive, onResendInvite, 
       <span className={`text-xs px-2 py-0.5 rounded-full border ${user.is_active ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>
         {user.is_active ? 'Active' : 'Inactive'}
       </span>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" style={{ color: '#64748B' }}>
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" style={{ background: 'rgba(15,23,42,0.98)', borderColor: 'rgba(202,220,252,0.15)' }}>
-          <DropdownMenuItem onClick={() => onEdit(user)} style={{ color: '#CADCFC' }}>Edit</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onToggleActive(user)} style={{ color: user.is_active ? '#F87171' : '#4ADE80' }}>
-            {user.is_active ? 'Deactivate' : 'Activate'}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator style={{ background: 'rgba(202,220,252,0.1)' }} />
-          <DropdownMenuItem onClick={() => onResendInvite(user)} style={{ color: '#CADCFC' }}>
-            <Mail className="w-3.5 h-3.5 mr-2" /> Resend invitation
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onSendReset(user)} style={{ color: '#CADCFC' }}>
-            <KeyRound className="w-3.5 h-3.5 mr-2" /> Send password reset
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* Admin recovery actions, one click away: a locked-out user is never buried in a menu. */}
+      <div className="flex items-center gap-1 shrink-0 ml-auto">
+        <Button variant="ghost" size="icon" className="h-7 w-7"
+          title="Resend invitation" aria-label={`Resend invitation to ${user.email}`}
+          onClick={() => onResendInvite(user)} style={{ color: '#7DD3FC' }}>
+          <Mail className="w-4 h-4" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-7 w-7"
+          title="Send password reset" aria-label={`Send password reset to ${user.email}`}
+          onClick={() => onSendReset(user)} style={{ color: '#FBBF24' }}>
+          <KeyRound className="w-4 h-4" />
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-7 w-7"
+              title="More actions" aria-label={`More actions for ${user.full_name || user.email}`}
+              style={{ color: '#64748B' }}>
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" style={{ background: 'rgba(15,23,42,0.98)', borderColor: 'rgba(202,220,252,0.15)' }}>
+            <DropdownMenuItem onClick={() => onEdit(user)} style={{ color: '#CADCFC' }}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onToggleActive(user)} style={{ color: user.is_active ? '#F87171' : '#4ADE80' }}>
+              {user.is_active ? 'Deactivate' : 'Activate'}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }

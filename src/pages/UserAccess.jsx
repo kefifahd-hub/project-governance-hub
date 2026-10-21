@@ -162,7 +162,7 @@ function UserAccessConsole() {
               </Button>
             </div>
             <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(202,220,252,0.1)' }}>
-              <div className="px-4 py-2 text-xs uppercase tracking-wider grid grid-cols-[32px_1fr_140px_120px_70px_70px_36px] gap-4 font-semibold"
+              <div className="px-4 py-2 text-xs uppercase tracking-wider grid grid-cols-[32px_1fr_140px_120px_70px_70px_92px] gap-4 font-semibold"
                 style={{ background: 'rgba(30,41,59,0.8)', color: '#475569', borderBottom: '1px solid rgba(202,220,252,0.1)' }}>
                 <span></span><span>Name</span><span className="hidden sm:block">Organization</span><span className="hidden md:block">Role</span><span>Access</span><span>Status</span><span></span>
               </div>
