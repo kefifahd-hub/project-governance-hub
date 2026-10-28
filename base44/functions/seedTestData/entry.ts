@@ -544,19 +544,62 @@ function toolGroups(p: Def, projectId: string, orgId: string): Group[] {
   ];
 }
 
-async function createRows(db: any, entity: string, rows: Rows): Promise<Rows> {
-  if (!rows.length) return [];
-  const clean = rows.map((r) => Object.fromEntries(Object.entries(r).filter(([, v]) => v !== undefined)));
-  if (typeof db[entity].bulkCreate === "function") return await db[entity].bulkCreate(clean);
-  const out: Rows = [];
-  for (const r of clean) out.push(await db[entity].create(r));
-  return out;
+// Base44 rate-limits each caller (e.g. entity_list: 140 requests / 60s), so every database
+// call goes through this pacer, and a "Rate limit exceeded … Retry after Ns" reply is waited
+// out and retried instead of failing the run.
+const MAX_CALLS_PER_MINUTE = 100;
+const callTimes: number[] = [];
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+async function paced<T>(fn: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    const now = Date.now();
+    while (callTimes.length && now - callTimes[0] > 60000) callTimes.shift();
+    if (callTimes.length >= MAX_CALLS_PER_MINUTE) { await sleep(60000 - (now - callTimes[0]) + 50); continue; }
+    callTimes.push(Date.now());
+    try {
+      return await fn();
+    } catch (e) {
+      const msg = String((e as Error)?.message || e);
+      if (!/rate limit/i.test(msg) || attempt >= 6) throw e;
+      const secs = Number(/retry after (\d+)/i.exec(msg)?.[1] || 5);
+      await sleep((secs + 1) * 1000);
+    }
+  }
 }
 
-async function runGroup(db: any, g: Group, counts: Record<string, number>) {
-  const created = await createRows(db, g.entity, g.rows);
-  counts[g.entity] = (counts[g.entity] || 0) + created.length;
-  if (g.after) for (const child of g.after(created)) await runGroup(db, child, counts);
+// Every record of an entity in the Test org (paginated; the API returns 50 by default).
+async function listOrg(db: any, entity: string, orgId: string): Promise<Rows> {
+  const out: Rows = [];
+  for (let skip = 0; ; skip += 5000) {
+    const page = await paced(() => db[entity].filter({ org_id: orgId }, undefined, 5000, skip));
+    out.push(...page);
+    if (page.length < 5000) return out;
+  }
+}
+
+const clean = (r: Record<string, unknown>) => Object.fromEntries(Object.entries(r).filter(([, v]) => v !== undefined));
+
+// Creates groups level by level. All groups for the same entity (across every project) go
+// into ONE bulkCreate, so the whole seed is roughly one request per entity type.
+async function createLevels(db: any, groups: Group[], counts: Record<string, number>) {
+  let pending = groups;
+  while (pending.length) {
+    const byEntity = new Map<string, Group[]>();
+    for (const g of pending) if (g.rows.length) byEntity.set(g.entity, [...(byEntity.get(g.entity) || []), g]);
+    const next: Group[] = [];
+    for (const [entity, gs] of byEntity) {
+      const rows = gs.flatMap((g) => g.rows.map(clean));
+      const created: Rows = await paced(() => db[entity].bulkCreate(rows));
+      counts[entity] = (counts[entity] || 0) + created.length;
+      let i = 0;
+      for (const g of gs) {
+        const mine = created.slice(i, i + g.rows.length);
+        i += g.rows.length;
+        if (g.after) next.push(...g.after(mine));
+      }
+    }
+    pending = next;
+  }
 }
 
 Deno.serve(async (req) => {
@@ -574,13 +617,13 @@ Deno.serve(async (req) => {
     }
 
     const db = base44.asServiceRole.entities;
-    const orgs = await db.Organization.filter({ name: TEST_ORG_NAME });
+    const orgs = await paced(() => db.Organization.filter({ name: TEST_ORG_NAME }));
     if (orgs.length !== 1) {
       return Response.json({ error: `Expected exactly one organization named "${TEST_ORG_NAME}", found ${orgs.length}. Nothing changed.` }, { status: 409 });
     }
-    const orgId = orgs[0].id;
+    const orgId = orgs[0].id as string;
 
-    const inOrg = await db.Project.filter({ org_id: orgId });
+    const inOrg = await listOrg(db, "Project", orgId);
     const seeded = inOrg.filter((p: any) => typeof p.notes === "string" && p.notes.includes(SEED_TAG));
 
     if (action === "status") {
@@ -596,52 +639,68 @@ Deno.serve(async (req) => {
       if (body.confirm !== RESET_PHRASE) {
         return Response.json({ error: `Reset needs "confirm": "${RESET_PHRASE}". Nothing changed.` }, { status: 400 });
       }
-      // Walk the same parent→child tree the org_id stamping uses, so every descendant of a
-      // seed project is found; then delete children before parents.
-      const ids: Record<string, string[]> = { Project: seeded.map((p: any) => p.id) };
+      // Walk the same parent→child tree the org_id stamping uses (one list per entity, Test
+      // org only) to find every descendant of a seed project.
+      const ids: Record<string, Set<string>> = { Project: new Set(seeded.map((p: any) => p.id)) };
+      const totals: Record<string, number> = { Project: inOrg.length };
       for (const cfg of ORG_ID_ENTITIES) {
-        const parentIds = ids[cfg.parentEntity] || [];
-        const found: string[] = [];
-        const batches = await Promise.all(parentIds.map((pid) => db[cfg.name].filter({ [cfg.parentField]: pid })));
-        for (const rows of batches) for (const r of rows) found.push(r.id);
-        ids[cfg.name] = [...(ids[cfg.name] || []), ...found];
+        const parents = ids[cfg.parentEntity] || new Set<string>();
+        const rows = await listOrg(db, cfg.name, orgId);
+        totals[cfg.name] = rows.length;
+        ids[cfg.name] = new Set([...(ids[cfg.name] || []), ...rows.filter((r: any) => parents.has(r[cfg.parentField])).map((r: any) => r.id)]);
       }
+      // Delete children before parents. When every record of a type in the Test org is seed
+      // data, one deleteMany scoped to the Test org clears it; otherwise delete one by one so
+      // non-seed test records survive.
       const deleted: Record<string, number> = {};
-      const order = [...ORG_ID_ENTITIES.map((c) => c.name)].reverse().concat("Project");
-      for (const name of [...new Set(order)]) {
-        const list = [...new Set(ids[name] || [])];
-        for (let i = 0; i < list.length; i += 20) await Promise.all(list.slice(i, i + 20).map((id) => db[name].delete(id)));
-        if (list.length) deleted[name] = list.length;
+      const order = [...new Set([...ORG_ID_ENTITIES.map((c) => c.name)].reverse().concat("Project"))];
+      for (const name of order) {
+        const list = [...(ids[name] || [])];
+        if (!list.length) continue;
+        if (list.length === totals[name]) {
+          await paced(() => db[name].deleteMany({ org_id: orgId }));
+        } else {
+          for (const id of list) await paced(() => db[name].delete(id));
+        }
+        deleted[name] = list.length;
       }
       return Response.json({ org: TEST_ORG_NAME, deleted });
     }
 
-    // seed — create missing projects, then fill each tool that is still empty for them.
+    // seed — create missing projects, then fill every tool that is still empty for them.
     const created: Record<string, number> = {};
-    const toolsSkipped: Record<string, number> = {};
-    for (const def of PROJECTS) {
-      let project = seeded.find((p: any) => p.projectName === def.projectName);
-      if (!project) {
-        project = await db.Project.create({
-          org_id: orgId, projectName: def.projectName, clientName: SEED_CLIENT, projectType: def.projectType,
-          currentPhase: def.currentPhase, status: def.status, totalBudgetEurM: def.totalBudgetEurM, healthScore: def.healthScore,
-          startDate: day(def.start), targetCompletion: day(def.end), projectOwner: def.owner,
-          notes: `${SEED_TAG} Synthetic test data — safe to reset.`,
-        });
-        created.Project = (created.Project || 0) + 1;
-      }
-      // Tools are independent of each other, so fill a few at a time to stay inside the
-      // function time limit. If it still times out, run "seed" again to finish the rest.
-      const groups = toolGroups(def, project.id, orgId);
-      for (let i = 0; i < groups.length; i += 6) {
-        await Promise.all(groups.slice(i, i + 6).map(async (g) => {
-          const existing = await db[g.entity].filter({ [g.link || "projectId"]: project.id });
-          if (existing.length) { toolsSkipped[g.entity] = (toolsSkipped[g.entity] || 0) + 1; return; }
-          await runGroup(db, g, created);
-        }));
+    const projects: Record<string, any> = {};
+    const missing = PROJECTS.filter((d) => !seeded.some((p: any) => p.projectName === d.projectName));
+    if (missing.length) {
+      const made = await paced(() => db.Project.bulkCreate(missing.map((def) => ({
+        org_id: orgId, projectName: def.projectName, clientName: SEED_CLIENT, projectType: def.projectType,
+        currentPhase: def.currentPhase, status: def.status, totalBudgetEurM: def.totalBudgetEurM, healthScore: def.healthScore,
+        startDate: day(def.start), targetCompletion: day(def.end), projectOwner: def.owner,
+        notes: `${SEED_TAG} Synthetic test data — safe to reset.`,
+      }))));
+      created.Project = made.length;
+      for (const p of made) projects[p.projectName] = p;
+    }
+    for (const p of seeded) projects[p.projectName] = p;
+
+    // One list per tool tells us which seed projects already have data for it.
+    const all = PROJECTS.map((def) => ({ def, groups: toolGroups(def, projects[def.projectName].id, orgId) }));
+    const toolsAlreadyFilled: Record<string, number> = {};
+    const filled: Record<string, Set<string>> = {};
+    for (const g of all[0].groups) {
+      const link = g.link || "projectId";
+      filled[g.entity] = new Set((await listOrg(db, g.entity, orgId)).map((r: any) => r[link]));
+    }
+    const todo: Group[] = [];
+    for (const { def, groups } of all) {
+      const pid = projects[def.projectName].id;
+      for (const g of groups) {
+        if (filled[g.entity].has(pid)) toolsAlreadyFilled[g.entity] = (toolsAlreadyFilled[g.entity] || 0) + 1;
+        else todo.push(g);
       }
     }
-    return Response.json({ org: TEST_ORG_NAME, created, toolsAlreadyFilled: toolsSkipped });
+    await createLevels(db, todo, created);
+    return Response.json({ org: TEST_ORG_NAME, created, toolsAlreadyFilled });
   } catch (error) {
     return Response.json({ error: (error as Error)?.message || String(error) }, { status: 500 });
   }
