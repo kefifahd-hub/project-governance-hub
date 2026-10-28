@@ -4,7 +4,7 @@
 
 **Fixtures:** two client orgs **A** and **B**, each with ≥1 project and some data. Accounts: **Operator/Admin**, **A-member (non-admin)**, **B-member**, **Outsider (registered, no membership)**, **Anonymous (no login)**. Use separate browser profiles / incognito per account.
 
-**Fresh test data each release:** as an admin, run the `seedTestData` backend function (Base44 Dashboard → Code → Functions → seedTestData → Test) with `{"action":"reset","confirm":"RESET TEST DATA"}` then `{"action":"seed"}`. This rebuilds the same 6 synthetic projects (incl. overdue actions, risks, charter, weekly report, budget, milestones) in the **Test** org only. `{"action":"status"}` just reports what exists.
+**Fresh test data each release:** as an admin, run the `seedTestData` backend function (Base44 Dashboard → Code → Functions → seedTestData → Test) with `{"action":"reset","confirm":"RESET TEST DATA"}` then `{"action":"seed"}`. This rebuilds the same 6 synthetic projects with **every project tool filled** (actions, risks, charter, reports, budget, schedule, finance model, site selection, change management, QA/QC, audits, turnover, etc.) in the **Test** org only. `{"action":"status"}` just reports what exists.
 
 ---
 
