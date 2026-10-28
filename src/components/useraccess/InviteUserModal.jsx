@@ -35,14 +35,17 @@ export default function InviteUserModal({ open, onClose, orgs, roles, onSuccess 
     setLoading(true);
     setInviteError(null);
     const org = orgs.find(o => o.id === form.org_id);
+    // Login emails arrive lowercase; the session looks the user up by exact email match,
+    // so store it normalized or the invitee shows as "Account not provisioned".
+    const email = form.email.trim().toLowerCase();
     try {
-      await base44.users.inviteUser(form.email, form.platform_role);
+      await base44.users.inviteUser(email, form.platform_role);
     } catch (e) {
       setInviteError(e.message || 'Failed to send invitation email');
     }
     await base44.entities.PlatformUser.create({
       full_name: form.full_name,
-      email: form.email,
+      email,
       job_title: form.job_title,
       org_id: form.org_id,
       role_id: form.role_id,
