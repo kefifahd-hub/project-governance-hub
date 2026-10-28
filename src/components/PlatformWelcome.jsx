@@ -4,21 +4,7 @@ import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import DailyPrincipleBanner from "./DailyPrincipleBanner";
-
-const PLATFORM_STATS = [
-  { label: "Active Projects", value: "1", icon: "📁" },
-  { label: "Total Investment", value: "$164.6M", icon: "💰" },
-  { label: "Total Capacity", value: "3.05 GWh", icon: "⚡" },
-  { label: "Team Members", value: "4", icon: "👥" },
-];
-
-const RECENT_ACROSS = [
-  { project: "YE", time: "14:32", text: "Weekly Report WR-034 published", type: "report" },
-  { project: "YE", time: "11:20", text: "New risk action: Formation aging supplier delay", type: "risk" },
-  { project: "YE", time: "10:45", text: "Daily Site Report DSR-20260227 submitted", type: "site" },
-  { project: "YE", time: "09:30", text: "CR-003 impact assessment updated — $180K", type: "change" },
-  { project: "YE", time: "Yesterday", text: "P6 schedule V013 imported — 2 critical deltas", type: "schedule" },
-];
+import useWelcomeSummary from "@/hooks/useWelcomeSummary";
 
 const TYPE_COLORS = {
   report: "#0891b2", risk: "#ef4444", site: "#10b981",
@@ -29,6 +15,7 @@ const RAG_COLORS = { green: "#22c55e", amber: "#f59e0b", red: "#ef4444" };
 
 export default function PlatformWelcome({ projects = [] }) {
   const navigate = useNavigate();
+  const { stats, activity } = useWelcomeSummary(projects);
   const [loaded, setLoaded] = useState(false);
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
   const [hoveredProject, setHoveredProject] = useState(null);
@@ -130,7 +117,7 @@ export default function PlatformWelcome({ projects = [] }) {
             {/* Right column: stats + daily principle banner */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
               <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                {PLATFORM_STATS.map((s) => (
+                {stats.map((s) => (
                   <div key={s.label} style={{ textAlign: "center" }}>
                     <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
                     <div style={{ fontSize: 20, fontWeight: 700, color: "#e2e8f0" }}>{s.value}</div>
@@ -356,18 +343,23 @@ export default function PlatformWelcome({ projects = [] }) {
             border: "1px solid rgba(255,255,255,0.05)",
             borderRadius: 16, padding: 24,
           }}>
-            {RECENT_ACROSS.map((act, i) => (
-              <div key={i} style={{
+            {activity.length === 0 && (
+              <div style={{ padding: "8px 0", fontSize: 13, color: "#475569" }}>
+                No activity yet — reports, risks and change requests on your projects will appear here.
+              </div>
+            )}
+            {activity.map((act, i) => (
+              <div key={act.id} style={{
                 display: "flex", alignItems: "center", gap: 14,
                 padding: "12px 0",
-                borderBottom: i < RECENT_ACROSS.length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none",
+                borderBottom: i < activity.length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none",
               }}>
                 <div style={{
                   padding: "3px 8px", borderRadius: 4, fontSize: 10, fontWeight: 800,
                   background: "rgba(16,185,129,0.1)", color: "#10b981",
                   letterSpacing: "0.5px", minWidth: 24, textAlign: "center",
                 }}>
-                  {act.project}
+                  {act.code}
                 </div>
                 <div style={{
                   width: 6, height: 6, borderRadius: "50%",
