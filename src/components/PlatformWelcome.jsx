@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import DailyPrincipleBanner from "./DailyPrincipleBanner";
 import useWelcomeSummary from "@/hooks/useWelcomeSummary";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const TYPE_COLORS = {
   report: "#0891b2", risk: "#ef4444", site: "#10b981",
@@ -15,6 +16,7 @@ const RAG_COLORS = { green: "#22c55e", amber: "#f59e0b", red: "#ef4444" };
 
 export default function PlatformWelcome({ projects = [] }) {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { stats, activity } = useWelcomeSummary(projects);
   const [loaded, setLoaded] = useState(false);
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
@@ -69,18 +71,18 @@ export default function PlatformWelcome({ projects = [] }) {
         pointerEvents: "none",
       }} />
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "0 16px" : "0 40px" }}>
 
         {/* HERO HEADER */}
         <header style={{
-          paddingTop: 60, paddingBottom: 48,
+          paddingTop: isMobile ? 20 : 60, paddingBottom: isMobile ? 26 : 48,
           opacity: loaded ? 1 : 0,
           transform: loaded ? "translateY(0)" : "translateY(-20px)",
           transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 32 }}>
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "stretch" : "flex-end", flexWrap: "wrap", gap: isMobile ? 20 : 32 }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: isMobile ? 14 : 24 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: 12,
                   background: "linear-gradient(135deg, #10b981 0%, #2563eb 100%)",
@@ -102,8 +104,8 @@ export default function PlatformWelcome({ projects = [] }) {
               </div>
 
               <h1 style={{
-                fontSize: 42, fontWeight: 300, color: "#f1f5f9",
-                margin: 0, lineHeight: 1.2, letterSpacing: "-1px",
+                fontSize: isMobile ? 27 : 42, fontWeight: 300, color: "#f1f5f9",
+                margin: 0, lineHeight: 1.2, letterSpacing: "-0.5px",
               }}>
                 {greeting()}, <span style={{ fontWeight: 600 }}>{user?.full_name?.split(' ')[0] || 'there'}</span>
               </h1>
@@ -115,8 +117,8 @@ export default function PlatformWelcome({ projects = [] }) {
             </div>
 
             {/* Right column: stats + daily principle banner */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
-              <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile ? "stretch" : "flex-end", gap: 10 }}>
+              <div style={{ display: "flex", gap: isMobile ? 12 : 24, flexWrap: "wrap", justifyContent: isMobile ? "space-between" : "flex-end" }}>
                 {stats.map((s) => (
                   <div key={s.label} style={{ textAlign: "center" }}>
                     <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
@@ -135,7 +137,7 @@ export default function PlatformWelcome({ projects = [] }) {
         {/* DIVIDER */}
         <div style={{
           height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.2) 50%, transparent 100%)",
-          marginBottom: 32,
+          marginBottom: isMobile ? 24 : 32,
         }} />
 
         {/* SECTION: YOUR PROJECTS */}
@@ -180,7 +182,7 @@ export default function PlatformWelcome({ projects = [] }) {
                 style={{
                   background: isHovered ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.015)",
                   border: `1px solid ${isHovered ? "rgba(16,185,129,0.2)" : "rgba(255,255,255,0.05)"}`,
-                  borderRadius: 20, padding: 32, cursor: "pointer",
+                  borderRadius: 20, padding: isMobile ? 18 : 32, cursor: "pointer",
                   transition: "all 0.3s ease",
                   transform: isHovered ? "translateY(-2px)" : "none",
                   boxShadow: isHovered ? "0 12px 48px rgba(0,0,0,0.3)" : "none",
@@ -195,20 +197,20 @@ export default function PlatformWelcome({ projects = [] }) {
                 }} />
 
                 {/* Row 1: Header */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 16 }}>
-                  <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+                <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "stretch" : "flex-start", marginBottom: isMobile ? 16 : 24, flexWrap: "wrap", gap: isMobile ? 14 : 16 }}>
+                  <div style={{ display: "flex", gap: isMobile ? 12 : 16, alignItems: "flex-start" }}>
                     <div style={{
-                      width: 56, height: 56, borderRadius: 14,
+                      width: isMobile ? 44 : 56, height: isMobile ? 44 : 56, borderRadius: 14,
                       background: "linear-gradient(135deg, #0f172a, #1e293b)",
                       border: "1px solid rgba(255,255,255,0.08)",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 16, fontWeight: 800, color: "#10b981", letterSpacing: "1px",
+                      fontSize: isMobile ? 13 : 16, fontWeight: 800, color: "#10b981", letterSpacing: "1px", flexShrink: 0,
                     }}>
                       {proj.projectName?.slice(0, 2).toUpperCase() || "PR"}
                     </div>
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                        <h3 style={{ fontSize: 22, fontWeight: 600, color: "#f1f5f9", margin: 0 }}>{proj.projectName}</h3>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <h3 style={{ fontSize: isMobile ? 17 : 22, fontWeight: 600, color: "#f1f5f9", margin: 0, lineHeight: 1.3 }}>{proj.projectName}</h3>
                         <span style={{
                           padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700,
                           background: "rgba(16,185,129,0.12)", color: "#10b981",
@@ -229,7 +231,7 @@ export default function PlatformWelcome({ projects = [] }) {
                   </div>
 
                   {/* RAG Cluster */}
-                  <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: isMobile ? 0 : 16, alignItems: "center", justifyContent: isMobile ? "space-between" : "flex-start", width: isMobile ? "100%" : "auto", paddingTop: isMobile ? 6 : 0 }}>
                     <div style={{ textAlign: "center" }}>
                       <div style={{
                         width: 52, height: 52, borderRadius: "50%",
@@ -267,28 +269,37 @@ export default function PlatformWelcome({ projects = [] }) {
 
                 {/* Key metrics */}
                 <div style={{
-                  display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16,
-                  borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 20,
+                  display: "grid",
+                  gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+                  gap: isMobile ? 8 : 16,
+                  borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: isMobile ? 14 : 20,
                 }}>
-                  <div>
-                    <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Budget</div>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: "#e2e8f0", marginTop: 2 }}>
-                      {proj.totalBudgetEurM ? `€${proj.totalBudgetEurM}M` : "—"}
+                  {[
+                    { label: "Budget", value: proj.totalBudgetEurM ? `€${proj.totalBudgetEurM}M` : "—", strong: true },
+                    { label: "Type", value: proj.projectType || "—" },
+                    { label: "Owner", value: proj.projectOwner || "—" },
+                  ].map((m) => (
+                    <div
+                      key={m.label}
+                      style={isMobile
+                        ? { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }
+                        : undefined}
+                    >
+                      <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", flexShrink: 0 }}>{m.label}</div>
+                      <div style={{
+                        fontSize: m.strong ? 18 : 14, fontWeight: 700, color: "#e2e8f0",
+                        marginTop: isMobile ? 0 : 2,
+                        textAlign: isMobile ? "right" : "left",
+                        wordBreak: "break-word",
+                      }}>{m.value}</div>
                     </div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Type</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0", marginTop: 2 }}>{proj.projectType || "—"}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Owner</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0", marginTop: 2 }}>{proj.projectOwner || "—"}</div>
-                  </div>
+                  ))}
                 </div>
 
                 {/* Bottom bar */}
                 <div style={{
                   display: "flex", justifyContent: "space-between", alignItems: "center",
+                  flexWrap: "wrap", gap: isMobile ? 10 : 0,
                   marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.03)",
                 }}>
                   <span style={{ fontSize: 12, color: "#475569" }}>
@@ -312,7 +323,7 @@ export default function PlatformWelcome({ projects = [] }) {
           {/* Empty state / add another */}
           <div style={{
             border: "1px dashed rgba(255,255,255,0.08)",
-            borderRadius: 20, padding: "40px 32px", textAlign: "center",
+            borderRadius: 20, padding: isMobile ? "26px 18px" : "40px 32px", textAlign: "center",
             cursor: "pointer",
           }}
             onClick={() => navigate(createPageUrl("NewProject"))}
@@ -341,7 +352,7 @@ export default function PlatformWelcome({ projects = [] }) {
           <div style={{
             background: "rgba(255,255,255,0.015)",
             border: "1px solid rgba(255,255,255,0.05)",
-            borderRadius: 16, padding: 24,
+            borderRadius: 16, padding: isMobile ? 16 : 24,
           }}>
             {activity.length === 0 && (
               <div style={{ padding: "8px 0", fontSize: 13, color: "#475569" }}>
@@ -350,7 +361,7 @@ export default function PlatformWelcome({ projects = [] }) {
             )}
             {activity.map((act, i) => (
               <div key={act.id} style={{
-                display: "flex", alignItems: "center", gap: 14,
+                display: "flex", alignItems: "center", gap: isMobile ? 9 : 14,
                 padding: "12px 0",
                 borderBottom: i < activity.length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none",
               }}>
@@ -374,7 +385,7 @@ export default function PlatformWelcome({ projects = [] }) {
 
         {/* FOOTER */}
         <footer style={{
-          paddingBottom: 40, textAlign: "center",
+          paddingBottom: isMobile ? 8 : 40, textAlign: "center",
           opacity: loaded ? 1 : 0,
           transition: "opacity 0.8s ease 0.5s",
         }}>

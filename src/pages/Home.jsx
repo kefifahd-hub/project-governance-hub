@@ -227,8 +227,8 @@ export default function Home() {
           <>
             {/* Health Score Card */}
             <Card className="mb-8" style={{ background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 39, 97, 0.95) 100%)', borderColor: 'rgba(202, 220, 252, 0.1)' }}>
-              <CardContent className="p-12 text-center">
-                <div className="text-8xl font-bold mb-4" style={{ color: '#10B981', fontFamily: "'Courier New', monospace" }}>
+              <CardContent className="p-6 sm:p-12 text-center">
+                <div className="text-6xl sm:text-8xl font-bold mb-4" style={{ color: '#10B981', fontFamily: "'Courier New', monospace" }}>
                   {currentProject.healthScore || 0}
                 </div>
                 <div className="text-2xl mb-2" style={{ color: '#CADCFC', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -351,7 +351,7 @@ export default function Home() {
           </DialogHeader>
           {editFormData && (
             <form onSubmit={handleEditSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label style={{ color: '#94A3B8' }}>Project Name</Label>
                   <Input
@@ -371,7 +371,7 @@ export default function Home() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label style={{ color: '#94A3B8' }}>Industry / type</Label>
                   <Select value={editFormData.projectType} onValueChange={(value) => setEditFormData({ ...editFormData, projectType: value })}>
@@ -404,7 +404,7 @@ export default function Home() {
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label style={{ color: '#94A3B8' }}>Project Owner</Label>
                   <Input
@@ -425,7 +425,7 @@ export default function Home() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label style={{ color: '#94A3B8' }}>Start Date</Label>
                   <Input
