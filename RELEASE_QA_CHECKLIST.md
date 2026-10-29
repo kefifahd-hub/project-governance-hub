@@ -23,6 +23,7 @@
 | A10 [R06] | As **A-member**, try to edit/delete an **audit** record | Denied; audit is admin-read, immutable |
 | A11 [S09] | Keep an A-member session open; Operator **deactivates** them → retry a protected action now and after 60s | Access **denied** without them logging out |
 | A12 [S11,HF-12] | *(when files are in scope)* Upload a private file; try to fetch its URL as Outsider/B/Anonymous/revoked | Only current authorised users can fetch it |
+| A13 | Invite a user typing the email with **Capitals and a trailing space** (e.g. ` Test.User@Gmail.com `); they sign in with the normal address. In Users & Access, check every email is lowercase, has no spaces, and is the address the person actually signs in with (Google vs email/password) | Invitee reaches their workspace — **never "Account not provisioned"**; saved email is lowercase/trimmed |
 
 **If any A-row FAILs → NO-GO.** Escalate A1/A2/A6/A9 immediately (client-data / privilege issues).
 
