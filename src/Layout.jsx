@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Home, Wrench, Settings, Menu, ChevronDown, Briefcase, FileBarChart, Users, BrainCircuit, Bot, ShieldCheck } from 'lucide-react';
 import { createPageUrl } from './utils';
 import ProjectSidebar from './components/ProjectSidebar';
@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import MobileNavMenu from './components/MobileNavMenu';
 import { useSession } from '@/lib/SessionContext';
 import { getModule } from '@/lib/modules';
+import { MobileBottomNav, DesktopOnlyNotice, DESKTOP_ONLY_PAGES, FULL_VIEW_KEY } from './mobile/MobileChrome';
 
 export default function Layout({ children, currentPageName }) {
   const authed = true;
@@ -54,7 +55,24 @@ export default function Layout({ children, currentPageName }) {
 
   
   const isMobile = useIsMobile();
-  const showSidebar = !['NewProject', 'Settings'].includes(currentPageName) && !!projectId;
+  const isMobileScreen = currentPageName?.startsWith('Mobile');
+  const showSidebar = !['NewProject', 'Settings'].includes(currentPageName) && !isMobileScreen && !!projectId;
+
+  // Phones get the dedicated /m screens. "Full view" (set when the user deliberately opens a
+  // desktop tool from the phone menu, or ?full=1) lets them use the desktop pages anyway;
+  // returning to a phone screen clears it.
+  const [fullView, setFullView] = React.useState(() => {
+    try { return sessionStorage.getItem(FULL_VIEW_KEY) === '1'; } catch { return false; }
+  });
+  React.useEffect(() => {
+    const want = searchParams.get('full') === '1' ? true : isMobileScreen ? false : null;
+    if (want === null) {
+      try { setFullView(sessionStorage.getItem(FULL_VIEW_KEY) === '1'); } catch { /* storage blocked */ }
+      return;
+    }
+    try { want ? sessionStorage.setItem(FULL_VIEW_KEY, '1') : sessionStorage.removeItem(FULL_VIEW_KEY); } catch { /* storage blocked */ }
+    setFullView(want);
+  }, [searchParams, isMobileScreen, currentPageName]);
   const tools = [
     { name: 'Action Tracker', page: 'ActionTracker' },
     { name: 'Site Selection', page: 'SiteSelection' },
@@ -112,6 +130,15 @@ export default function Layout({ children, currentPageName }) {
     }
     
     return currentPath === basePath;
+  };
+
+  if (isMobile && !fullView && currentPageName === 'Home') {
+    return <Navigate to={projectId ? `/m/project?id=${projectId}` : '/m'} replace />;
+  }
+  const desktopOnly = isMobile && !fullView && DESKTOP_ONLY_PAGES.includes(currentPageName);
+  const openAnyway = () => {
+    try { sessionStorage.setItem(FULL_VIEW_KEY, '1'); } catch { /* storage blocked */ }
+    setFullView(true);
   };
 
   return (
@@ -217,11 +244,12 @@ export default function Layout({ children, currentPageName }) {
       
       <div className="flex-1 pb-20 pt-14">
         <div className={showSidebar ? 'lg:ml-64' : ''}>
-          {children}
+          {desktopOnly ? <DesktopOnlyNotice pageLabel={getModule(currentPageName)?.label || currentPageName} onContinue={openAnyway} /> : children}
         </div>
       </div>
       
       {/* Bottom Navigation */}
+      {isMobile ? <MobileBottomNav /> : (
       <div className="fixed bottom-0 right-0 left-0 z-50" style={{ background: 'rgba(15, 23, 42, 0.98)', borderTop: '1px solid rgba(202, 220, 252, 0.1)', paddingBottom: 'var(--safe-area-bottom)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-around py-2 sm:py-3">
@@ -247,6 +275,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

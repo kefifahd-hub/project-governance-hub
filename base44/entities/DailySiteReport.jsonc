@@ -107,6 +107,10 @@
     },
     "totalHours": {
       "type": "number"
+    },
+    "photos": {
+      "type": "string",
+      "description": "JSON array of private file URIs (UploadPrivateFile); viewed via short-lived signed URLs"
     }
   },
   "required": [
