@@ -74,6 +74,14 @@
     "notes": {
       "type": "string",
       "description": "Additional notes"
+    },
+    "location": {
+      "type": "string",
+      "description": "Where the issue was found (building / zone / grid line)"
+    },
+    "photos": {
+      "type": "string",
+      "description": "JSON array of private file URIs (UploadPrivateFile); viewed via short-lived signed URLs"
     }
   },
   "required": [
