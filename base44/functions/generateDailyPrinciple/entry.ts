@@ -4,6 +4,13 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
+    // Only the scheduled run (platform service principal) or an admin may generate the banner;
+    // it calls the LLM, so anonymous callers must not be able to trigger it.
+    const user = await base44.auth.me().catch(() => null);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const isService = typeof user.id === 'string' && user.id.startsWith('service_');
+    if (!isService && user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+
     const today = new Date().toISOString().slice(0, 10);
 
     // Avoid duplicates for today

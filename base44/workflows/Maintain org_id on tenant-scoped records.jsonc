@@ -29,9 +29,7 @@
           "call": "invoke_backend_function",
           "with": {
             "function_name": "maintainOrgId",
-            "args": {
-              "maintain_token": "pmo_maintain_orgid_8f3a9c21"
-            }
+            "args": {}
           },
           "then": "end"
         }

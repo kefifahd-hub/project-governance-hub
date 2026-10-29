@@ -1,8 +1,6 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.38";
 import { ORG_ID_ENTITIES } from "../../shared/orgIdConfig.ts";
 
-// Shared internal token used by the scheduled automation to authenticate (function_args).
-const INTERNAL_TOKEN = "pmo_maintain_orgid_8f3a9c21";
 const CHUNK = 500;
 
 async function findMissing(base44, entityName) {
@@ -21,24 +19,14 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Auth guard: reject non-admin and anonymous callers.
-    // Admins pass. Service-context callers (automation/scheduled runs that authenticate
-    // as the platform service principal, id starts with "service_") pass. Anonymous
-    // (no user) calls are accepted ONLY with the shared internal token (header or body).
+    // Auth guard: only admins and the platform service principal (scheduled/automation runs,
+    // id starts with "service_") may run the backfill. Anonymous callers are refused — there is
+    // no shared token, so nothing in the code or workflow can be copied to call it.
     const user = await base44.auth.me();
-    if (user) {
-      const isService = typeof user.id === "string" && user.id.startsWith("service_");
-      if (!isService && user.role !== "admin") {
-        return Response.json({ error: "Forbidden" }, { status: 403 });
-      }
-    } else {
-      let token = req.headers.get("x-maintain-token");
-      if (!token) {
-        try { const b = await req.json(); token = b ? b.maintain_token : null; } catch (_) { token = null; }
-      }
-      if (token !== INTERNAL_TOKEN) {
-        return Response.json({ error: "Unauthorized" }, { status: 401 });
-      }
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const isService = typeof user.id === "string" && user.id.startsWith("service_");
+    if (!isService && user.role !== "admin") {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const report = {};
