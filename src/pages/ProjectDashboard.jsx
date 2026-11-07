@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Activity, DollarSign, ClipboardCheck, AlertTriangle, FileText, Briefcase, CheckSquare, BarChart3, MapPin, GitPullRequest, ListTodo, FileCheck, Users, Network, Flag, Mail, Grid3x3, ClipboardList, GitBranch, Workflow, BookOpen, Search, KeyRound } from 'lucide-react';
+import { ArrowLeft, FileCheck, Users, AlertTriangle, Network, KeyRound, ClipboardCheck, GitBranch, BookOpen, Search, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createPageUrl } from '../utils';
+import { toolCategories } from '@/components/dashboard/toolCatalog';
+import CompactStatGroup from '@/components/dashboard/CompactStatGroup';
+import ToolsDrawer from '@/components/dashboard/ToolsDrawer';
 
 export default function ProjectDashboard() {
   const navigate = useNavigate();
@@ -52,6 +55,16 @@ export default function ProjectDashboard() {
     queryFn: () => base44.entities.QualityGate.filter({ projectId }),
     enabled: !!projectId,
   });
+  const { data: lessons = [] } = useQuery({
+    queryKey: ['lessonsLearned', projectId],
+    queryFn: () => base44.entities.LessonLearned.filter({ projectId }),
+    enabled: !!projectId,
+  });
+  const { data: auditFindings = [] } = useQuery({
+    queryKey: ['auditFindings', projectId],
+    queryFn: () => base44.entities.AuditFinding.filter({ projectId }),
+    enabled: !!projectId,
+  });
 
   const turnoverTurnedOver = turnoverPackages.filter(p => p.status === 'Turned Over to Ops').length;
   const turnoverPct = turnoverPackages.length ? Math.round(turnoverTurnedOver / turnoverPackages.length * 100) : 0;
@@ -65,6 +78,31 @@ export default function ProjectDashboard() {
   const highRisksCount = risks.filter(r => r.riskLevel === 'Critical' || r.riskLevel === 'High').length;
   const wbsCompleteCount = wbsElements.filter(w => w.status === 'Complete').length;
   const wbsBudgetTotal = wbsElements.reduce((sum, w) => sum + (w.budgetEurK || 0), 0);
+
+  const wbsPct = wbsElements.length ? Math.round(wbsCompleteCount / wbsElements.length * 100) : 0;
+  const openLessons = lessons.filter(l => l.status !== 'Closed').length;
+  const openFindings = auditFindings.filter(f => f.status === 'Open').length;
+
+  const initiationItems = [
+    { id: 'charter', icon: FileCheck, color: 'bg-indigo-500', value: charter?.approvalStatus || 'Not created', caption: charter?.sponsor ? `Sponsor: ${charter.sponsor}` : 'No sponsor set', onClick: () => navigate(createPageUrl(`ProjectCharter?id=${projectId}`)) },
+    { id: 'stakeholders', icon: Users, color: 'bg-cyan-500', value: stakeholders.length, caption: `${manageCloselyCount} manage closely`, onClick: () => navigate(createPageUrl(`StakeholderRegister?id=${projectId}`)) },
+    { id: 'risks', icon: AlertTriangle, color: 'bg-red-500', value: highRisksCount, caption: 'Critical / high risks', valueColor: highRisksCount > 0 ? '#FCA5A5' : undefined, onClick: () => navigate(createPageUrl(`RiskRegister?id=${projectId}`)) },
+    { id: 'wbs', icon: Network, color: 'bg-indigo-600', value: wbsElements.length, caption: wbsElements.length ? `${wbsPct}% complete` : 'No elements', onClick: () => navigate(createPageUrl(`WBS?id=${projectId}`)) },
+  ];
+
+  const turnoverItems = [
+    { id: 'turned', icon: KeyRound, color: 'bg-green-500', value: `${turnoverPct}%`, caption: `${turnoverTurnedOver} of ${turnoverPackages.length} systems`, valueColor: '#86EFAC', onClick: () => navigate(createPageUrl(`TurnoverPackages?id=${projectId}`)) },
+    { id: 'punchlist', icon: ClipboardCheck, color: 'bg-amber-600', value: punchlistAOpen, caption: 'Punchlist A open', valueColor: punchlistAOpen > 0 ? '#FCD34D' : '#86EFAC', onClick: () => navigate(createPageUrl(`TurnoverPackages?id=${projectId}`)) },
+    { id: 'qg5', icon: GitBranch, color: 'bg-green-600', value: qg5?.status || 'Not reached', caption: 'QG5 — Mechanical completion', onClick: () => navigate(createPageUrl(`QualityGates?id=${projectId}`)) },
+    { id: 'qg6', icon: GitBranch, color: 'bg-teal-500', value: qg6?.status || 'Not reached', caption: 'QG6 — Ready for Ops', onClick: () => navigate(createPageUrl(`QualityGates?id=${projectId}`)) },
+  ];
+
+  const closureItems = [
+    { id: 'lessons', icon: BookOpen, color: 'bg-sky-500', value: openLessons, caption: 'Open lessons learned', onClick: () => navigate(createPageUrl(`LessonsLearned?id=${projectId}`)) },
+    { id: 'findings', icon: Search, color: 'bg-purple-500', value: openFindings, caption: 'Open audit findings', valueColor: openFindings > 0 ? '#FCD34D' : undefined, onClick: () => navigate(createPageUrl(`AuditRegister?id=${projectId}`)) },
+    { id: 'turnover', icon: KeyRound, color: 'bg-green-500', value: `${turnoverPct}%`, caption: 'Turnover complete', onClick: () => navigate(createPageUrl(`TurnoverPackages?id=${projectId}`)) },
+    { id: 'reports', icon: BarChart3, color: 'bg-slate-500', value: 'Open', caption: 'Close-out reports', onClick: () => navigate(createPageUrl(`Reports?id=${projectId}`)) },
+  ];
 
   const calculateHealthScore = () => {
     if (!project) return 0;
@@ -83,45 +121,6 @@ export default function ProjectDashboard() {
 
   const healthScore = calculateHealthScore();
   const healthStatus = getHealthStatus(healthScore);
-
-  const toolCategories = [
-    { label: 'Initiation & Governance', tools: [
-      { id: 'charter', name: 'Project Charter', description: 'Purpose, objectives, scope & approvals', icon: FileCheck, color: 'bg-indigo-500', page: 'ProjectCharter' },
-      { id: 'stakeholders', name: 'Stakeholder Register', description: 'Power/interest mapping & engagement', icon: Users, color: 'bg-cyan-500', page: 'StakeholderRegister' },
-      { id: 'requirements', name: 'Requirements', description: 'MoSCoW prioritized requirements', icon: ClipboardList, color: 'bg-teal-600', page: 'Requirements' },
-      { id: 'wbs', name: 'WBS', description: 'Work breakdown with cost & schedule roll-up', icon: Network, color: 'bg-indigo-600', page: 'WBS' },
-      { id: 'raci', name: 'RACI Matrix', description: 'Responsible, Accountable, Consulted, Informed', icon: Grid3x3, color: 'bg-purple-600', page: 'RaciMatrix' },
-      { id: 'comms', name: 'Communications Plan', description: 'Audience, frequency & channel matrix', icon: Mail, color: 'bg-blue-500', page: 'CommunicationPlan' },
-      { id: 'raid', name: 'RAID Log', description: 'Assumptions, issues & dependencies', icon: Flag, color: 'bg-amber-600', page: 'RaidLog' },
-      { id: 'gates', name: 'Quality Gates', description: 'Stage-gate readiness & go/no-go', icon: GitBranch, color: 'bg-green-600', page: 'QualityGates' },
-      { id: 'lessons', name: 'Lessons Learned', description: 'Capture lessons & recommendations', icon: BookOpen, color: 'bg-sky-500', page: 'LessonsLearned' },
-      { id: 'audit', name: 'Audit & CAPA', description: 'Audits, findings & corrective actions', icon: Search, color: 'bg-purple-500', page: 'AuditRegister' },
-    ]},
-    { label: 'Planning & Business Case', tools: [
-      { id: 'feasibility', name: 'Feasibility Study', description: 'Comprehensive project viability assessment', icon: FileText, color: 'bg-blue-600', page: 'FeasibilityStudy' },
-      { id: 'siteselection', name: 'Site Selection', description: 'Evaluate and compare candidate sites', icon: MapPin, color: 'bg-violet-600', page: 'SiteSelection' },
-      { id: 'feed', name: 'FEED Tracker', description: 'Track phase milestones and quality gates', icon: ClipboardCheck, color: 'bg-purple-500', page: 'FEEDTracker' },
-      { id: 'finance', name: 'Finance Model', description: 'Full P&L, Cash Flow, Balance Sheet & DCF', icon: DollarSign, color: 'bg-emerald-600', page: 'FinanceModel' },
-      { id: 'npv', name: 'NPV Calculator', description: 'Assess financial viability and returns', icon: DollarSign, color: 'bg-green-500', page: 'NPVCalculator' },
-    ]},
-    { label: 'Execution & Monitoring', tools: [
-      { id: 'actiontracker', name: 'Action Tracker', description: 'Day-to-day task, issue, decision & RFI management', icon: ListTodo, color: 'bg-violet-500', page: 'ActionTracker' },
-      { id: 'risk', name: 'Risk Register', description: 'Manage and mitigate project risks', icon: AlertTriangle, color: 'bg-red-500', page: 'RiskRegister' },
-      { id: 'budget', name: 'Budget Tracking', description: 'Monitor budget vs actual spending', icon: Activity, color: 'bg-blue-500', page: 'BudgetDashboard' },
-      { id: 'qaqc', name: 'QA/QC', description: 'FAT, SAT, inspections & non-conformities', icon: CheckSquare, color: 'bg-teal-500', page: 'QAQCDashboard' },
-      { id: 'changemanagement', name: 'Change Management', description: 'Track, assess and approve change requests', icon: GitPullRequest, color: 'bg-pink-600', page: 'ChangeManagement' },
-      { id: 'changeworkflow', name: 'Change Workflow', description: 'Drag-and-drop CCB process canvas', icon: Workflow, color: 'bg-pink-700', page: 'ChangeWorkflow' },
-      { id: 'turnover', name: 'Turnover Packages', description: 'System turnover status & workflow board', icon: KeyRound, color: 'bg-green-500', page: 'TurnoverPackages' },
-    ]},
-    { label: 'Reporting', tools: [
-      { id: 'weekly', name: 'Weekly Reports', description: 'Generate compiled status reports', icon: FileText, color: 'bg-orange-500', page: 'WeeklyReports' },
-      { id: 'briefing', name: 'Client Briefing', description: 'One-click executive summaries', icon: Briefcase, color: 'bg-indigo-500', page: 'ClientBriefing' },
-      { id: 'reports', name: 'Reports', description: 'Custom report builder', icon: BarChart3, color: 'bg-slate-500', page: 'Reports' },
-    ]},
-    { label: 'Administration', tools: [
-      { id: 'useraccess', name: 'Users & Access', description: 'Roles, organizations & audit logs', icon: Users, color: 'bg-slate-600', page: 'UserAccess' },
-    ]},
-  ];
 
   if (isLoading) {
     return (
@@ -208,112 +207,24 @@ export default function ProjectDashboard() {
         </div>
       </div>
 
-      {/* Initiation Summary */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: '#CADCFC' }}>Project Initiation</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }} onClick={() => navigate(createPageUrl(`ProjectCharter?id=${projectId}`))}>
-            <CardContent className="pt-4">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Charter</span>
-                <span className={`px-2 py-0.5 rounded-full text-xs ${charter?.approvalStatus === 'Approved' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}`}>{charter?.approvalStatus || 'Not Created'}</span>
-              </div>
-              <p className="text-sm font-medium mb-1" style={{ color: '#CADCFC' }}>{charter?.sponsor ? `Sponsor: ${charter.sponsor}` : 'No sponsor set'}</p>
-              <p className="text-xs" style={{ color: '#64748b' }}>{charter?.projectManager ? `PM: ${charter.projectManager}` : 'No PM assigned'}</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }} onClick={() => navigate(createPageUrl(`StakeholderRegister?id=${projectId}`))}>
-            <CardContent className="pt-4">
-              <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Stakeholders</span>
-              <div className="text-2xl font-bold" style={{ color: '#CADCFC' }}>{stakeholders.length}</div>
-              <p className="text-xs" style={{ color: '#64748b' }}>{manageCloselyCount} manage closely</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }} onClick={() => navigate(createPageUrl(`RiskRegister?id=${projectId}`))}>
-            <CardContent className="pt-4">
-              <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Key Risks</span>
-              <div className="text-2xl font-bold text-red-400">{highRisksCount}</div>
-              <p className="text-xs" style={{ color: '#64748b' }}>Critical/High severity</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }} onClick={() => navigate(createPageUrl(`WBS?id=${projectId}`))}>
-            <CardContent className="pt-4">
-              <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>WBS</span>
-              <div className="text-2xl font-bold" style={{ color: '#CADCFC' }}>{wbsElements.length}</div>
-              <p className="text-xs" style={{ color: '#64748b' }}>{wbsElements.length > 0 ? `${Math.round(wbsCompleteCount/wbsElements.length*100)}% complete · €${wbsBudgetTotal.toLocaleString()}K` : 'No elements'}</p>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Tools dropdown — opens downward, tap a tool to open it for this project */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5">
+        <ToolsDrawer
+          categories={toolCategories}
+          onOpen={(page) => navigate(createPageUrl(`${page}?id=${projectId}`))}
+        />
       </div>
 
-      {/* Turnover & Handover Readiness */}
-      {turnoverPackages.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-2">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: '#CADCFC' }}>Turnover & Handover Readiness</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }} onClick={() => navigate(createPageUrl(`TurnoverPackages?id=${projectId}`))}>
-              <CardContent className="pt-4">
-                <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>% Turned Over</span>
-                <div className="text-2xl font-bold" style={{ color: '#22c55e' }}>{turnoverPct}%</div>
-                <p className="text-xs" style={{ color: '#64748b' }}>{turnoverTurnedOver} of {turnoverPackages.length} systems</p>
-              </CardContent>
-            </Card>
-            <Card style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }}>
-              <CardContent className="pt-4">
-                <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Punchlist A Open</span>
-                <div className="text-2xl font-bold" style={{ color: punchlistAOpen > 0 ? '#f59e0b' : '#22c55e' }}>{punchlistAOpen}</div>
-                <p className="text-xs" style={{ color: '#64748b' }}>Must-fix before energisation</p>
-              </CardContent>
-            </Card>
-            <Card style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }}>
-              <CardContent className="pt-4">
-                <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>QG5 — Mechanical Completion</span>
-                <div className={`text-sm font-semibold ${qg5Ready ? 'text-green-400' : 'text-amber-400'}`}>{qg5?.status || 'Not Reached'}</div>
-                <p className="text-xs" style={{ color: '#64748b' }}>{qg5Ready ? 'Ready (≥80% turnover, no punchlist A)' : 'Awaiting turnover progress'}</p>
-              </CardContent>
-            </Card>
-            <Card style={{ background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.1)' }}>
-              <CardContent className="pt-4">
-                <span className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>QG6 — Ready for Ops</span>
-                <div className={`text-sm font-semibold ${qg6Ready ? 'text-green-400' : 'text-amber-400'}`}>{qg6?.status || 'Not Reached'}</div>
-                <p className="text-xs" style={{ color: '#64748b' }}>{qg6Ready ? 'Ready (100% turnover)' : 'Awaiting 100% turnover'}</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      )}
-
-      {/* Categorized Tools Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
-        {toolCategories.map(category => (
-          <div key={category.label}>
-            <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: '#CADCFC' }}>{category.label}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {category.tools.map((tool) => {
-                const Icon = tool.icon;
-                return (
-                  <Card
-                    key={tool.id}
-                    className="transition-all cursor-pointer group hover:transform hover:-translate-y-1"
-                    style={{ background: 'rgba(30, 39, 97, 0.5)', borderColor: 'rgba(202, 220, 252, 0.1)', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
-                    onClick={() => navigate(createPageUrl(`${tool.page}?id=${projectId}`))}
-                    onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 10px 20px rgba(2, 128, 144, 0.3)'}
-                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className={`${tool.color} p-3 rounded-lg text-white`}><Icon className="w-6 h-6" /></div>
-                        <CardTitle className="text-lg transition-colors" style={{ color: '#CADCFC' }}>{tool.name}</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent><CardDescription style={{ color: '#94A3B8' }}>{tool.description}</CardDescription></CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+      {/* Summary groups — compact, iOS-style */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 space-y-5">
+        <CompactStatGroup label="Project Initiation" items={initiationItems} />
+        {turnoverPackages.length > 0 && (
+          <CompactStatGroup label="Turnover & Handover Readiness" items={turnoverItems} />
+        )}
+        <CompactStatGroup label="Project Closure" items={closureItems} />
       </div>
+
+      <div className="pb-8" />
     </div>
   );
 }

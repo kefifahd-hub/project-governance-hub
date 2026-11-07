@@ -4,13 +4,11 @@ import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import DailyPrincipleBanner from "./DailyPrincipleBanner";
+import ProjectsMobileList from "./ProjectsMobileList";
+import NotificationBell from "./NotificationBell";
 import useWelcomeSummary from "@/hooks/useWelcomeSummary";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-const TYPE_COLORS = {
-  report: "#0891b2", risk: "#ef4444", site: "#10b981",
-  change: "#f59e0b", action: "#22c55e", schedule: "#2563eb",
-};
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 const RAG_COLORS = { green: "#22c55e", amber: "#f59e0b", red: "#ef4444" };
 
@@ -82,7 +80,8 @@ export default function PlatformWelcome({ projects = [] }) {
         }}>
           <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "stretch" : "flex-end", flexWrap: "wrap", gap: isMobile ? 20 : 32 }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: isMobile ? 14 : 24 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: isMobile ? 14 : 24 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: 12,
                   background: "linear-gradient(135deg, #10b981 0%, #2563eb 100%)",
@@ -101,6 +100,8 @@ export default function PlatformWelcome({ projects = [] }) {
                     PMO Platform · Extranet
                   </div>
                 </div>
+                </div>
+                <NotificationBell items={activity} />
               </div>
 
               <h1 style={{
@@ -118,15 +119,57 @@ export default function PlatformWelcome({ projects = [] }) {
 
             {/* Right column: stats + daily principle banner */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile ? "stretch" : "flex-end", gap: 10 }}>
-              <div style={{ display: "flex", gap: isMobile ? 12 : 24, flexWrap: "wrap", justifyContent: isMobile ? "space-between" : "flex-end" }}>
-                {stats.map((s) => (
-                  <div key={s.label} style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: "#e2e8f0" }}>{s.value}</div>
-                    <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 600 }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
+              {isMobile ? (
+                /* Phone: one slim horizontal strip instead of four tall tiles */
+                <div style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  background: "rgba(255,255,255,0.025)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: 10, padding: "6px 10px",
+                }}>
+                  {stats.map((s) => (
+                    <Popover key={s.label}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label={`${s.label}: ${s.value}`}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 4,
+                            background: "transparent", border: "none",
+                            padding: "5px 7px", borderRadius: 6, cursor: "pointer",
+                            WebkitTapHighlightColor: "transparent",
+                          }}
+                        >
+                          <span style={{ fontSize: 10, lineHeight: 1 }}>{s.icon}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", whiteSpace: "nowrap" }}>{s.value}</span>
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="center"
+                        side="bottom"
+                        className="w-56 p-3"
+                        style={{ background: "#0f172a", borderColor: "rgba(202,220,252,0.15)" }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                          <span style={{ fontSize: 12 }}>{s.icon}</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "#10b981", textTransform: "uppercase", letterSpacing: "0.6px" }}>{s.label}</span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.45 }}>{s.description}</div>
+                      </PopoverContent>
+                    </Popover>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  {stats.map((s) => (
+                    <div key={s.label} style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: "#e2e8f0" }}>{s.value}</div>
+                      <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 600 }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div style={{ maxWidth: 520, width: "100%" }}>
                 <DailyPrincipleBanner />
               </div>
@@ -147,25 +190,38 @@ export default function PlatformWelcome({ projects = [] }) {
           transform: loaded ? "translateY(0)" : "translateY(20px)",
           transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s",
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-            <h2 style={{
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isMobile ? 8 : 24 }}>
+            <h2 className={isMobile ? "ios-section-title !mb-0 font-ios" : undefined} style={isMobile ? undefined : {
               fontSize: 13, fontWeight: 600, color: "#475569",
               margin: 0, textTransform: "uppercase", letterSpacing: "1.5px",
             }}>
               Your Projects
             </h2>
-            <button
-              onClick={() => navigate(createPageUrl("NewProject"))}
-              style={{
-                padding: "8px 20px", borderRadius: 8, border: "1px solid rgba(16,185,129,0.3)",
-                background: "rgba(16,185,129,0.08)", color: "#10b981",
-                fontSize: 13, fontWeight: 600, cursor: "pointer",
-              }}
-            >
-              + New Project
-            </button>
+            {!isMobile && (
+              <button
+                onClick={() => navigate(createPageUrl("NewProject"))}
+                style={{
+                  padding: "8px 20px", borderRadius: 8, border: "1px solid rgba(16,185,129,0.3)",
+                  background: "rgba(16,185,129,0.08)", color: "#10b981",
+                  fontSize: 13, fontWeight: 600, cursor: "pointer",
+                }}
+              >
+                + New Project
+              </button>
+            )}
           </div>
 
+          {/* Phone: compact scannable list with its own new-project action */}
+          {isMobile ? (
+            <div className="md:hidden">
+              <ProjectsMobileList
+                projects={projects}
+                onOpen={(id) => navigate(createPageUrl(`Home?id=${id}`))}
+                onNew={() => navigate(createPageUrl("NewProject"))}
+              />
+            </div>
+          ) : (
+          <div className="hidden md:block">
           {/* Project Cards from DB */}
           {projects.map((proj) => {
             const isHovered = hoveredProject === proj.id;
@@ -334,58 +390,13 @@ export default function PlatformWelcome({ projects = [] }) {
               Start a new project governance setup for your next capital project
             </div>
           </div>
-        </section>
-
-        {/* RECENT ACTIVITY */}
-        <section style={{
-          marginBottom: 60,
-          opacity: loaded ? 1 : 0,
-          transform: loaded ? "translateY(0)" : "translateY(20px)",
-          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s",
-        }}>
-          <h2 style={{
-            fontSize: 13, fontWeight: 600, color: "#475569",
-            margin: "0 0 20px 0", textTransform: "uppercase", letterSpacing: "1.5px",
-          }}>
-            Recent Activity
-          </h2>
-          <div style={{
-            background: "rgba(255,255,255,0.015)",
-            border: "1px solid rgba(255,255,255,0.05)",
-            borderRadius: 16, padding: isMobile ? 16 : 24,
-          }}>
-            {activity.length === 0 && (
-              <div style={{ padding: "8px 0", fontSize: 13, color: "#475569" }}>
-                No activity yet — reports, risks and change requests on your projects will appear here.
-              </div>
-            )}
-            {activity.map((act, i) => (
-              <div key={act.id} style={{
-                display: "flex", alignItems: "center", gap: isMobile ? 9 : 14,
-                padding: "12px 0",
-                borderBottom: i < activity.length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none",
-              }}>
-                <div style={{
-                  padding: "3px 8px", borderRadius: 4, fontSize: 10, fontWeight: 800,
-                  background: "rgba(16,185,129,0.1)", color: "#10b981",
-                  letterSpacing: "0.5px", minWidth: 24, textAlign: "center",
-                }}>
-                  {act.code}
-                </div>
-                <div style={{
-                  width: 6, height: 6, borderRadius: "50%",
-                  background: TYPE_COLORS[act.type] || "#475569", flexShrink: 0,
-                }} />
-                <div style={{ fontSize: 13, color: "#94a3b8", flex: 1 }}>{act.text}</div>
-                <div style={{ fontSize: 11, color: "#334155", flexShrink: 0 }}>{act.time}</div>
-              </div>
-            ))}
           </div>
+          )}
         </section>
 
         {/* FOOTER */}
         <footer style={{
-          paddingBottom: isMobile ? 8 : 40, textAlign: "center",
+          paddingTop: 8, paddingBottom: isMobile ? 8 : 40, textAlign: "center",
           opacity: loaded ? 1 : 0,
           transition: "opacity 0.8s ease 0.5s",
         }}>

@@ -106,12 +106,14 @@ export default function Layout({ children, currentPageName }) {
 
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
-    { name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('ProjectDashboard') },
-    { name: 'Brainiac', icon: BrainCircuit, path: createPageUrl('Brainiac'), glow: true },
+    // On phones the tools live in the dropdown inside the project view, not in the tab bar.
+    ...(isMobile ? [] : [{ name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('ProjectDashboard') }]),
+    // Brainiac and the admin console are left out of the phone tab bar to keep it uncrowded.
+    ...(isMobile ? [] : [{ name: 'Brainiac', icon: BrainCircuit, path: createPageUrl('Brainiac'), glow: true }]),
     { name: 'PMO Agent', icon: Bot, path: createPageUrl('PMOAgent'), glow2: true },
     // Admins get a persistent entry to the admin console (domains, users, roles),
     // so it no longer hides inside the project-scoped Tools dropdown.
-    ...(isAdmin ? [{ name: 'Admin', icon: ShieldCheck, path: createPageUrl('UserAccess') }] : []),
+    ...(isAdmin && !isMobile ? [{ name: 'Admin', icon: ShieldCheck, path: createPageUrl('UserAccess') }] : []),
     { name: 'Settings', icon: Settings, path: createPageUrl('Settings') }
   ];
 

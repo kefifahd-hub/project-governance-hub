@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const FALLBACK = {
   title: 'The Project Triangle',
@@ -13,6 +14,8 @@ const FALLBACK = {
 };
 
 export default function DailyPrincipleBanner({ variant = 'dark' }) {
+  const isMobile = useIsMobile();
+
   const { data: latest } = useQuery({
     queryKey: ['dailyPrinciple'],
     queryFn: async () => {
@@ -28,6 +31,9 @@ export default function DailyPrincipleBanner({ variant = 'dark' }) {
     try { pillars = JSON.parse(latest.principles); } catch { pillars = FALLBACK.principles; }
     principle = { title: latest.title, subtitle: latest.subtitle || FALLBACK.subtitle, principles: pillars };
   }
+
+  // Phones: the banner is dropped, it takes too much room on a small screen.
+  if (isMobile) return null;
 
   const isLight = variant === 'light';
   const labelColor = isLight ? '#CADCFC' : '#CADCFC';

@@ -11,6 +11,7 @@ import {
   Search, HelpCircle, BookOpen, CheckCircle2, AlertCircle, Lightbulb, Copy, ChevronLeft
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { matchesFilter } from '@/lib/filterExpression';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const inputStyle = { background: 'rgba(30,39,97,0.5)', borderColor: 'rgba(202,220,252,0.2)', color: '#F8FAFC' };
@@ -1080,21 +1081,7 @@ function LookupPanel({ rule, onUpdate }) {
 // ─── Data Preview Table ───────────────────────────────────────────────────
 function applyFilterPreview(records, rule) {
   if (!rule.expression) return records;
-  try {
-    return records.filter(r => {
-      const expr = rule.expression
-        .replace(/AND/gi, '&&').replace(/OR/gi, '||')
-        .replace(/=/g, '==').replace(/!==|==/g, m => m)
-        .replace(/([a-zA-Z_][a-zA-Z0-9_]*)/g, (m) => {
-          if (['true','false','null','undefined','&&','||','==','!=','>=','<=','>','<'].includes(m)) return m;
-          const val = r[m];
-          if (val === undefined) return 'undefined';
-          return typeof val === 'string' ? `"${val}"` : val;
-        });
-      // eslint-disable-next-line no-new-func
-      return new Function(`return !!(${expr})`)();
-    });
-  } catch { return records; }
+  return records.filter(r => matchesFilter(rule.expression, r));
 }
 
 function applyMapPreview(records, targetFields) {

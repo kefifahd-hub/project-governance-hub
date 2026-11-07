@@ -4,12 +4,16 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Only the scheduled run (platform service principal) or an admin may generate the banner;
-    // it calls the LLM, so anonymous callers must not be able to trigger it.
-    const user = await base44.auth.me().catch(() => null);
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Only an admin, or the platform service principal that runs the scheduled
+    // workflow, may trigger a paid generation. Anonymous callers get 401.
+    const user = await base44.auth.me().catch((e) => (e?.status === 401 ? null : Promise.reject(e)));
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const isService = typeof user.id === 'string' && user.id.startsWith('service_');
-    if (!isService && user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+    if (!isService && user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const today = new Date().toISOString().slice(0, 10);
 
@@ -62,6 +66,13 @@ Keep it concise, professional, and actionable. Avoid repeating yesterday's theme
         required: ['title', 'subtitle', 'principles']
       }
     });
+
+    // Re-check before writing: a concurrent run may have created today's banner while
+    // this one was waiting on the model, and we must not overwrite it.
+    const raced = await base44.asServiceRole.entities.DailyPrinciple.filter({ date: today });
+    if (raced && raced.length > 0) {
+      return Response.json({ status: 'exists', principle: raced[0] });
+    }
 
     const created = await base44.asServiceRole.entities.DailyPrinciple.create({
       date: today,
