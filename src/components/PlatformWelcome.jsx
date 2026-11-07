@@ -190,8 +190,8 @@ export default function PlatformWelcome({ projects = [] }) {
           transform: loaded ? "translateY(0)" : "translateY(20px)",
           transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s",
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-            <h2 style={{
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isMobile ? 8 : 24 }}>
+            <h2 className={isMobile ? "ios-section-title !mb-0 font-ios" : undefined} style={isMobile ? undefined : {
               fontSize: 13, fontWeight: 600, color: "#475569",
               margin: 0, textTransform: "uppercase", letterSpacing: "1.5px",
             }}>

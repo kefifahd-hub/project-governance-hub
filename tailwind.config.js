@@ -4,12 +4,27 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
-  		borderRadius: {
+  		fontFamily: {
+        ios: ['var(--font-ios)']
+      },
+      borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+        ios: {
+          background: 'hsl(var(--ios-background))',
+          group: 'hsl(var(--ios-group))',
+          foreground: 'hsl(var(--ios-foreground))',
+          muted: 'hsl(var(--ios-muted))',
+          separator: 'hsl(var(--ios-separator))',
+          pressed: 'hsl(var(--ios-pressed))',
+          tint: 'hsl(var(--ios-tint))',
+          success: 'hsl(var(--ios-success))',
+          warning: 'hsl(var(--ios-warning))',
+          danger: 'hsl(var(--ios-danger))'
+        },
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

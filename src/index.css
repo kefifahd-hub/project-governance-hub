@@ -263,3 +263,81 @@
 .page-transition-enter {
   animation: page-slide-in 0.25s ease-out;
 }
+
+/* Scoped iPhone-style navigation, without changing the desktop theme. */
+:root, .dark {
+  --ios-background: 0 0% 0%;
+  --ios-group: 240 3% 12%;
+  --ios-foreground: 0 0% 100%;
+  --ios-muted: 240 5% 68%;
+  --ios-separator: 240 2% 25%;
+  --ios-pressed: 240 2% 22%;
+  --ios-tint: 210 100% 60%;
+  --ios-success: 135 64% 56%;
+  --ios-warning: 48 100% 55%;
+  --ios-danger: 4 100% 63%;
+  --font-ios: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+@layer components {
+  .ios-navigation {
+    @apply font-ios text-ios-foreground;
+  }
+  .ios-group {
+    @apply overflow-hidden rounded-[10px] bg-ios-group;
+  }
+  .ios-row {
+    @apply relative flex min-h-12 w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ios-tint;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ios-row + .ios-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 57px;
+    right: 0;
+    height: 0.5px;
+    background: hsl(var(--ios-separator));
+  }
+  .ios-row:active {
+    background: hsl(var(--ios-pressed));
+  }
+  .ios-row-icon {
+    @apply flex h-[29px] w-[29px] shrink-0 items-center justify-center rounded-[7px] bg-ios-tint text-ios-foreground;
+  }
+  .ios-section-title {
+    @apply mb-2 px-4 text-[13px] font-normal uppercase leading-[18px] tracking-normal text-ios-muted;
+  }
+  .ios-nav-sheet {
+    @apply rounded-t-[28px] border-0 bg-ios-background font-ios text-ios-foreground;
+    max-height: 85dvh;
+  }
+  .ios-nav-sheet > div:first-child {
+    @apply mt-2 h-[5px] w-9 rounded-full bg-ios-separator;
+  }
+  .ios-sheet-content {
+    @apply min-h-0 overflow-y-auto overscroll-contain px-4;
+    padding-bottom: calc(24px + var(--safe-area-bottom));
+  }
+}
+
+@media (max-width: 767px) {
+  .ios-tools-toggle {
+    background: hsl(var(--ios-group)) !important;
+    border: 0 !important;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: var(--font-ios);
+  }
+  .ios-tools-menu {
+    background: hsl(var(--ios-background)) !important;
+    border: 0 !important;
+    max-height: 58dvh !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ios-row {
+    transition: none;
+  }
+}
