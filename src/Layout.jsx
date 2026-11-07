@@ -88,7 +88,8 @@ export default function Layout({ children, currentPageName }) {
 
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
-    { name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('ProjectDashboard') },
+    // On phones the tools live in the dropdown inside the project view, not in the tab bar.
+    ...(isMobile ? [] : [{ name: 'Tools', icon: Wrench, path: projectId ? createPageUrl(`ProjectDashboard?id=${projectId}`) : createPageUrl('ProjectDashboard') }]),
     // Brainiac and the admin console are left out of the phone tab bar to keep it uncrowded.
     ...(isMobile ? [] : [{ name: 'Brainiac', icon: BrainCircuit, path: createPageUrl('Brainiac'), glow: true }]),
     { name: 'PMO Agent', icon: Bot, path: createPageUrl('PMOAgent'), glow2: true },
