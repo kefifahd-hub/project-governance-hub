@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import DailyPrincipleBanner from "./DailyPrincipleBanner";
 import useWelcomeSummary from "@/hooks/useWelcomeSummary";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 const TYPE_COLORS = {
   report: "#0891b2", risk: "#ef4444", site: "#10b981",
@@ -127,10 +128,35 @@ export default function PlatformWelcome({ projects = [] }) {
                   borderRadius: 10, padding: "6px 10px",
                 }}>
                   {stats.map((s) => (
-                    <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                      <span style={{ fontSize: 10, lineHeight: 1 }}>{s.icon}</span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", whiteSpace: "nowrap" }}>{s.value}</span>
-                    </div>
+                    <Popover key={s.label}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label={`${s.label}: ${s.value}`}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 4,
+                            background: "transparent", border: "none",
+                            padding: "5px 7px", borderRadius: 6, cursor: "pointer",
+                            WebkitTapHighlightColor: "transparent",
+                          }}
+                        >
+                          <span style={{ fontSize: 10, lineHeight: 1 }}>{s.icon}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", whiteSpace: "nowrap" }}>{s.value}</span>
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="center"
+                        side="bottom"
+                        className="w-56 p-3"
+                        style={{ background: "#0f172a", borderColor: "rgba(202,220,252,0.15)" }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                          <span style={{ fontSize: 12 }}>{s.icon}</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "#10b981", textTransform: "uppercase", letterSpacing: "0.6px" }}>{s.label}</span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.45 }}>{s.description}</div>
+                      </PopoverContent>
+                    </Popover>
                   ))}
                 </div>
               ) : (

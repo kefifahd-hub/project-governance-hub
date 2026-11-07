@@ -116,16 +116,32 @@ export default function useWelcomeSummary(projects = []) {
   const stats = useMemo(() => {
     const investment = projects.reduce((sum, p) => sum + (Number(p.totalBudgetEurM) || 0), 0);
     return [
-      { label: 'Active Projects', value: String(projects.length), icon: '📁' },
+      {
+        label: 'Active Projects',
+        value: String(projects.length),
+        icon: '📁',
+        description: 'Active projects in your current client domain.',
+      },
       {
         label: 'Total Investment',
         value: `€${investment % 1 === 0 ? investment : investment.toFixed(1)}M`,
         icon: '💰',
+        description: 'Combined budget of these active projects, in EUR millions.',
       },
       // No capacity field exists on any project record, so the tile stays neutral
       // instead of borrowing another project's figure.
-      { label: 'Total Capacity', value: '—', icon: '⚡' },
-      { label: 'Team Members', value: String(teamCount), icon: '👥' },
+      {
+        label: 'Total Capacity',
+        value: '—',
+        icon: '⚡',
+        description: 'Production capacity is not recorded on any project yet.',
+      },
+      {
+        label: 'Team Members',
+        value: String(teamCount),
+        icon: '👥',
+        description: 'People with actions assigned on these projects.',
+      },
     ];
   }, [projects, teamCount]);
 
