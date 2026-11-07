@@ -214,13 +214,15 @@ export default function PlatformWelcome({ projects = [] }) {
 
           {/* Phone: compact scannable list with its own new-project action */}
           {isMobile ? (
-            <ProjectsMobileList
-              projects={projects}
-              onOpen={(id) => navigate(createPageUrl(`Home?id=${id}`))}
-              onNew={() => navigate(createPageUrl("NewProject"))}
-            />
+            <div className="md:hidden">
+              <ProjectsMobileList
+                projects={projects}
+                onOpen={(id) => navigate(createPageUrl(`Home?id=${id}`))}
+                onNew={() => navigate(createPageUrl("NewProject"))}
+              />
+            </div>
           ) : (
-          <>
+          <div className="hidden md:block">
           {/* Project Cards from DB */}
           {projects.map((proj) => {
             const isHovered = hoveredProject === proj.id;
@@ -389,7 +391,7 @@ export default function PlatformWelcome({ projects = [] }) {
               Start a new project governance setup for your next capital project
             </div>
           </div>
-          </>
+          </div>
           )}
         </section>
 
