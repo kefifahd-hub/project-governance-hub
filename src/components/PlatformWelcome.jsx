@@ -4,6 +4,7 @@ import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import DailyPrincipleBanner from "./DailyPrincipleBanner";
+import ProjectsMobileList from "./ProjectsMobileList";
 import useWelcomeSummary from "@/hooks/useWelcomeSummary";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -197,18 +198,29 @@ export default function PlatformWelcome({ projects = [] }) {
             }}>
               Your Projects
             </h2>
-            <button
-              onClick={() => navigate(createPageUrl("NewProject"))}
-              style={{
-                padding: "8px 20px", borderRadius: 8, border: "1px solid rgba(16,185,129,0.3)",
-                background: "rgba(16,185,129,0.08)", color: "#10b981",
-                fontSize: 13, fontWeight: 600, cursor: "pointer",
-              }}
-            >
-              + New Project
-            </button>
+            {!isMobile && (
+              <button
+                onClick={() => navigate(createPageUrl("NewProject"))}
+                style={{
+                  padding: "8px 20px", borderRadius: 8, border: "1px solid rgba(16,185,129,0.3)",
+                  background: "rgba(16,185,129,0.08)", color: "#10b981",
+                  fontSize: 13, fontWeight: 600, cursor: "pointer",
+                }}
+              >
+                + New Project
+              </button>
+            )}
           </div>
 
+          {/* Phone: compact scannable list with its own new-project action */}
+          {isMobile ? (
+            <ProjectsMobileList
+              projects={projects}
+              onOpen={(id) => navigate(createPageUrl(`Home?id=${id}`))}
+              onNew={() => navigate(createPageUrl("NewProject"))}
+            />
+          ) : (
+          <>
           {/* Project Cards from DB */}
           {projects.map((proj) => {
             const isHovered = hoveredProject === proj.id;
@@ -377,6 +389,8 @@ export default function PlatformWelcome({ projects = [] }) {
               Start a new project governance setup for your next capital project
             </div>
           </div>
+          </>
+          )}
         </section>
 
         {/* RECENT ACTIVITY */}
