@@ -12,6 +12,12 @@ import LessonsLearned from './pages/LessonsLearned';
 import TurnoverPackages from './pages/TurnoverPackages';
 import AuditRegister from './pages/AuditRegister';
 import UserManual from './pages/UserManual';
+import MobilePortfolio from './mobile/MobilePortfolio';
+import MobileProject from './mobile/MobileProject';
+import MobileActions from './mobile/MobileActions';
+import MobileSiteReport from './mobile/MobileSiteReport';
+import MobileQuality from './mobile/MobileQuality';
+import MobileReview from './mobile/MobileReview';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SessionProvider } from '@/lib/SessionContext';
 import RequirePermission from '@/components/RequirePermission';
@@ -60,6 +66,16 @@ const DarkModeDetector = () => {
   }, []);
   return null;
 };
+
+// Phone screens: [path, page key for Layout, page whose permission gates it, component].
+const MOBILE_ROUTES = [
+  ['/m', 'MobilePortfolio', 'Home', MobilePortfolio],
+  ['/m/project', 'MobileProject', 'ProjectDashboard', MobileProject],
+  ['/m/actions', 'MobileActions', 'ActionTracker', MobileActions],
+  ['/m/site-report', 'MobileSiteReport', 'Reports', MobileSiteReport],
+  ['/m/quality', 'MobileQuality', 'QAQCDashboard', MobileQuality],
+  ['/m/review', 'MobileReview', 'Home', MobileReview],
+];
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -153,6 +169,17 @@ const AnimatedRoutes = () => {
             </PageTransition>
           </LayoutWrapper>
         } />
+        {MOBILE_ROUTES.map(([path, name, gate, Screen]) => (
+          <Route key={path} path={path} element={
+            <LayoutWrapper currentPageName={name}>
+              <PageTransition k={name}>
+                <RequirePermission page={gate}>
+                  <Screen />
+                </RequirePermission>
+              </PageTransition>
+            </LayoutWrapper>
+          } />
+        ))}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </AnimatePresence>

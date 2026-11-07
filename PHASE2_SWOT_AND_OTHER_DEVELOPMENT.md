@@ -47,3 +47,12 @@ doing it for them.
 ## Key principle (same lesson as the data-leak fix)
 Enforce "who can use what" and "needs approval" at the **data layer / backend**, never
 only in the screen — UI-only gating is bypassable.
+
+## Parked — Marketing / advertising (Google Ads etc.)
+Raised 29 Oct. Base44's built-in Google Ads requires the app to be **public**, which would undo
+the private, invite-only protection the platform (holding real client data) relies on.
+- **Do not** make the platform public to advertise it.
+- Instead: a **separate public marketing site / landing page** (what BuildMind does, case studies,
+  "Request a demo" form) that ads point to. The platform stays private.
+- Open questions: domain (e.g. buildmind… marketing vs the app's buildmindnetwork.com), who
+  receives demo requests, budget/target markets for campaigns.
