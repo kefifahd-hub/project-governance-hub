@@ -1,8 +1,32 @@
 import React, { useState } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { Briefcase, Wrench, Plus, X } from 'lucide-react';
+import { Briefcase, Wrench, Plus, X, ChevronRight } from 'lucide-react';
 import { createPageUrl } from '../utils';
+
+// iOS-style grouped list: dark panel holding separate rounded row buttons.
+const groupStyle = {
+  background: 'rgba(22, 33, 62, 0.85)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 16,
+  padding: 8,
+};
+
+const rowStyle = {
+  width: '100%',
+  textAlign: 'left',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  padding: '13px 14px',
+  borderRadius: 10,
+  background: '#16181d',
+  border: '1px solid rgba(255,255,255,0.1)',
+  minHeight: 48,
+  marginBottom: 6,
+  cursor: 'pointer',
+  WebkitTapHighlightColor: 'transparent',
+};
 
 /**
  * Mobile bottom-sheet navigation for Projects and Tools.
@@ -54,42 +78,49 @@ export default function MobileNavMenu({ projects, currentProject, projectId, too
           </DrawerHeader>
           <div className="overflow-y-auto px-4 pb-6 max-h-[60vh]">
             {section === 'projects' && (
-              <div className="space-y-1">
-                {projects.map((project) => (
-                  <button
-                    key={project.id}
-                    onClick={() => handleProjectClick(project.id)}
-                    className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-2 transition-all"
-                    style={{
-                      color: projectId === project.id ? '#00A896' : '#CADCFC',
-                      background: projectId === project.id ? 'rgba(0,168,150,0.1)' : 'rgba(30,39,97,0.3)',
-                      minHeight: '44px',
-                    }}
-                  >
-                    <Briefcase className="w-4 h-4 shrink-0" />
-                    <span className="truncate">{project.projectName}</span>
-                  </button>
-                ))}
+              <div style={groupStyle}>
+                {projects.map((project) => {
+                  const active = projectId === project.id;
+                  return (
+                    <button
+                      key={project.id}
+                      onClick={() => handleProjectClick(project.id)}
+                      style={{
+                        ...rowStyle,
+                        color: active ? '#34d399' : '#e2e8f0',
+                        background: active ? 'rgba(16,185,129,0.12)' : rowStyle.background,
+                        borderColor: active ? 'rgba(16,185,129,0.35)' : rowStyle.borderColor,
+                      }}
+                    >
+                      <Briefcase className="w-4 h-4 shrink-0" style={{ opacity: 0.7 }} />
+                      <span className="truncate flex-1">{project.projectName}</span>
+                      {active && <span style={{ fontSize: 11, fontWeight: 600 }}>Current</span>}
+                    </button>
+                  );
+                })}
                 <button
                   onClick={handleNewProject}
-                  className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-2 transition-all"
-                  style={{ color: '#00A896', background: 'rgba(0,168,150,0.1)', minHeight: '44px' }}
+                  style={{ ...rowStyle, color: '#34d399', marginBottom: 0 }}
                 >
                   <Plus className="w-4 h-4 shrink-0" />
-                  New Project
+                  <span className="flex-1">New Project</span>
                 </button>
               </div>
             )}
             {section === 'tools' && (
-              <div className="space-y-1">
-                {tools.map((tool) => (
+              <div style={groupStyle}>
+                {tools.map((tool, i) => (
                   <button
                     key={tool.page}
                     onClick={() => handleToolClick(tool.page)}
-                    className="w-full text-left px-4 py-3 rounded-lg flex items-center transition-all"
-                    style={{ color: '#CADCFC', background: 'rgba(30,39,97,0.3)', minHeight: '44px' }}
+                    style={{
+                      ...rowStyle,
+                      color: '#e2e8f0',
+                      marginBottom: i === tools.length - 1 ? 0 : 6,
+                    }}
                   >
-                    {tool.name}
+                    <span className="flex-1 truncate">{tool.name}</span>
+                    <ChevronRight className="w-4 h-4 shrink-0" style={{ color: '#475569' }} />
                   </button>
                 ))}
               </div>
