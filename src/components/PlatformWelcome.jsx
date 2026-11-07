@@ -5,7 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import DailyPrincipleBanner from "./DailyPrincipleBanner";
 import ProjectsMobileList from "./ProjectsMobileList";
-import ActivityNotifications from "./ActivityNotifications";
+import NotificationBell from "./NotificationBell";
 import useWelcomeSummary from "@/hooks/useWelcomeSummary";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -80,7 +80,8 @@ export default function PlatformWelcome({ projects = [] }) {
         }}>
           <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "stretch" : "flex-end", flexWrap: "wrap", gap: isMobile ? 20 : 32 }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: isMobile ? 14 : 24 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: isMobile ? 14 : 24 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: 12,
                   background: "linear-gradient(135deg, #10b981 0%, #2563eb 100%)",
@@ -99,6 +100,8 @@ export default function PlatformWelcome({ projects = [] }) {
                     PMO Platform · Extranet
                   </div>
                 </div>
+                </div>
+                <NotificationBell items={activity} />
               </div>
 
               <h1 style={{
@@ -391,38 +394,9 @@ export default function PlatformWelcome({ projects = [] }) {
           )}
         </section>
 
-        {/* RECENT ACTIVITY */}
-        <section style={{
-          marginBottom: 60,
-          opacity: loaded ? 1 : 0,
-          transform: loaded ? "translateY(0)" : "translateY(20px)",
-          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s",
-        }}>
-          <h2 style={{
-            fontSize: 13, fontWeight: 600, color: "#475569",
-            margin: "0 0 20px 0", textTransform: "uppercase", letterSpacing: "1.5px",
-          }}>
-            Recent Activity
-          </h2>
-          <div>
-            {activity.length === 0 && (
-              <div style={{
-                background: "rgba(255,255,255,0.015)",
-                border: "1px solid rgba(255,255,255,0.05)",
-                borderRadius: 12, padding: "14px 16px",
-                fontSize: 13, color: "#475569",
-              }}>
-                No activity yet — reports, risks and change requests on your projects will appear here.
-              </div>
-            )}
-            <ActivityNotifications items={activity} />
-          </div>
-
-        </section>
-
         {/* FOOTER */}
         <footer style={{
-          paddingBottom: isMobile ? 8 : 40, textAlign: "center",
+          paddingTop: 8, paddingBottom: isMobile ? 8 : 40, textAlign: "center",
           opacity: loaded ? 1 : 0,
           transition: "opacity 0.8s ease 0.5s",
         }}>
