@@ -5,14 +5,10 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import DailyPrincipleBanner from "./DailyPrincipleBanner";
 import ProjectsMobileList from "./ProjectsMobileList";
+import ActivityNotifications from "./ActivityNotifications";
 import useWelcomeSummary from "@/hooks/useWelcomeSummary";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-
-const TYPE_COLORS = {
-  report: "#0891b2", risk: "#ef4444", site: "#10b981",
-  change: "#f59e0b", action: "#22c55e", schedule: "#2563eb",
-};
 
 const RAG_COLORS = { green: "#22c55e", amber: "#f59e0b", red: "#ef4444" };
 
@@ -408,38 +404,20 @@ export default function PlatformWelcome({ projects = [] }) {
           }}>
             Recent Activity
           </h2>
-          <div style={{
-            background: "rgba(255,255,255,0.015)",
-            border: "1px solid rgba(255,255,255,0.05)",
-            borderRadius: 16, padding: isMobile ? 16 : 24,
-          }}>
+          <div>
             {activity.length === 0 && (
-              <div style={{ padding: "8px 0", fontSize: 13, color: "#475569" }}>
+              <div style={{
+                background: "rgba(255,255,255,0.015)",
+                border: "1px solid rgba(255,255,255,0.05)",
+                borderRadius: 12, padding: "14px 16px",
+                fontSize: 13, color: "#475569",
+              }}>
                 No activity yet — reports, risks and change requests on your projects will appear here.
               </div>
             )}
-            {activity.map((act, i) => (
-              <div key={act.id} style={{
-                display: "flex", alignItems: "center", gap: isMobile ? 9 : 14,
-                padding: "12px 0",
-                borderBottom: i < activity.length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none",
-              }}>
-                <div style={{
-                  padding: "3px 8px", borderRadius: 4, fontSize: 10, fontWeight: 800,
-                  background: "rgba(16,185,129,0.1)", color: "#10b981",
-                  letterSpacing: "0.5px", minWidth: 24, textAlign: "center",
-                }}>
-                  {act.code}
-                </div>
-                <div style={{
-                  width: 6, height: 6, borderRadius: "50%",
-                  background: TYPE_COLORS[act.type] || "#475569", flexShrink: 0,
-                }} />
-                <div style={{ fontSize: 13, color: "#94a3b8", flex: 1 }}>{act.text}</div>
-                <div style={{ fontSize: 11, color: "#334155", flexShrink: 0 }}>{act.time}</div>
-              </div>
-            ))}
+            <ActivityNotifications items={activity} />
           </div>
+
         </section>
 
         {/* FOOTER */}
