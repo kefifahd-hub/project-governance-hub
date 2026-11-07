@@ -2,6 +2,7 @@
  * Schedule file parser — supports XER (P6), XML (P6/MSP), MPP-as-XML, CSV
  * Returns { tasks, milestones, summary } suitable for preview + DB import
  */
+import readXlsxFile from 'read-excel-file/browser';
 
 export async function parseScheduleFile(file) {
   const ext = file.name.split('.').pop().toLowerCase();
@@ -20,29 +21,34 @@ export async function parseScheduleFile(file) {
  * Returns { tasks, summary } in the same shape as other parsers.
  */
 export async function parseP6Xlsx(file) {
-  const XLSX = await import('xlsx');
-  const buffer = await file.arrayBuffer();
-  const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+  // read-excel-file walks the actual <row>/<cell> entries, so it ignores the
+  // <dimension> hint P6 often writes too small or too large.
+  // It returns one entry per sheet: [{ sheet, data }] — we use the first sheet.
+  const [firstSheet] = await readXlsxFile(file);
+  return rowsToP6Tasks(firstSheet?.data || [], file.name);
+}
 
-  const ws = wb.Sheets[wb.SheetNames[0]];
+/**
+ * Turn a raw sheet (array of rows) into tasks.
+ * Exported so the mapping can be exercised against real P6 exports.
+ */
+export function rowsToP6Tasks(rows, fileName) {
+  if (!rows?.length) throw new Error('XLSX file is empty or has no data rows');
 
-  // Fix: P6 xlsx exports often have incorrect sheet dimensions in metadata
-  let maxR = 0, maxC = 0;
-  for (const key in ws) {
-    if (key.startsWith('!')) continue;
-    const cell = XLSX.utils.decode_cell(key);
-    if (cell.r > maxR) maxR = cell.r;
-    if (cell.c > maxC) maxC = cell.c;
-  }
-  ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: maxR, c: maxC } });
+  // Normalize: trim header names (P6 pads them with spaces)
+  const headers = (rows[0] || []).map(h => String(h ?? '').trim());
+  const isBlank = (v) => v === null || v === undefined || String(v).trim() === '';
 
-  // raw: true so we can trim headers ourselves
-  const rawRows = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false });
-
-  if (!rawRows.length) throw new Error('XLSX file is empty or has no data rows');
-
-  // Normalize: trim ALL keys (SheetJS preserves leading spaces from P6 headers)
-  const rows = rawRows.map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [k.trim(), v])));
+  const rowsAsObjects = rows
+    .slice(1)
+    .filter(row => (row || []).some(v => !isBlank(v)))
+    .map(row => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        if (h) obj[h] = row[i] ?? '';
+      });
+      return obj;
+    });
 
   // Column map based on real P6 export headers (after trimming)
   const get = (row, ...keys) => {
@@ -67,7 +73,7 @@ export async function parseP6Xlsx(file) {
     return parseFloat(String(val).replace(/[^0-9.-]/g, '')) || 0;
   };
 
-  const tasks = rows.map((row, idx) => {
+  const tasks = rowsAsObjects.map((row, idx) => {
     const rawId = String(get(row, 'ID*', 'ID', 'Activity ID')).trim();
     // Skip WBS summary rows (P6 uses "WBS - <code>" in the ID column)
     if (!rawId || rawId.startsWith('WBS')) return null;
@@ -117,7 +123,7 @@ export async function parseP6Xlsx(file) {
       dataDate: '',
       criticalPathLength: tasks.filter(t => t.isCritical).length,
       totalFloatMin: 0,
-      importLog: `Parsed ${tasks.length} activities from P6 XLSX: ${file.name}`,
+      importLog: `Parsed ${tasks.length} activities from P6 XLSX: ${fileName}`,
     },
   };
 }
