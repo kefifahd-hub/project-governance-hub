@@ -118,15 +118,32 @@ export default function PlatformWelcome({ projects = [] }) {
 
             {/* Right column: stats + daily principle banner */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile ? "stretch" : "flex-end", gap: 10 }}>
-              <div style={{ display: "flex", gap: isMobile ? 12 : 24, flexWrap: "wrap", justifyContent: isMobile ? "space-between" : "flex-end" }}>
-                {stats.map((s) => (
-                  <div key={s.label} style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: "#e2e8f0" }}>{s.value}</div>
-                    <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 600 }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
+              {isMobile ? (
+                /* Phone: one slim horizontal strip instead of four tall tiles */
+                <div style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  background: "rgba(255,255,255,0.025)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: 10, padding: "6px 10px",
+                }}>
+                  {stats.map((s) => (
+                    <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ fontSize: 10, lineHeight: 1 }}>{s.icon}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", whiteSpace: "nowrap" }}>{s.value}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  {stats.map((s) => (
+                    <div key={s.label} style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: "#e2e8f0" }}>{s.value}</div>
+                      <div style={{ fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 600 }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div style={{ maxWidth: 520, width: "100%" }}>
                 <DailyPrincipleBanner />
               </div>
