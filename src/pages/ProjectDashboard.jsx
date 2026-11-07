@@ -207,6 +207,14 @@ export default function ProjectDashboard() {
         </div>
       </div>
 
+      {/* Tools dropdown — opens downward, tap a tool to open it for this project */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5">
+        <ToolsDrawer
+          categories={toolCategories}
+          onOpen={(page) => navigate(createPageUrl(`${page}?id=${projectId}`))}
+        />
+      </div>
+
       {/* Summary groups — compact, iOS-style */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 space-y-5">
         <CompactStatGroup label="Project Initiation" items={initiationItems} />
@@ -216,13 +224,7 @@ export default function ProjectDashboard() {
         <CompactStatGroup label="Project Closure" items={closureItems} />
       </div>
 
-      {/* Tools — hidden behind an arrow, expand downward on tap */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-8">
-        <ToolsDrawer
-          categories={toolCategories}
-          onOpen={(page) => navigate(createPageUrl(`${page}?id=${projectId}`))}
-        />
-      </div>
+      <div className="pb-8" />
     </div>
   );
 }
