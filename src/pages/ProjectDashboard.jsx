@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createPageUrl } from '../utils';
 import { toolCategories } from '@/components/dashboard/toolCatalog';
-import ToolFolderGrid from '@/components/dashboard/ToolFolderGrid';
 import CompactStatGroup from '@/components/dashboard/CompactStatGroup';
+import ToolsDrawer from '@/components/dashboard/ToolsDrawer';
 
 export default function ProjectDashboard() {
   const navigate = useNavigate();
@@ -216,9 +216,9 @@ export default function ProjectDashboard() {
         <CompactStatGroup label="Project Closure" items={closureItems} />
       </div>
 
-      {/* Tool groups — iOS-style folders */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <ToolFolderGrid
+      {/* Tools — hidden behind an arrow, expand downward on tap */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-8">
+        <ToolsDrawer
           categories={toolCategories}
           onOpen={(page) => navigate(createPageUrl(`${page}?id=${projectId}`))}
         />
